@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { AnimatedText } from "@/components/motion/animated-text";
 import { useCases } from "@/lib/data";
 
 const icons: Record<string, LucideIcon> = {
@@ -39,9 +40,11 @@ export function UseCases() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="absolute inset-x-4 bottom-4 top-auto flex flex-col gap-5 rounded-lg bg-white/85 p-6 backdrop-blur-sm sm:inset-x-8 lg:inset-auto lg:right-[54px] lg:top-[100px] lg:w-[440px] lg:bg-white/80 lg:p-9"
           >
-            <h2 className="font-display text-[32px] font-semibold leading-tight text-ink lg:text-[48px]">
-              Perfect for Every Waiting Line
-            </h2>
+            <AnimatedText
+              as="h2"
+              text="Perfect for Every Waiting Line"
+              className="font-display text-[32px] font-semibold text-ink lg:text-[48px]"
+            />
             <p className="text-sm leading-6 text-gray-08">
               Whether you&apos;re serving customers, managing attendees, or
               organizing participants, NumberCaller keeps everyone informed.
@@ -69,11 +72,15 @@ export function UseCases() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.08 }}
-              className="flex flex-col gap-6 rounded-lg border border-primary-02 bg-primary-01 p-6"
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.1 }}
+              whileHover={{ y: -6 }}
+              className="group flex flex-col gap-6 rounded-lg border border-primary-02 bg-primary-01 p-6 transition-shadow hover:shadow-[var(--shadow-card)]"
             >
-              <span className="flex size-11 items-center justify-center rounded-lg bg-primary-02">
-                <Icon className="size-6 text-primary" strokeWidth={1.5} />
+              <span className="flex size-11 items-center justify-center rounded-lg bg-primary-02 transition-colors group-hover:bg-primary">
+                <Icon
+                  className="size-6 text-primary transition-colors group-hover:text-white"
+                  strokeWidth={1.5}
+                />
               </span>
               <div className="flex flex-col gap-2">
                 <h3 className="text-lg font-semibold text-ink">{useCase.title}</h3>

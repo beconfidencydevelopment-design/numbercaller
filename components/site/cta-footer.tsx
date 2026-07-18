@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Play } from "lucide-react";
 import { motion } from "framer-motion";
+import { AnimatedText } from "@/components/motion/animated-text";
 import { footerColumns } from "@/lib/data";
 
 export function CtaFooter() {
@@ -21,22 +22,24 @@ export function CtaFooter() {
       </div>
 
       <div className="relative flex flex-col items-center gap-8 px-4 pt-16 text-center lg:gap-10 lg:pt-24">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="flex flex-col items-center gap-5"
-        >
-          <h2 className="max-w-[820px] font-display text-[32px] font-semibold leading-tight text-ink sm:text-[44px] lg:text-[54px]">
-            Give Your Customers a Better Waiting Experience
-          </h2>
-          <p className="max-w-[642px] text-base leading-6 text-gray-08">
+        <div className="flex flex-col items-center gap-5">
+          <AnimatedText
+            as="h2"
+            text="Give Your Customers a Better Waiting Experience"
+            className="max-w-[820px] font-display text-[32px] font-semibold text-ink sm:text-[44px] lg:text-[54px]"
+          />
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            className="max-w-[642px] text-base leading-6 text-gray-08"
+          >
             Turn any TV, monitor, or projector into a live queue display with
             voice announcements. Ideal for restaurants, events, banks, clinics,
             and counters.
-          </p>
-        </motion.div>
+          </motion.p>
+        </div>
 
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <button

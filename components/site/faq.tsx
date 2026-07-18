@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus } from "lucide-react";
+import { AnimatedText } from "@/components/motion/animated-text";
 import { faqCategories, faqs } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
@@ -11,14 +12,22 @@ function FaqItem({
   answer,
   open,
   onToggle,
+  index,
 }: {
   question: string;
   answer: string;
   open: boolean;
   onToggle: () => void;
+  index: number;
 }) {
   return (
-    <div className="rounded-lg bg-surface">
+    <motion.div
+      className="rounded-lg bg-surface"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: index * 0.08 }}
+    >
       <button
         type="button"
         aria-expanded={open}
@@ -69,7 +78,7 @@ function FaqItem({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 
@@ -78,15 +87,11 @@ export function Faq() {
 
   return (
     <section className="bg-background px-4 py-14 sm:px-8 lg:px-[60px] lg:py-20">
-      <motion.h2
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="mx-auto mb-10 text-center font-display text-[32px] font-semibold leading-tight text-gray-09 sm:text-[44px] lg:mb-16 lg:text-[54px]"
-      >
-        Frequently Asked Questions
-      </motion.h2>
+      <AnimatedText
+        as="h2"
+        text="Frequently Asked Questions"
+        className="mx-auto mb-10 text-center font-display text-[32px] font-semibold text-gray-09 sm:text-[44px] lg:mb-16 lg:text-[54px]"
+      />
 
       <div className="mx-auto flex max-w-[1320px] flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
         <nav
@@ -113,6 +118,7 @@ export function Faq() {
           {faqs.map((faq, i) => (
             <FaqItem
               key={faq.question}
+              index={i}
               question={faq.question}
               answer={faq.answer}
               open={openIndex === i}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Quote } from "lucide-react";
 import { motion } from "framer-motion";
+import { AnimatedText } from "@/components/motion/animated-text";
 import { testimonials } from "@/lib/data";
 
 function TestimonialCard({
@@ -19,10 +20,11 @@ function TestimonialCard({
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
-      className="flex h-full flex-col gap-10 rounded-lg bg-white py-6 pl-6 pr-8 lg:h-[296px]"
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
+      whileHover={{ y: -6 }}
+      className="group flex h-full flex-col gap-10 rounded-lg bg-white py-6 pl-6 pr-8 transition-shadow hover:shadow-[var(--shadow-card)] lg:h-[296px]"
     >
-      <span className="flex w-fit items-center rounded-lg bg-gray-08 p-2.5">
+      <span className="flex w-fit items-center rounded-lg bg-gray-08 p-2.5 transition-colors group-hover:bg-primary">
         <Quote className="size-6 rotate-180 fill-white text-white" aria-hidden />
       </span>
       <div className="flex flex-1 flex-col justify-between gap-6">
@@ -40,15 +42,11 @@ function TestimonialCard({
 export function Testimonials() {
   return (
     <section className="bg-background px-4 py-14 sm:px-8 lg:px-[60px] lg:py-20">
-      <motion.h2
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="mx-auto mb-10 max-w-[950px] text-center font-display text-[32px] font-semibold leading-tight text-ink sm:text-[44px] lg:mb-16 lg:text-[54px]"
-      >
-        Loved by Businesses Worldwide
-      </motion.h2>
+      <AnimatedText
+        as="h2"
+        text="Loved by Businesses Worldwide"
+        className="mx-auto mb-10 max-w-[950px] text-center font-display text-[32px] font-semibold text-ink sm:text-[44px] lg:mb-16 lg:text-[54px]"
+      />
 
       <div className="mx-auto grid max-w-[1320px] grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-5">
