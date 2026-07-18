@@ -249,8 +249,12 @@ export function Hero() {
           </Reveal>
         </div>
 
-        {/* Mobile flow strip */}
-        <div className="relative mt-12 h-[90px] w-full lg:hidden" aria-hidden>
+        {/* Mobile / tablet flow strip — capped so it stays mobile-sized and
+            centered instead of scattering across wider (tablet) viewports */}
+        <div
+          className="relative mx-auto mt-12 h-[90px] w-full max-w-[430px] overflow-hidden lg:hidden"
+          aria-hidden
+        >
           <Image
             src="/images/flow-line.svg"
             alt=""
@@ -344,7 +348,7 @@ export function Hero() {
             </div>
           </Reveal>
 
-          <Reveal immediate delay={1.65} y={24} className="w-full lg:max-w-[263px]">
+          <Reveal immediate delay={1.65} y={24} className="w-full max-w-[430px] lg:max-w-[263px]">
             <motion.div
               animate={
                 announcing && !reduceMotion
