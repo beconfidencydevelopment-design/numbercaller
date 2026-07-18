@@ -16,7 +16,10 @@ function linkHref(link: string) {
 
 export function CtaFooter() {
   return (
-    <footer className="relative overflow-hidden">
+    <footer className="relative overflow-hidden bg-[#f7f7f8]">
+      {/* Background treatment lifted from the Figma footer export: the interior
+          photo fades INTO the section colour at the top (no seam with the FAQ
+          above) and fades back to solid toward the bottom for the watermark. */}
       <div className="absolute inset-0" aria-hidden>
         <Image
           src="/images/footer-1.png"
@@ -25,7 +28,22 @@ export function CtaFooter() {
           className="object-cover"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-white/80" />
+        {/* top fade → #F6F6F7 (matches the section above, kills the seam) */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, #F6F6F7 0%, rgba(247,247,248,0) 16.72%)",
+          }}
+        />
+        {/* bottom fade → solid #F7F7F8 */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(247,247,248,0) 0%, #F7F7F8 76.59%)",
+          }}
+        />
       </div>
 
       <div className="relative flex flex-col items-center gap-8 px-4 pt-16 text-center lg:gap-10 lg:pt-24">
