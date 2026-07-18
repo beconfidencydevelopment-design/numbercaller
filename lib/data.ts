@@ -183,7 +183,7 @@ export const faqs = [
 export const footerColumns = [
   {
     title: "Contact",
-    links: ["hello@numbercaller.com", "+1 (555) 123-4567"],
+    links: ["helloconfidency@gmail.com", "+880 1794 106516"],
   },
   {
     title: "Solutions",

@@ -1,7 +1,12 @@
 "use client";
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { createElement } from "react";
+import {
+  motion,
+  useInView,
+  useReducedMotion,
+  type Variants,
+} from "framer-motion";
+import { createElement, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type AnimatedTextProps = {
@@ -16,10 +21,14 @@ type AnimatedTextProps = {
 };
 
 /**
- * Auxia-style masked text reveal: each word sits in an overflow-clipped
- * wrapper and slides up from 110% with a stagger. Word-level (not line-level)
- * so it survives responsive re-wrapping. Animation props live on each word so
- * there's no reliance on a dynamically-created motion parent.
+ * Auxia-style masked text reveal: each word slides up from a clipped wrapper
+ * with a stagger. Word-level so it survives responsive re-wrapping.
+ *
+ * Robustness: the reveal is driven by a single `useInView` plus a controlled
+ * `animate` prop (not per-word `whileInView`), and a fallback timer force-shows
+ * the text. This guarantees the heading is never left invisible if the
+ * intersection observer or the rAF-driven animation fails to fire (e.g. the tab
+ * was backgrounded, or the element scrolled past very quickly).
  */
 export function AnimatedText({
   text,
@@ -29,15 +38,34 @@ export function AnimatedText({
   immediate = false,
 }: AnimatedTextProps) {
   const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const [fallback, setFallback] = useState(false);
+
+  // Safety net: reveal the text even if inView / the animation never fires.
+  useEffect(() => {
+    const t = setTimeout(() => setFallback(true), immediate ? 1500 : 4000);
+    return () => clearTimeout(t);
+  }, [immediate]);
+
   const words = text.split(" ");
 
   if (reduceMotion) {
-    return createElement(as, { className }, text);
+    return createElement(as, { className, ref }, text);
   }
+
+  const show = immediate || inView || fallback;
+  // If we're only showing because of the fallback, skip the stagger delay so it
+  // appears promptly instead of drifting in late.
+  const usesFallbackOnly = fallback && !inView && !immediate;
 
   return createElement(
     as,
-    { className: cn("!leading-[1.15]", className), "aria-label": text },
+    {
+      className: cn("!leading-[1.15]", className),
+      ref,
+      "aria-label": text,
+    },
     words.map((word, i) => {
       const variants: Variants = {
         hidden: { y: "110%" },
@@ -46,16 +74,10 @@ export function AnimatedText({
           transition: {
             duration: 0.7,
             ease: [0.16, 1, 0.3, 1],
-            delay: delay + i * 0.06,
+            delay: usesFallbackOnly ? 0 : delay + i * 0.06,
           },
         },
       };
-      const motionProps = immediate
-        ? { animate: "visible" as const }
-        : {
-            whileInView: "visible" as const,
-            viewport: { once: true, margin: "-80px" },
-          };
       return (
         <span
           key={`${word}-${i}`}
@@ -64,13 +86,13 @@ export function AnimatedText({
         >
           <motion.span
             className="inline-block will-change-transform"
-            initial="hidden"
             variants={variants}
-            {...motionProps}
+            initial="hidden"
+            animate={show ? "visible" : "hidden"}
           >
             {word}
           </motion.span>
-          {i < words.length - 1 ? " " : null}
+          {i < words.length - 1 ? " " : null}
         </span>
       );
     })

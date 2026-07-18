@@ -7,6 +7,13 @@ import { motion } from "framer-motion";
 import { AnimatedText } from "@/components/motion/animated-text";
 import { footerColumns } from "@/lib/data";
 
+/** Turn contact strings into mailto:/tel: links; everything else stays a stub. */
+function linkHref(link: string) {
+  if (link.includes("@")) return `mailto:${link}`;
+  if (/^[+\d][\d\s()-]{6,}$/.test(link)) return `tel:${link.replace(/\s/g, "")}`;
+  return "#";
+}
+
 export function CtaFooter() {
   return (
     <footer className="relative overflow-hidden">
@@ -80,7 +87,7 @@ export function CtaFooter() {
                 {column.links.map((link) => (
                   <li key={link}>
                     <Link
-                      href="#"
+                      href={linkHref(link)}
                       className="text-sm text-gray-07 transition-colors hover:text-primary"
                     >
                       {link}
@@ -94,12 +101,12 @@ export function CtaFooter() {
       </div>
 
       {/* Giant watermark — SVG scales to fill the width so the full word is
-          always visible (never clipped), matching the Figma footer */}
+          always visible; the bottom bleeds off the section edge like Figma */}
       <div
-        className="pointer-events-none relative mt-12 select-none px-4 pb-6 lg:mt-16 lg:px-[60px] lg:pb-8"
+        className="pointer-events-none relative mt-10 select-none overflow-hidden px-4 lg:mt-14 lg:px-[60px]"
         aria-hidden
       >
-        <svg viewBox="0 0 652 82" className="block w-full" role="presentation">
+        <svg viewBox="0 0 652 70" className="block w-full" role="presentation">
           <text
             x="326"
             y="78"
@@ -109,7 +116,7 @@ export function CtaFooter() {
             fontSize="100"
             fontWeight="600"
             fill="#06021d"
-            fillOpacity="0.05"
+            fillOpacity="0.06"
             style={{ fontFamily: "var(--font-josefin), sans-serif" }}
           >
             NumberCaller
