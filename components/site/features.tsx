@@ -90,6 +90,31 @@ function Connectors() {
   );
 }
 
+/* Mobile-only S-curve joining two alternating tables in the zigzag flow */
+function ConnectorCurve({ dir }: { dir: "lr" | "rl" }) {
+  const d = dir === "lr" ? "M22 0 C22 34 78 14 78 52" : "M78 0 C78 34 22 14 22 52";
+  return (
+    <motion.svg
+      viewBox="0 0 100 52"
+      preserveAspectRatio="none"
+      className="h-12 w-full shrink-0"
+      aria-hidden
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <path
+        d={d}
+        fill="none"
+        stroke="#5436fd"
+        strokeWidth="1.5"
+        vectorEffect="non-scaling-stroke"
+      />
+    </motion.svg>
+  );
+}
+
 function PopIn({
   children,
   delay,
@@ -155,24 +180,38 @@ export function Features() {
         </div>
       </div>
 
-      {/* Mobile composition: compact tables stacked over the flower backdrop,
-          matching the Figma mobile frame (tables sit on the flowers, not a
-          separate banner) */}
+      {/* Mobile composition: zigzag connected flow — tables alternate
+          left/right joined by curved connectors over the flower backdrop,
+          matching the Figma mobile frame */}
       <div className="relative mx-4 mt-10 overflow-hidden rounded-lg lg:hidden">
         <Image
           src="/images/features-flowers-1.png"
           alt=""
           fill
-          className="object-cover"
+          className="object-cover object-bottom"
           sizes="100vw"
         />
-        <div className="absolute inset-0 bg-white/45" />
-        <div className="relative flex flex-col items-center gap-6 px-4 py-8">
-          {Object.values(queueTables).map((table, i) => (
-            <PopIn key={table.title} delay={i * 0.1}>
-              <QueueTable data={table} />
-            </PopIn>
-          ))}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-white/60 to-white/30" />
+        <div className="relative flex flex-col px-4 py-8">
+          {[
+            queueTables.sequential,
+            queueTables.queueStatus,
+            queueTables.priority,
+            queueTables.custom,
+          ].map((table, i) => {
+            const leftAligned = i % 2 === 0;
+            return (
+              <div key={table.title} className="contents">
+                <PopIn
+                  delay={i * 0.12}
+                  className={leftAligned ? "self-start" : "self-end"}
+                >
+                  <QueueTable data={table} />
+                </PopIn>
+                {i < 3 && <ConnectorCurve dir={leftAligned ? "lr" : "rl"} />}
+              </div>
+            );
+          })}
         </div>
       </div>
 

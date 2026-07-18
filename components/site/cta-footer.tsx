@@ -93,14 +93,28 @@ export function CtaFooter() {
         </div>
       </div>
 
-      {/* Giant watermark */}
+      {/* Giant watermark — SVG scales to fill the width so the full word is
+          always visible (never clipped), matching the Figma footer */}
       <div
-        className="pointer-events-none relative mt-10 flex select-none justify-center overflow-hidden lg:mt-6"
+        className="pointer-events-none relative mt-12 select-none px-4 pb-6 lg:mt-16 lg:px-[60px] lg:pb-8"
         aria-hidden
       >
-        <p className="-mb-[0.32em] whitespace-nowrap font-display text-[22vw] font-semibold leading-none text-ink/[0.04] lg:text-[218px]">
-          NumberCaller
-        </p>
+        <svg viewBox="0 0 652 82" className="block w-full" role="presentation">
+          <text
+            x="326"
+            y="78"
+            textAnchor="middle"
+            textLength="652"
+            lengthAdjust="spacingAndGlyphs"
+            fontSize="100"
+            fontWeight="600"
+            fill="#06021d"
+            fillOpacity="0.05"
+            style={{ fontFamily: "var(--font-josefin), sans-serif" }}
+          >
+            NumberCaller
+          </text>
+        </svg>
       </div>
     </footer>
   );
