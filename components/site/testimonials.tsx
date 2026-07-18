@@ -48,17 +48,19 @@ export function Testimonials() {
         className="mx-auto mb-10 max-w-[950px] text-center font-display text-[32px] font-semibold text-ink sm:text-[44px] lg:mb-16 lg:text-[54px]"
       />
 
-      <div className="mx-auto grid max-w-[1320px] grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-[1320px] grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="flex flex-col gap-5">
           <TestimonialCard quote={testimonials[0].quote} author={testimonials[0].author} delay={0} />
           <TestimonialCard quote={testimonials[1].quote} author={testimonials[1].author} delay={0.1} />
         </div>
+        {/* Center photo: sits between the first pair and the second pair on
+            mobile (card, card, image, card, card), matching the Figma frame */}
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative order-first min-h-[320px] overflow-hidden rounded-lg md:order-none md:col-span-2 lg:col-span-1 lg:h-[612px]"
+          className="relative min-h-[420px] overflow-hidden rounded-lg lg:min-h-0 lg:h-[612px]"
         >
           <Image
             src="/images/testimonial-1.jpg"

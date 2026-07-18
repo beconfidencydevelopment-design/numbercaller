@@ -155,27 +155,22 @@ export function Features() {
         </div>
       </div>
 
-      {/* Mobile composition: stacked tables */}
-      <div className="mt-10 flex flex-col items-center gap-5 px-4 lg:hidden">
-        <motion.div
-          className="relative h-[220px] w-full overflow-hidden rounded-lg"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7, ease: EASE }}
-        >
-          <Image
-            src="/images/features-flowers-1.png"
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </motion.div>
-        <div className="grid w-full max-w-[480px] grid-cols-1 gap-5 sm:max-w-none sm:grid-cols-2">
+      {/* Mobile composition: compact tables stacked over the flower backdrop,
+          matching the Figma mobile frame (tables sit on the flowers, not a
+          separate banner) */}
+      <div className="relative mx-4 mt-10 overflow-hidden rounded-lg lg:hidden">
+        <Image
+          src="/images/features-flowers-1.png"
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-white/45" />
+        <div className="relative flex flex-col items-center gap-6 px-4 py-8">
           {Object.values(queueTables).map((table, i) => (
             <PopIn key={table.title} delay={i * 0.1}>
-              <QueueTable data={table} className="w-full" />
+              <QueueTable data={table} />
             </PopIn>
           ))}
         </div>
