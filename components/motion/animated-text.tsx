@@ -78,11 +78,15 @@ export function AnimatedText({
           },
         },
       };
+      const isLast = i === words.length - 1;
       return (
         <span
           key={`${word}-${i}`}
           aria-hidden
           className="inline-block overflow-clip pb-[0.12em] -mb-[0.12em] align-bottom"
+          // Word gap via margin (em-scaled to the font's space) so it can't be
+          // trimmed by the overflow-clip mask, while still allowing wrapping.
+          style={isLast ? undefined : { marginInlineEnd: "0.32em" }}
         >
           <motion.span
             className="inline-block will-change-transform"
@@ -92,7 +96,6 @@ export function AnimatedText({
           >
             {word}
           </motion.span>
-          {i < words.length - 1 ? " " : null}
         </span>
       );
     })
