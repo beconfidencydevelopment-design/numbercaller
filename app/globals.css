@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f6f7;
+  --foreground: #06021d;
+
+  /* NumberCaller design tokens (Figma) */
+  --ink: #06021d;
+  --primary: #5436fd;
+  --primary-01: #f6f5ff;
+  --primary-02: #eeebff;
+  --primary-03: #d4ccff;
+  --gray-01: #f7f7f8;
+  --gray-02: #e6e6e8;
+  --gray-03: #cdccd2;
+  --gray-06: #82808e;
+  --gray-07: #696777;
+  --gray-08: #38354a;
+  --gray-09: #1f1b34;
+  --dark: #141b34;
+  --surface: #fafafa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-ink: var(--ink);
+  --color-primary: var(--primary);
+  --color-primary-01: var(--primary-01);
+  --color-primary-02: var(--primary-02);
+  --color-primary-03: var(--primary-03);
+  --color-gray-01: var(--gray-01);
+  --color-gray-02: var(--gray-02);
+  --color-gray-03: var(--gray-03);
+  --color-gray-06: var(--gray-06);
+  --color-gray-07: var(--gray-07);
+  --color-gray-08: var(--gray-08);
+  --color-gray-09: var(--gray-09);
+  --color-dark: var(--dark);
+  --color-surface: var(--surface);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-josefin);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Layered card shadow from Figma "Drop Shadow" effect style */
+  --shadow-card: 0px 6px 13px 0px rgba(6, 2, 29, 0.1),
+    0px 24px 24px 0px rgba(6, 2, 29, 0.09), 0px 54px 33px 0px rgba(6, 2, 29, 0.05),
+    0px 97px 39px 0px rgba(6, 2, 29, 0.01), 0px 151px 42px 0px rgba(6, 2, 29, 0);
+  --shadow-btn-dark: 3px 1px 3.5px rgba(9, 8, 89, 0.14),
+    11px 6px 6.5px rgba(9, 8, 89, 0.12), 26px 13px 8.5px rgba(9, 8, 89, 0.07),
+    46px 23px 10px rgba(9, 8, 89, 0.02);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
