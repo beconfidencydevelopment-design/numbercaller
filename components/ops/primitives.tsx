@@ -1,5 +1,7 @@
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { portraitFor } from "@/lib/ops/people";
 import type { StatusTone } from "@/lib/ops/types";
 import { money } from "@/lib/ops/format";
 
@@ -81,20 +83,35 @@ export function Chip({ children, className }: { children: React.ReactNode; class
 
 export function Avatar({
   initials,
+  /** Person id — resolves to their portrait through the one lookup. */
+  id,
+  name,
   className,
   tone = "idle",
 }: {
   initials: string;
+  id?: string | null;
+  name?: string;
   className?: string;
   tone?: "idle" | "accent";
 }) {
+  const src = portraitFor(id);
+
+  if (src) {
+    return (
+      <span className={cn("relative inline-block size-6 shrink-0 overflow-hidden rounded-full bg-ops-active", className)}>
+        <Image src={src} alt={name ?? ""} fill sizes="48px" className="object-cover" />
+      </span>
+    );
+  }
+
+  /* No portrait on file. Initials are the fallback, never the default — a
+     person without a face reads as an unfinished screen. */
   return (
     <span
       className={cn(
-        "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-body font-medium tracking-wide",
-        tone === "accent"
-          ? "bg-ops-accent-weak text-ops-accent"
-          : "bg-ops-active text-ops-text-secondary",
+        "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-micro font-medium tracking-wide",
+        tone === "accent" ? "bg-ops-accent-weak text-ops-accent" : "bg-ops-active text-ops-text-secondary",
         className,
       )}
       aria-hidden

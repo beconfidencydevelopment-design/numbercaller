@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus } from "lucide-react";
+import {
+  IconPlus,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import {
@@ -122,7 +124,7 @@ export function ClientsView() {
         detail="Company profiles, exposure and payment history"
         actions={
           <Button variant="primary">
-            <Plus className="size-3.5" />
+            <IconPlus className="size-3.5" />
             Add company
           </Button>
         }
@@ -191,7 +193,7 @@ export function ClientsView() {
             </div>
             <div className="mt-2 flex items-center gap-1">
               {drivers.slice(0, 5).map((d) => (
-                <Avatar key={d.id} initials={initialsOf(d.name)} className="size-6 text-micro" />
+                <Avatar key={d.id} id={d.id} name={d.name} initials={initialsOf(d.name)} />
               ))}
               {drivers.length > 5 && (
                 <span className="text-body text-ops-text-tertiary">+{drivers.length - 5}</span>
@@ -229,7 +231,7 @@ export function ClientsView() {
           </dl>
           <div className="ml-auto">
             <Button variant="primary" size="sm">
-              <Plus className="size-3.5" />
+              <IconPlus className="size-3.5" />
               Record payment
             </Button>
           </div>
@@ -326,7 +328,7 @@ export function ClientsView() {
                       <tr key={d.id} className="h-10 hover:bg-ops-hover">
                         <td className="px-4">
                           <span className="flex items-center gap-2">
-                            <Avatar initials={initialsOf(d.name)} className="size-6 text-micro" />
+                            <Avatar id={d.id} name={d.name} initials={initialsOf(d.name)} />
                             <span className="font-medium text-ops-text">{d.name}</span>
                           </span>
                         </td>
@@ -360,7 +362,7 @@ export function ClientsView() {
               count={payments.length}
               action={
                 <Button variant="default" size="sm">
-                  <Plus className="size-3.5" />
+                  <IconPlus className="size-3.5" />
                   Record payment
                 </Button>
               }
@@ -376,7 +378,7 @@ export function ClientsView() {
               }
               action={
                 <Button variant="primary" size="sm">
-                  <Plus className="size-3.5" />
+                  <IconPlus className="size-3.5" />
                   Record payment
                 </Button>
               }

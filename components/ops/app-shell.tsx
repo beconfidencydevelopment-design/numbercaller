@@ -4,19 +4,19 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Bell,
-  Building2,
-  ChartPie,
-  ChevronLeft,
-  ChevronRight,
-  LayoutGrid,
-  LogOut,
-  Moon,
-  Receipt,
-  Search,
-  Sun,
-  Users,
-} from "lucide-react";
+  IconBell,
+  IconChevronLeft,
+  IconChevronRight,
+  IconClients,
+  IconDrivers,
+  IconExpenses,
+  IconFinancials,
+  IconHome,
+  IconLogOut,
+  IconMoon,
+  IconSearch,
+  IconSun,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { Avatar, Kbd } from "./primitives";
@@ -42,11 +42,11 @@ type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { href: "/ops", label: "Home", icon: LayoutGrid },
-  { href: "/ops/expenses", label: "Expenses", icon: Receipt, count: EXPENSES.length },
-  { href: "/ops/clients", label: "Clients", icon: Building2, count: COMPANIES.length },
-  { href: "/ops/drivers", label: "Drivers", icon: Users, count: DRIVERS_UNSETTLED },
-  { href: "/ops/financials", label: "Financials", icon: ChartPie, count: DRAFT_REVENUE.length },
+  { href: "/ops", label: "Home", icon: IconHome },
+  { href: "/ops/expenses", label: "Expenses", icon: IconExpenses, count: EXPENSES.length },
+  { href: "/ops/clients", label: "Clients", icon: IconClients, count: COMPANIES.length },
+  { href: "/ops/drivers", label: "Drivers", icon: IconDrivers, count: DRIVERS_UNSETTLED },
+  { href: "/ops/financials", label: "Financials", icon: IconFinancials, count: DRAFT_REVENUE.length },
 ];
 
 function NavLink({ item, compact }: { item: NavItem; compact?: boolean }) {
@@ -87,7 +87,7 @@ function PeriodSwitcher() {
         aria-label="Previous period"
         className="grid size-6 place-items-center rounded-md text-ops-text-tertiary hover:bg-ops-hover hover:text-ops-text"
       >
-        <ChevronLeft className="size-3.5" />
+        <IconChevronLeft className="size-3.5" />
       </button>
       <span className="ops-num flex items-center gap-2 whitespace-nowrap px-2 text-body font-medium text-ops-text">
         <span className="size-1.5 rounded-full bg-ops-warn-dot" aria-hidden />
@@ -100,7 +100,7 @@ function PeriodSwitcher() {
         disabled
         className="grid size-6 place-items-center rounded-md text-ops-text-tertiary disabled:opacity-35"
       >
-        <ChevronRight className="size-3.5" />
+        <IconChevronRight className="size-3.5" />
       </button>
     </div>
   );
@@ -139,13 +139,13 @@ export function AppShell({
               type="button"
               className="flex h-9 w-full items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-body text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text"
             >
-              <LogOut className="size-4 shrink-0 text-ops-text-tertiary" />
+              <IconLogOut className="size-4 shrink-0 text-ops-text-tertiary" />
               Log out
             </button>
           </div>
 
           <div className="flex items-center gap-3 border-t border-ops-line px-4 py-3">
-            <Avatar initials="SH" tone="accent" className="size-7 text-body" />
+            <Avatar id="syed" name="Syed Hyder" initials="SH" className="size-7" />
             <div className="min-w-0">
               <div className="truncate text-body font-medium leading-4 text-ops-text">Syed Hyder</div>
               <div className="ops-num truncate text-body leading-4 text-ops-text-tertiary">Owner</div>
@@ -167,7 +167,7 @@ export function AppShell({
               onClick={onOpenPalette}
               className="flex h-8 w-full max-w-[380px] items-center gap-2 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-sunken px-3 text-left text-ops-text-tertiary transition-colors hover:border-ops-line-strong hover:bg-ops-surface"
             >
-              <Search className="size-3.5 shrink-0" />
+              <IconSearch className="size-3.5 shrink-0" />
               <span className="truncate text-body">Search entries, drivers, companies</span>
               <span className="ml-auto hidden sm:block">
                 <Kbd>⌘K</Kbd>
@@ -182,14 +182,14 @@ export function AppShell({
                 aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
                 className="grid size-8 place-items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-ops-text-tertiary hover:bg-ops-hover hover:text-ops-text"
               >
-                {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+                {dark ? <IconSun className="size-4" /> : <IconMoon className="size-4" />}
               </button>
               <button
                 type="button"
                 aria-label="Notifications"
                 className="relative grid size-8 place-items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-ops-text-tertiary hover:bg-ops-hover hover:text-ops-text"
               >
-                <Bell className="size-4" />
+                <IconBell className="size-4" />
                 <span className="absolute right-2 top-2 size-1.5 rounded-full bg-ops-accent ring-2 ring-ops-surface" />
               </button>
             </div>

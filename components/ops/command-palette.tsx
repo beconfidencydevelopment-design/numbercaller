@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Building2, CornerDownLeft, Receipt, Search, Users } from "lucide-react";
+import {
+  IconClients,
+  IconDrivers,
+  IconEnter,
+  IconExpenses,
+  IconSearch,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import { Kbd } from "./primitives";
@@ -30,7 +36,7 @@ const INDEX: Row[] = [
     detail: c.lastPaymentAt ? `Last paid ${formatDate(c.lastPaymentAt)}` : "Never paid",
     href: `/ops/clients?company=${c.id}`,
     group: "Companies" as const,
-    icon: Building2,
+    icon: IconClients,
   })),
   ...DRIVERS.map((d) => ({
     id: `d-${d.id}`,
@@ -38,7 +44,7 @@ const INDEX: Row[] = [
     detail: `${companyName(d.companyId)} · ${money(outstandingFor(d))} outstanding`,
     href: "/ops/drivers",
     group: "Drivers" as const,
-    icon: Users,
+    icon: IconDrivers,
   })),
   ...EXPENSES.map((e) => ({
     id: `e-${e.id}`,
@@ -46,7 +52,7 @@ const INDEX: Row[] = [
     detail: `${companyName(e.companyId)} · ${formatDate(e.at)} · ${money(e.amount)}`,
     href: "/ops/expenses",
     group: "Entries" as const,
-    icon: Receipt,
+    icon: IconExpenses,
   })),
 ];
 
@@ -121,7 +127,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
         className="relative flex max-h-[64vh] w-full max-w-[560px] flex-col overflow-hidden rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface shadow-ops-pop"
       >
         <div className="flex h-12 shrink-0 items-center gap-2 border-b border-ops-line px-3">
-          <Search className="size-4 shrink-0 text-ops-text-tertiary" />
+          <IconSearch className="size-4 shrink-0 text-ops-text-tertiary" />
           <input
             autoFocus
             value={query}
@@ -158,7 +164,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
                     <span className="block truncate text-body font-medium text-ops-text">{row.label}</span>
                     <span className="block truncate text-body text-ops-text-tertiary">{row.detail}</span>
                   </span>
-                  {i === safeCursor && <CornerDownLeft className="size-3.5 shrink-0 text-ops-text-tertiary" />}
+                  {i === safeCursor && <IconEnter className="size-3.5 shrink-0 text-ops-text-tertiary" />}
                 </button>
               </React.Fragment>
             );

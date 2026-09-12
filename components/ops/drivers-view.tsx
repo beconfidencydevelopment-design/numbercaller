@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Check, LayoutGrid, List, Plus } from "lucide-react";
+import {
+  IconCards,
+  IconCheck,
+  IconList,
+  IconPlus,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import {
@@ -77,7 +82,7 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
       )}
     >
       <div className="flex items-center gap-2">
-        <Avatar initials={initialsOf(driver.name)} />
+        <Avatar id={driver.id} name={driver.name} initials={initialsOf(driver.name)} />
         <div className="min-w-0 flex-1">
           <div className="truncate text-body font-medium text-ops-text">{driver.name}</div>
           <div className="truncate text-body text-ops-text-tertiary">{companyName(driver.companyId)}</div>
@@ -149,12 +154,12 @@ export function DriversView() {
         actions={
           <>
             <Button variant="default">
-              <Plus className="size-3.5" />
+              <IconPlus className="size-3.5" />
               Add driver
             </Button>
             <Button variant="default">Settle one driver</Button>
             <Button variant="primary">
-              <Check className="size-3.5" />
+              <IconCheck className="size-3.5" />
               Settle all · {money(DRIVER_OUTSTANDING_TOTAL)}
             </Button>
           </>
@@ -221,8 +226,8 @@ export function DriversView() {
 
           <div role="radiogroup" aria-label="View" className="ml-auto flex h-8 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1">
             {([
-              ["cards", "Cards", LayoutGrid],
-              ["table", "Table", List],
+              ["cards", "Cards", IconCards],
+              ["table", "Table", IconList],
             ] as const).map(([id, label, Icon]) => (
               <button
                 key={id}
@@ -296,7 +301,7 @@ export function DriversView() {
                     <tr key={d.id} className="h-10 hover:bg-ops-hover">
                       <td className="px-4">
                         <span className="flex items-center gap-2">
-                          <Avatar initials={initialsOf(d.name)} className="size-6 text-micro" />
+                          <Avatar id={d.id} name={d.name} initials={initialsOf(d.name)} />
                           <span className="font-medium text-ops-text">{d.name}</span>
                         </span>
                       </td>

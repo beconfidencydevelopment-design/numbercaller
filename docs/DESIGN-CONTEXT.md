@@ -120,6 +120,21 @@ period strip → one wide card with two narrow beside it, all three built to the
 same height → the full-width Companies table → Monthly comparison with Recent
 activity beside it.
 
+**Icons come from one file.** `components/icons.tsx` re-exports HugeIcons
+(Stroke Rounded, 24 grid, 1.5 stroke, both packages MIT) under our own names —
+`IconHome`, `IconArrowRight` and so on. Nothing else imports the library, so
+swapping it again is a one-file change. Naming gotcha: a HugeIcons name ending
+`01` is a chevron and `02` is a shafted arrow — 02 for calls to action, 01 for
+steppers. The marketing site keeps lucide; the two products do not share an
+icon set.
+
+**Every person has a photograph.** `lib/ops/people.ts` is the single
+name-to-portrait lookup and every `<Avatar>` resolves through it; initials are
+a fallback for a missing portrait, never the default. Portraits are in
+`public/people/`, licence and provenance in `CREDITS.md` there. **`syed.jpg`
+and `kiani.jpg` stand in for two real people — the client's own partners — and
+must be swapped for their actual photographs before this ships.**
+
 **Type is one scale**, six steps declared as `--text-*` in `app/globals.css`
 and used as `text-body`, `text-display` and so on — each carrying its own
 line-height and tracking:

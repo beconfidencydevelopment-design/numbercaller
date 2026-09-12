@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Download, Plus, Search, X } from "lucide-react";
+import {
+  IconClose,
+  IconDownload,
+  IconPlus,
+  IconSearch,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import {
@@ -144,11 +149,11 @@ export function ExpensesView() {
         actions={
           <>
             <Button variant="default">
-              <Download className="size-3.5" />
+              <IconDownload className="size-3.5" />
               Export
             </Button>
             <Button variant="primary">
-              <Plus className="size-3.5" />
+              <IconPlus className="size-3.5" />
               Add expense
             </Button>
           </>
@@ -161,7 +166,7 @@ export function ExpensesView() {
         {/* ------------------------------------------------------------- */}
         <div className="flex flex-wrap items-center gap-2">
           <label className="relative flex h-8 min-w-[190px] flex-1 items-center sm:max-w-[260px]">
-            <Search className="pointer-events-none absolute left-3 size-3.5 text-ops-text-tertiary" />
+            <IconSearch className="pointer-events-none absolute left-3 size-3.5 text-ops-text-tertiary" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -227,7 +232,7 @@ export function ExpensesView() {
                 setQuery("");
               }}
             >
-              <X className="size-3.5" />
+              <IconClose className="size-3.5" />
               Clear
             </Button>
           )}
@@ -325,7 +330,7 @@ export function ExpensesView() {
                               <td className="pr-3">
                                 {driver ? (
                                   <span className="flex items-center gap-2">
-                                    <Avatar initials={initialsOf(driver.name)} className="size-6 text-micro" />
+                                    <Avatar id={driver.id} name={driver.name} initials={initialsOf(driver.name)} />
                                     <span className="text-body text-ops-text-secondary">{driver.name}</span>
                                   </span>
                                 ) : (

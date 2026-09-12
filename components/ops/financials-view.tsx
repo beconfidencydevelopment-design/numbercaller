@@ -3,7 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Check, Download, Lock, Plus } from "lucide-react";
+import {
+  IconArrowRight,
+  IconCheck,
+  IconDownload,
+  IconLock,
+  IconPlus,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import {
@@ -398,7 +404,7 @@ function Withdrawals() {
           return (
             <Card key={p.id} className="p-4">
               <div className="flex items-center gap-2">
-                <Avatar initials={initialsOf(p.name)} tone="accent" />
+                <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} />
                 <span className="text-body font-medium text-ops-text">{p.name}</span>
                 <span className="text-body text-ops-text-tertiary">{Math.round(p.share * 100)}% share</span>
               </div>
@@ -434,7 +440,7 @@ function Withdrawals() {
             title="Withdrawal history"
             action={
               <Button variant="default" size="sm">
-                <Plus className="size-3.5" />
+                <IconPlus className="size-3.5" />
                 Record withdrawal
               </Button>
             }
@@ -477,7 +483,7 @@ function ClosePeriod() {
                     : "border-ops-line-strong bg-ops-surface text-ops-text-tertiary",
                 )}
               >
-                {item.done ? <Check className="size-3" /> : i + 1}
+                {item.done ? <IconCheck className="size-3" /> : i + 1}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-body font-medium text-ops-text">{item.label}</span>
@@ -491,7 +497,7 @@ function ClosePeriod() {
                 className="inline-flex h-6 w-[70px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak text-micro font-medium text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
               >
                 {item.actionLabel}
-                <ArrowRight className="size-3" />
+                <IconArrowRight className="size-3" />
               </Link>
             </li>
           ))}
@@ -502,7 +508,7 @@ function ClosePeriod() {
             {remaining} items still open. Closing locks the period and rolls the balance into October.
           </p>
           <Button variant="primary" disabled>
-            <Lock className="size-3.5" />
+            <IconLock className="size-3.5" />
             Close {PERIOD.label}
           </Button>
         </div>
@@ -569,7 +575,7 @@ function History() {
               <tr key={p.key} className="h-11 hover:bg-ops-hover">
                 <td className="px-4">
                   <span className="flex items-center gap-2">
-                    <Lock className="size-3 text-ops-text-tertiary" />
+                    <IconLock className="size-3 text-ops-text-tertiary" />
                     <span className="font-medium text-ops-text">{p.label}</span>
                     <StatusPill tone="idle" dot={false}>
                       Locked
@@ -647,7 +653,7 @@ export function FinancialsView() {
         detail="Revenue, profit distribution and period close"
         actions={
           <Button variant="default">
-            <Download className="size-3.5" />
+            <IconDownload className="size-3.5" />
             Export report
           </Button>
         }

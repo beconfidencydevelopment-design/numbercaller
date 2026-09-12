@@ -2,7 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Download, Plus, X } from "lucide-react";
+import {
+  IconArrowRight,
+  IconClose,
+  IconDownload,
+  IconPlus,
+} from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 import {
@@ -31,6 +36,7 @@ import {
   CLOSED_PERIODS,
   COMPANIES,
   COMPANIES_WITH_ACTIVITY,
+  CUMULATIVE_DISTRIBUTED,
   DAILY_AVERAGE,
   DAY_OF_PERIOD,
   DRAFT_REVENUE_TOTAL,
@@ -121,7 +127,7 @@ function HeadAction({ href, children }: { href: string; children: React.ReactNod
       className="inline-flex h-8 shrink-0 items-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 text-body font-medium text-ops-text hover:border-ops-accent hover:text-ops-accent"
     >
       {children}
-      <ArrowRight className="size-3" />
+      <IconArrowRight className="size-3" />
     </Link>
   );
 }
@@ -195,7 +201,7 @@ function PendingActions() {
               className="inline-flex h-8 w-[84px] shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-micro font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
             >
               {a.action}
-              <ArrowRight className="size-3" />
+              <IconArrowRight className="size-3" />
             </Link>
           </li>
         ))}
@@ -225,29 +231,39 @@ function PartnerSplit() {
     <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Partner split"
-        subtitle={`${money(CASH_NET)} distributed on a cash basis, ${Math.round(PARTNERS[0].share * 100)} / ${Math.round(PARTNERS[1].share * 100)}.`}
+        subtitle={`${money(CASH_NET)} distributed this period, ${Math.round(PARTNERS[0].share * 100)} / ${Math.round(PARTNERS[1].share * 100)} on a cash basis.`}
         action={<HeadAction href="/ops/financials?tab=withdrawals">Withdrawals</HeadAction>}
       />
 
-      <div className="flex flex-1 flex-col justify-center gap-5 px-5 py-5">
+      <div className="flex flex-1 flex-col gap-5 px-5 py-5">
         {anyValue ? (
           <CompositionBar segments={segments} />
         ) : (
           <div className="h-2 w-full rounded-full bg-ops-active" aria-hidden />
         )}
 
-        <ul className="flex flex-col gap-4">
+        {/* The list takes the card's spare height rather than leaving it above
+            the rows: two partners beside a seven-row card will always have
+            slack, so it is spread between them instead of pooled. */}
+        <ul className="flex flex-1 flex-col justify-around gap-5">
           {PARTNERS.map((p, i) => (
             <li key={p.id} className="flex items-center gap-3">
               <span className="size-2 shrink-0 rounded-full" style={{ background: `var(--ops-cat-${i + 1})` }} aria-hidden />
-              <Avatar initials={initialsOf(p.name)} />
+              <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} className="size-12" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-body text-ops-text">{p.name}</span>
                 <span className="ops-num block text-body text-ops-text-tertiary">
                   {Math.round(p.share * 100)}% share
                 </span>
               </span>
-              <Money value={shareOf(p, CASH_NET)} className="text-figure font-medium" />
+              <span className="shrink-0 text-right">
+                <Money value={shareOf(p, CASH_NET)} className="block text-figure font-medium" />
+                {/* Where each partner stands across every period, which is the
+                    number that decides whether a withdrawal is even possible. */}
+                <span className="ops-num block text-body text-ops-text-tertiary">
+                  {money(shareOf(p, CUMULATIVE_DISTRIBUTED))} to date
+                </span>
+              </span>
             </li>
           ))}
         </ul>
@@ -544,7 +560,6 @@ const COMPANY_COLOR: Record<string, string> = {
 };
 
 function LoggedThisPeriod() {
-  const drivers = new Set(EXPENSES.map((e) => e.driverId).filter(Boolean)).size;
   const byCompany = expensesByCompany();
   const own = expensesFor(GLOBAL_COMPANY.id).reduce((n, e) => n + e.amount, 0);
   const segments = [
@@ -556,42 +571,88 @@ function LoggedThisPeriod() {
     })),
     { id: GLOBAL_COMPANY.id, label: "Own costs", value: own, color: "var(--ops-idle-dot)" },
   ];
+  const max = Math.max(...segments.map((x) => x.value), 1);
+
+  /* Who did the logging. The client's own activity feed credits every entry
+     to a person, so the card can say who has been in the book this period —
+     with their face, not their initials. */
+  const loggers = DRIVERS.filter((d) => d.lastEntryAt !== null).slice(0, 6);
+  const loggerCount = DRIVERS.filter((d) => d.lastEntryAt !== null).length;
 
   return (
     <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Logged this period"
         subtitle={`${EXPENSES.length} entries through ${formatDate(NOW)}, by who the cost was for.`}
-        action={
-          <HeadAction href="/ops/expenses">Ledger</HeadAction>
-        }
+        action={<HeadAction href="/ops/expenses">Ledger</HeadAction>}
       />
+
       <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 px-5 sm:grid-cols-4">
         {[
           { label: "Entries", value: String(EXPENSES.length) },
           { label: "Value", value: money(EXPENSE_TOTAL) },
-          { label: "Drivers", value: String(drivers) },
+          { label: "Drivers", value: String(loggerCount) },
           { label: "Companies", value: `${COMPANIES_WITH_ACTIVITY} of ${COMPANIES.length}` },
-        ].map((s) => (
-          <div key={s.label}>
-            <dt className="truncate text-body text-ops-text-secondary">{s.label}</dt>
-            <dd className="ops-num mt-1 text-figure font-medium text-ops-text">{s.value}</dd>
+        ].map((x) => (
+          <div key={x.label}>
+            <dt className="truncate text-body text-ops-text-secondary">{x.label}</dt>
+            <dd className="ops-num mt-1 text-figure font-medium text-ops-text">{x.value}</dd>
           </div>
         ))}
       </dl>
+
       <DashedRule className="mx-5 mt-5" />
+
       <div className="px-5 pt-5">
         <CompositionBar segments={segments} />
       </div>
-      <ul className="grid flex-1 grid-cols-2 gap-x-5 px-5 pb-5 pt-3 text-body">
-        {segments.map((s) => (
-          <li key={s.id} className="flex h-8 items-center gap-2">
-            <span className="size-2 shrink-0 rounded-full" style={{ background: s.color, opacity: s.value > 0 ? 1 : 0.35 }} aria-hidden />
-            <span className={cn("flex-1 truncate", s.value > 0 ? "text-ops-text-secondary" : "text-ops-text-tertiary")}>{s.label}</span>
-            <span className={cn("ops-num", s.value > 0 ? "font-medium text-ops-text" : "text-ops-text-tertiary")}>{money(s.value)}</span>
+
+      {/* Each payer with its share bar, so the legend also ranks them rather
+          than only naming the colours. */}
+      <ul className="flex flex-1 flex-col justify-center gap-4 px-5 py-5">
+        {segments.map((x) => (
+          <li key={x.id} className="flex items-center gap-3">
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ background: x.color, opacity: x.value > 0 ? 1 : 0.35 }}
+              aria-hidden
+            />
+            <span className={cn("w-20 shrink-0 truncate text-body", x.value > 0 ? "text-ops-text" : "text-ops-text-tertiary")}>
+              {x.label}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block h-2 w-full overflow-hidden rounded-full bg-ops-active">
+                <span
+                  className="block h-full rounded-full"
+                  style={{ width: `${(x.value / max) * 100}%`, background: x.color }}
+                />
+              </span>
+            </span>
+            <Money
+              value={x.value}
+              tone={false}
+              className={cn("w-20 shrink-0 text-right text-body", x.value > 0 ? "font-medium text-ops-text" : "text-ops-text-tertiary")}
+            />
           </li>
         ))}
       </ul>
+
+      <div className="flex items-center gap-3 border-t border-dashed border-ops-line px-5 py-4">
+        <span className="flex -space-x-2">
+          {loggers.map((d) => (
+            <Avatar
+              key={d.id}
+              id={d.id}
+              name={d.name}
+              initials={initialsOf(d.name)}
+              className="size-7 ring-2 ring-ops-surface"
+            />
+          ))}
+        </span>
+        <span className="text-body text-ops-text-secondary">
+          {loggerCount} drivers logged entries this period
+        </span>
+      </div>
     </Card>
   );
 }
@@ -635,11 +696,11 @@ export function HomeView() {
         actions={
           <>
             <Button variant="default">
-              <Download className="size-4" />
+              <IconDownload className="size-4" />
               Export
             </Button>
             <Button variant="primary">
-              <Plus className="size-4" />
+              <IconPlus className="size-4" />
               Log expense
             </Button>
           </>
@@ -658,7 +719,7 @@ export function HomeView() {
               View
             </Link>
             <button type="button" onClick={() => setBanner(false)} aria-label="Dismiss" className="grid size-5 shrink-0 place-items-center rounded text-ops-move-fg/70 hover:bg-ops-move-line hover:text-ops-move-fg">
-              <X className="size-4" />
+              <IconClose className="size-4" />
             </button>
           </div>
         )}
