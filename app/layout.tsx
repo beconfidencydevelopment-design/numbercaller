@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Josefin_Sans } from "next/font/google";
 import "./globals.css";
-import { CalendlyButton } from "@/components/site/calendly-button";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,10 +25,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${josefin.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${josefin.variable} h-full antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Applies the saved theme before first paint. Without this the
+            console renders light and then snaps to dark on hydration. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('snk-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         {children}
-        <CalendlyButton />
       </body>
     </html>
   );

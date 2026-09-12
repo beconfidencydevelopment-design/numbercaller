@@ -55,3 +55,237 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* ==========================================================================
+   SNK Operations Console — design system
+   A separate token layer from the marketing site. Near-monochrome base so
+   that colour carries only one meaning in this product: shipment status.
+   ========================================================================== */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Surfaces — cool neutral ramp, low chroma so status colour stays loud */
+  --ops-canvas: #f3f4f6;
+  --ops-surface: #ffffff;
+  --ops-sunken: #fafbfc;
+  --ops-raised: #ffffff;
+  --ops-hover: #f5f6f8;
+  --ops-active: #eceef2;
+
+  /* Hairlines — dividers do the work that cards do elsewhere */
+  --ops-line: #e5e7eb;
+  --ops-line-strong: #d2d6dd;
+
+  /* Text */
+  --ops-text: #101319;
+  --ops-text-secondary: #565d6b;
+  --ops-text-tertiary: #878d99;
+  --ops-text-inverse: #ffffff;
+
+  /* The single accent. Selection, focus, primary action. Nothing else. */
+  --ops-accent: #2f56e6;
+  --ops-accent-hover: #2848c9;
+  --ops-accent-weak: #eef2fe;
+  --ops-accent-line: #c5d2fb;
+
+  /* Status semantics — the only saturated colour in the product */
+  --ops-ok-fg: #0d6b45;
+  --ops-ok-bg: #e6f5ed;
+  --ops-ok-line: #b3e0c8;
+  --ops-ok-dot: #15935e;
+
+  --ops-move-fg: #1a52c4;
+  --ops-move-bg: #e9f0fd;
+  --ops-move-line: #c2d6f7;
+  --ops-move-dot: #2f6fe0;
+
+  --ops-warn-fg: #82550a;
+  --ops-warn-bg: #fdf2e0;
+  --ops-warn-line: #f0d7a8;
+  --ops-warn-dot: #cf8a12;
+
+  --ops-risk-fg: #a92a1f;
+  --ops-risk-bg: #fdeceb;
+  --ops-risk-line: #f5c6c2;
+  --ops-risk-dot: #d1362a;
+
+  --ops-idle-fg: #565d6b;
+  --ops-idle-bg: #f0f1f4;
+  --ops-idle-line: #dcdfe5;
+  --ops-idle-dot: #8b919d;
+
+  --ops-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Elevation. Restrained: ops surfaces sit flat, only overlays lift. */
+  --ops-shadow-pop: 0 1px 2px rgba(16, 19, 25, 0.06),
+    0 8px 24px -6px rgba(16, 19, 25, 0.12);
+  --ops-shadow-drawer: -12px 0 40px -12px rgba(16, 19, 25, 0.18);
+}
+
+.dark {
+  --ops-canvas: #0c0e12;
+  --ops-surface: #14171d;
+  --ops-sunken: #101319;
+  --ops-raised: #191d24;
+  --ops-hover: #1b1f27;
+  --ops-active: #222731;
+
+  --ops-line: #242932;
+  --ops-line-strong: #333945;
+
+  --ops-text: #eef0f4;
+  --ops-text-secondary: #a2a9b8;
+  --ops-text-tertiary: #6f7686;
+  --ops-text-inverse: #0c0e12;
+
+  --ops-accent: #5b7cff;
+  --ops-accent-hover: #7590ff;
+  --ops-accent-weak: #182034;
+  --ops-accent-line: #2c3a5e;
+
+  --ops-ok-fg: #4dd39a;
+  --ops-ok-bg: #10241c;
+  --ops-ok-line: #1e4536;
+  --ops-ok-dot: #34c98a;
+
+  --ops-move-fg: #7ba6ff;
+  --ops-move-bg: #121d33;
+  --ops-move-line: #23375f;
+  --ops-move-dot: #5b8ff5;
+
+  --ops-warn-fg: #e8b45c;
+  --ops-warn-bg: #241c0e;
+  --ops-warn-line: #46351a;
+  --ops-warn-dot: #d99c2b;
+
+  --ops-risk-fg: #ff8b80;
+  --ops-risk-bg: #2a1412;
+  --ops-risk-line: #55231f;
+  --ops-risk-dot: #e75647;
+
+  --ops-idle-fg: #a2a9b8;
+  --ops-idle-bg: #1b1f27;
+  --ops-idle-line: #2c313b;
+  --ops-idle-dot: #6f7686;
+
+  --ops-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 8px 24px -6px rgba(0, 0, 0, 0.55);
+  --ops-shadow-drawer: -12px 0 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-ops-canvas: var(--ops-canvas);
+  --color-ops-surface: var(--ops-surface);
+  --color-ops-sunken: var(--ops-sunken);
+  --color-ops-raised: var(--ops-raised);
+  --color-ops-hover: var(--ops-hover);
+  --color-ops-active: var(--ops-active);
+  --color-ops-line: var(--ops-line);
+  --color-ops-line-strong: var(--ops-line-strong);
+  --color-ops-text: var(--ops-text);
+  --color-ops-text-secondary: var(--ops-text-secondary);
+  --color-ops-text-tertiary: var(--ops-text-tertiary);
+  --color-ops-text-inverse: var(--ops-text-inverse);
+  --color-ops-accent: var(--ops-accent);
+  --color-ops-accent-hover: var(--ops-accent-hover);
+  --color-ops-accent-weak: var(--ops-accent-weak);
+  --color-ops-accent-line: var(--ops-accent-line);
+
+  --color-ops-ok-fg: var(--ops-ok-fg);
+  --color-ops-ok-bg: var(--ops-ok-bg);
+  --color-ops-ok-line: var(--ops-ok-line);
+  --color-ops-ok-dot: var(--ops-ok-dot);
+  --color-ops-move-fg: var(--ops-move-fg);
+  --color-ops-move-bg: var(--ops-move-bg);
+  --color-ops-move-line: var(--ops-move-line);
+  --color-ops-move-dot: var(--ops-move-dot);
+  --color-ops-warn-fg: var(--ops-warn-fg);
+  --color-ops-warn-bg: var(--ops-warn-bg);
+  --color-ops-warn-line: var(--ops-warn-line);
+  --color-ops-warn-dot: var(--ops-warn-dot);
+  --color-ops-risk-fg: var(--ops-risk-fg);
+  --color-ops-risk-bg: var(--ops-risk-bg);
+  --color-ops-risk-line: var(--ops-risk-line);
+  --color-ops-risk-dot: var(--ops-risk-dot);
+  --color-ops-idle-fg: var(--ops-idle-fg);
+  --color-ops-idle-bg: var(--ops-idle-bg);
+  --color-ops-idle-line: var(--ops-idle-line);
+  --color-ops-idle-dot: var(--ops-idle-dot);
+
+  --font-mono: var(--ops-mono);
+  --shadow-ops-pop: var(--ops-shadow-pop);
+  --shadow-ops-drawer: var(--ops-shadow-drawer);
+}
+
+/* The console runs at 13px. Density is a feature: a dispatcher needs 30 rows
+   on screen, not 8. Numbers are tabular everywhere so columns stay aligned. */
+.ops-root {
+  background: var(--ops-canvas);
+  color: var(--ops-text);
+  font-size: 13px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ops-root ::selection {
+  background: var(--ops-accent-weak);
+  color: var(--ops-text);
+}
+
+/* One focus treatment for the whole console, keyboard-only. */
+.ops-root :focus-visible {
+  outline: 2px solid var(--ops-accent);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.ops-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.ops-mono {
+  font-family: var(--ops-mono);
+  font-size: 12px;
+  letter-spacing: -0.01em;
+}
+
+/* Micro label: section headers, column groups. */
+.ops-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ops-text-tertiary);
+}
+
+/* Scrollbars that don't shout in a dense table. */
+.ops-root *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.ops-root *::-webkit-scrollbar-thumb {
+  background: var(--ops-line-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 8px;
+}
+.ops-root *::-webkit-scrollbar-thumb:hover {
+  background: var(--ops-text-tertiary);
+  background-clip: content-box;
+}
+.ops-root *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ops-root *,
+  .ops-root *::before,
+  .ops-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
