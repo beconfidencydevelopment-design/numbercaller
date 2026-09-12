@@ -19,6 +19,7 @@ import {
   StatusPill,
 } from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
+import { useOpsModal } from "./ops-modals";
 import {
   CATEGORY_LABEL,
   COMPANIES,
@@ -164,6 +165,7 @@ export function ClientsView() {
   const change = delta(e.sep, e.aug);
   const maxRow = Math.max(...history.rows.map((r) => r.jul + r.aug + r.sep), 1);
 
+  const openModal = useOpsModal();
   const select = (id: string) => router.push(`/ops/clients?company=${id}`, { scroll: false });
 
   /**
@@ -337,7 +339,11 @@ export function ClientsView() {
               ))}
             </dl>
 
-            <Button variant="primary" size="sm">
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => openModal({ kind: "record-payment", companyId: active.id })}
+            >
               <IconPlus className="size-3.5" />
               Record payment
             </Button>

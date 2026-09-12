@@ -21,6 +21,7 @@ import {
   StatusPill,
 } from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
+import { useOpsModal } from "./ops-modals";
 import {
   COMPANIES,
   DRIVERS,
@@ -72,6 +73,7 @@ function sortDrivers(rows: Driver[], sort: Sort): Driver[] {
  * differ by hundreds of dollars.
  */
 function DriverCard({ driver, max }: { driver: Driver; max: number }) {
+  const openModal = useOpsModal();
   const outstanding = outstandingFor(driver);
   const settled = isSettled(driver);
 
@@ -134,7 +136,12 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
           row. `mt-auto` keeps the buttons on one line across the row. */}
       {!settled && (
         <div className="mt-auto pt-3">
-          <Button variant="default" size="sm" className="w-full">
+          <Button
+            variant="default"
+            size="sm"
+            className="w-full"
+            onClick={() => openModal({ kind: "settle-driver", driverId: driver.id })}
+          >
             <IconCheck className="size-3.5" />
             Settle {money(outstanding)}
           </Button>
@@ -145,6 +152,7 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
 }
 
 export function DriversView() {
+  const openModal = useOpsModal();
   const [sort, setSort] = React.useState<Sort>("amount_desc");
   const [view, setView] = React.useState<View>("cards");
 
@@ -173,7 +181,7 @@ export function DriversView() {
               <IconPlus className="size-3.5" />
               Add driver
             </Button>
-            <Button variant="primary">
+            <Button variant="primary" onClick={() => openModal({ kind: "settle-driver", all: true })}>
               <IconCheck className="size-3.5" />
               Settle all · {money(DRIVER_OUTSTANDING_TOTAL)}
             </Button>
@@ -394,7 +402,11 @@ export function DriversView() {
                              column would make the ledger itself unreadable,
                              and settling is the routine job here, not the
                              exception. */
-                          <Button variant="quiet" size="sm">
+                          <Button
+                            variant="quiet"
+                            size="sm"
+                            onClick={() => openModal({ kind: "settle-driver", driverId: d.id })}
+                          >
                             <IconCheck className="size-3.5" />
                             Settle
                           </Button>

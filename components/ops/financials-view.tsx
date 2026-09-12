@@ -28,6 +28,7 @@ import {
   StatusPill,
 } from "./primitives";
 import { PageBody, PageHeader, Tabs } from "./page-header";
+import { useOpsModal } from "./ops-modals";
 import {
   CARRIED_FORWARD,
   CASH_NET,
@@ -48,7 +49,6 @@ import {
   PERIOD,
   RECURRING,
   REVENUE_TOTAL,
-  CATEGORY_LABEL,
   companyName,
   expensesFor,
   shareOf,
@@ -452,6 +452,7 @@ function Revenue() {
 /* -------------------------------------------------------------------------- */
 
 function Withdrawals() {
+  const openModal = useOpsModal();
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-3 md:grid-cols-2">
@@ -504,7 +505,7 @@ function Withdrawals() {
           what a negative balance means appeared twice on one screen. */}
       {PARTNERS.some((p) => shareOf(p, CUMULATIVE_DISTRIBUTED) - p.withdrawn < 0) && (
         <p className="px-1 text-body text-ops-text-tertiary">
-          A negative balance is a partner's share of accumulated losses, not money the business owes
+          A negative balance is a partner&apos;s share of accumulated losses, not money the business owes
           them.
         </p>
       )}
@@ -514,7 +515,7 @@ function Withdrawals() {
           <Title
             title="Withdrawal history"
             action={
-              <Button variant="default" size="sm">
+              <Button variant="default" size="sm" onClick={() => openModal({ kind: "record-withdrawal" })}>
                 <IconPlus className="size-3.5" />
                 Record withdrawal
               </Button>

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AppShell } from "./app-shell";
 import { CommandPalette } from "./command-palette";
+import { OpsModals } from "./ops-modals";
 
 /** Owns the one piece of state shared across the whole console. */
 export function OpsChrome({ children }: { children: React.ReactNode }) {
@@ -20,9 +21,9 @@ export function OpsChrome({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <>
+    <OpsModals>
       <AppShell onOpenPalette={() => setPaletteOpen(true)}>{children}</AppShell>
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
-    </>
+    </OpsModals>
   );
 }

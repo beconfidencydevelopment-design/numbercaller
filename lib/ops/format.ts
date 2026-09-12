@@ -106,3 +106,29 @@ export const initialsOf = (name: string) =>
  * characters keep six companies distinguishable at 36px.
  */
 export const monogramOf = (name: string) => name.slice(0, 2).toUpperCase();
+
+/**
+ * `yyyy-mm-dd`, for a native date input.
+ *
+ * Built from parts in the business's own time zone rather than
+ * `toISOString().slice(0, 10)`, which formats in UTC: at 18:35 Toronto time
+ * on Sep 4 that returns Sep 4, but two hours later it returns Sep 5 and the
+ * form would open pre-filled with tomorrow.
+ */
+const dateParts = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: TZ,
+});
+
+export function toDateInput(ts: number): string {
+  const p = Object.fromEntries(dateParts.formatToParts(ts).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
+/** Back the other way, at noon local, so a date never lands on the day before. */
+export function fromDateInput(value: string): number {
+  const [y, m, d] = value.split("-").map(Number);
+  return Date.UTC(y, (m ?? 1) - 1, d ?? 1, 12, 0, 0);
+}

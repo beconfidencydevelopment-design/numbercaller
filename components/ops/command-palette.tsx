@@ -113,12 +113,12 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
   }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16">
+    <div className="ops-overlay fixed inset-0 z-50 flex items-start justify-center p-4 pt-16">
       <button
         type="button"
         aria-label="Close search"
         onClick={onClose}
-        className="absolute inset-0 bg-black/25 backdrop-blur-[1px]"
+        className="absolute inset-0 bg-ops-scrim"
       />
       <div
         role="dialog"

@@ -233,9 +233,10 @@ confirmation.**
    They render as "Aug 2026".
 10. **The "Settle all · $12,850" button** opened a single-driver picker — the
     label promised a bulk action and delivered a single one. The two actions
-    are now separate buttons, "Settle one driver" and "Settle all · $12,850".
-    Neither opens a modal yet: the modals are open thread 2 below, and the
-    bulk one must actually settle all seventeen when it is built.
+    are now one dialog with a scope control, "One driver" or "All 17
+    unsettled", so the payroll arithmetic lives in one place. The per-driver
+    action moved onto the driver card and the payroll row it settles, which is
+    what removed the header's single-driver picker entirely.
 
 11. **Home's cash-position caption** read "Last: $45,156 from Intelcom · Sep 1"
     above a revenue figure of $0 — it cites a payment that is still sitting in
@@ -391,10 +392,22 @@ for external state (`lib/ops/client-state.ts`) and precompute derived lists.
 
 ```
 node scripts/verify-contrast.mjs   # 190 colour pairs, both themes, + CVD + literals
-node scripts/verify-ledger.mjs     # 33 reconciliation checks on the books
-node scripts/verify-spacing.mjs    # every padding/margin/gap on the 4-80 scale
+node scripts/verify-ledger.mjs     # 36 reconciliation checks on the books
+node scripts/verify-spacing.mjs    # every padding/margin/gap on the 4-80 scale, + card direction
 node scripts/verify-type.mjs       # every size on the scale; no semibold
 ```
+
+The fifth gate drives a browser, so it needs the dev server running and a copy
+of puppeteer-core. Without one it skips rather than fails.
+
+```
+PUPPETEER_CORE=/path/to/puppeteer-core node scripts/verify-dialogs.mjs
+```
+
+It checks the things a screenshot cannot show and the compiler cannot see: the
+focus trap, the body scroll lock, focus returning to the control that opened
+the dialog, and every invalid field stating its reason in words rather than
+only turning red.
 
 There is no eyeballing of contrast on this project. `verify-contrast` reads the
 tokens out of `globals.css` so it cannot drift from what ships, and it scans
@@ -411,11 +424,21 @@ bad debt. Data that is technically correct but implausible is still a bug.
 
 1. **The two decisions above** — the duplicate headline card, and August's
    distributed figure.
-2. **Modals.** Log expense, Record payment, Settle driver and Record withdrawal
-   exist in the live build and are not yet built here. Their fields are
-   captured in the round notes.
-3. **Not yet built:** real data layer, auth, export, the mobile breakpoint
+2. **What the modals do on submit.** All four are built, validated and
+   keyboard-complete (`components/ops/modal.tsx` for the shell,
+   `ops-modals.tsx` for the forms). They hand a typed payload to a submit
+   handler and then confirm, in the ledger's own figures, exactly where the
+   entry would land — `$12,427 → $12,667`, `Prabh $2,900 → $3,140`. They do
+   not write to the demo ledger, because half the value of this console is
+   that one figure reconciles across five screens and a live mutation would
+   quietly break that. Wiring them to a real store is one function per form;
+   the reconciliation gate has to be re-thought first.
+3. **Other buttons that do not open anything yet:** Finalize and Edit on
+   draft revenue, Pause and Edit on auto-recurring entries, Details and Reopen
+   on closed periods, Pay on the unpaid bill, Export, Add driver, Add company.
+   None were in the four; say whether any of them matter for the next round.
+4. **Not yet built:** real data layer, auth, export, the mobile breakpoint
    below 900px (the frame goes full-bleed but the tables have not been designed
    for a phone — do not simply let them scroll).
-4. **Dark theme** ships behind the toggle in the top bar. It is presentational
+5. **Dark theme** ships behind the toggle in the top bar. It is presentational
    only and the live build has no equivalent; confirm the client wants it kept.

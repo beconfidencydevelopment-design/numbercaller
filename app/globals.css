@@ -170,6 +170,13 @@ body {
   --space-16: 64px; /* major page sections */
   --space-20: 80px; /* large visual separation */
 
+  /* The scrim behind a dialog.
+     A token rather than `bg-black/25` at the call site, because the value the
+     light theme needs to dim a near-white page and the value the dark theme
+     needs to dim a near-black one are not the same number, and it is not a
+     colour a component should be choosing for itself. */
+  --ops-scrim: rgba(24, 24, 27, 0.32);
+
   /* Shape */
   --ops-r-card: 14px;
   --ops-r-inner: 10px;
@@ -212,6 +219,10 @@ body {
 
   --ops-line: #27272b;
   --ops-line-strong: #3a3a40;
+
+  /* Heavier in dark: the same 32% over a near-black canvas barely separates
+     the dialog from the page behind it. */
+  --ops-scrim: rgba(0, 0, 0, 0.6);
 
   --ops-text: #e7e7ea;
   --ops-text-secondary: #a7a7ae;
@@ -282,6 +293,7 @@ body {
   --color-ops-sunken: var(--ops-sunken);
   --color-ops-raised: var(--ops-raised);
   --color-ops-workspace: var(--ops-workspace);
+  --color-ops-scrim: var(--ops-scrim);
   --color-ops-hover: var(--ops-hover);
   --color-ops-active: var(--ops-active);
   --color-ops-line: var(--ops-line);
@@ -407,12 +419,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.ops-root ::selection {
+.ops-root ::selection,
+.ops-overlay ::selection {
   background: var(--ops-accent-weak);
   color: var(--ops-text);
 }
 
-.ops-root :focus-visible {
+/* Dialogs render as siblings of `.ops-root`, not inside it, so they were
+   falling back to Chrome's blue default ring on a console whose focus colour
+   is the brand accent. Both scopes, one rule. */
+.ops-root :focus-visible,
+.ops-overlay :focus-visible {
   outline: 2px solid var(--ops-accent);
   outline-offset: 1px;
   border-radius: 4px;

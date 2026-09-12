@@ -21,6 +21,7 @@ import {
   StatusPill,
 } from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
+import { useOpsModal } from "./ops-modals";
 import {
   CATEGORY_LABEL,
   COMPANIES,
@@ -92,6 +93,7 @@ export function ExpensesView() {
   const [status, setStatus] = React.useState<StatusFilter>("all");
   const [query, setQuery] = React.useState("");
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const openModal = useOpsModal();
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -187,7 +189,7 @@ export function ExpensesView() {
               <IconDownload className="size-3.5" />
               Export
             </Button>
-            <Button variant="primary">
+            <Button variant="primary" onClick={() => openModal({ kind: "log-expense" })}>
               <IconPlus className="size-3.5" />
               Add expense
             </Button>
