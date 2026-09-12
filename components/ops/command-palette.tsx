@@ -2,177 +2,167 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { CornerDownLeft, Package, Search } from "lucide-react";
+import { Building2, CornerDownLeft, Receipt, Search, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Kbd, StatusPill } from "./primitives";
-import { RANKED, STATUS_LABEL, STATUS_TONE } from "@/lib/ops/data";
+import { Kbd } from "./primitives";
+import { COMPANIES, DRIVERS, EXPENSES, companyName, outstandingFor } from "@/lib/ops/data";
+import { formatDate, money } from "@/lib/ops/format";
 
-const ROUTES = [
-  { label: "Today", href: "/ops" },
-  { label: "Shipments", href: "/ops/shipments" },
-  { label: "Exceptions", href: "/ops/exceptions" },
-  { label: "Drivers", href: "/ops/drivers" },
-];
+type Row = {
+  id: string;
+  label: string;
+  detail: string;
+  href: string;
+  group: "Companies" | "Drivers" | "Entries";
+  icon: React.ComponentType<{ className?: string }>;
+};
 
 /**
- * Cmd-K search. In a tool someone lives in all day the keyboard path is the
- * primary path, not a power-user extra — a dispatcher on the phone to a
- * customer needs a tracking number on screen in under two seconds.
+ * One flat index built once at module scope, not per keystroke. The whole
+ * ledger is 47 rows; filtering it is free, and building it eagerly means the
+ * first keystroke is as fast as the tenth.
  */
+const INDEX: Row[] = [
+  ...COMPANIES.map((c) => ({
+    id: `c-${c.id}`,
+    label: c.name,
+    detail: c.lastPaymentAt ? `Last paid ${formatDate(c.lastPaymentAt)}` : "Never paid",
+    href: `/ops/clients?company=${c.id}`,
+    group: "Companies" as const,
+    icon: Building2,
+  })),
+  ...DRIVERS.map((d) => ({
+    id: `d-${d.id}`,
+    label: d.name,
+    detail: `${companyName(d.companyId)} · ${money(outstandingFor(d))} outstanding`,
+    href: "/ops/drivers",
+    group: "Drivers" as const,
+    icon: Users,
+  })),
+  ...EXPENSES.map((e) => ({
+    id: `e-${e.id}`,
+    label: e.description,
+    detail: `${companyName(e.companyId)} · ${formatDate(e.at)} · ${money(e.amount)}`,
+    href: "/ops/expenses",
+    group: "Entries" as const,
+    icon: Receipt,
+  })),
+];
+
 export function CommandPalette({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
   const [cursor, setCursor] = React.useState(0);
-  const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const q = query.trim().toLowerCase();
+  const results = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const rows = q
+      ? INDEX.filter((r) => `${r.label} ${r.detail}`.toLowerCase().includes(q))
+      : INDEX.filter((r) => r.group !== "Entries");
+    return rows.slice(0, 24);
+  }, [query]);
 
-  const shipments = React.useMemo(() => {
-    if (!q) return RANKED.slice(0, 6);
-    return RANKED.filter(
-      (s) =>
-        s.tracking.toLowerCase().includes(q) ||
-        s.recipient.toLowerCase().includes(q) ||
-        s.postcode.toLowerCase().includes(q) ||
-        s.city.toLowerCase().includes(q),
-    ).slice(0, 8);
-  }, [q]);
+  // Adjust during render rather than in an effect: when the result list
+  // shrinks the cursor must not point past the end, and correcting it in an
+  // effect would render one frame with an invalid selection.
+  const safeCursor = results.length === 0 ? 0 : Math.min(cursor, results.length - 1);
+  if (safeCursor !== cursor) setCursor(safeCursor);
 
-  const routes = React.useMemo(
-    () => (q ? ROUTES.filter((r) => r.label.toLowerCase().includes(q)) : ROUTES),
-    [q],
+  const go = React.useCallback(
+    (row: Row | undefined) => {
+      if (!row) return;
+      router.push(row.href);
+      onClose();
+    },
+    [router, onClose],
   );
-
-  const items = React.useMemo(
-    () => [
-      ...routes.map((r) => ({ kind: "route" as const, key: r.href, label: r.label, href: r.href })),
-      ...shipments.map((s) => ({ kind: "shipment" as const, key: s.id, shipment: s, href: `/ops/shipments?focus=${s.id}` })),
-    ],
-    [routes, shipments],
-  );
-
-  // Adjusting state during render is React's documented pattern for "reset a
-  // value when its input changes" — an effect would render the stale cursor
-  // first and then correct it.
-  const [lastQuery, setLastQuery] = React.useState(query);
-  if (lastQuery !== query) {
-    setLastQuery(query);
-    setCursor(0);
-  }
-
-  React.useEffect(() => {
-    // Focus after paint, once the dialog is in the tree.
-    const id = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => cancelAnimationFrame(id);
-  }, []);
-
-  const go = (href: string) => {
-    onClose();
-    router.push(href);
-  };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") return onClose();
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setCursor((c) => Math.min(c + 1, items.length - 1));
-    } else if (e.key === "ArrowUp") {
+      setCursor((c) => Math.min(c + 1, results.length - 1));
+    }
+    if (e.key === "ArrowUp") {
       e.preventDefault();
       setCursor((c) => Math.max(c - 1, 0));
-    } else if (e.key === "Enter") {
+    }
+    if (e.key === "Enter") {
       e.preventDefault();
-      const item = items[cursor];
-      if (item) go(item.href);
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      onClose();
+      go(results[safeCursor]);
     }
   };
 
+  /**
+   * Group boundaries are computed alongside the rows rather than tracked with
+   * a mutable cursor inside the map. The React compiler lint rejects
+   * reassigning a closure variable during render — and rightly so: it makes
+   * the output depend on iteration order surviving a re-entrant render.
+   */
+  const rows = results.map((row, i) => ({
+    row,
+    i,
+    header: i === 0 || results[i - 1].group !== row.group ? row.group : null,
+  }));
+
   return (
-    <div className="ops-root fixed inset-0 z-50 flex items-start justify-center pt-[12vh]">
-      <div
-        className="absolute inset-0 bg-black/25 backdrop-blur-[1px]"
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[12vh]">
+      <button
+        type="button"
+        aria-label="Close search"
         onClick={onClose}
-        aria-hidden
+        className="absolute inset-0 bg-black/25 backdrop-blur-[1px]"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Search"
-        onKeyDown={onKeyDown}
-        className="relative mx-4 w-full max-w-[560px] overflow-hidden rounded-xl border border-ops-line bg-ops-surface shadow-ops-pop"
+        className="relative flex max-h-[64vh] w-full max-w-[560px] flex-col overflow-hidden rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface shadow-ops-pop"
       >
-        <div className="flex h-11 items-center gap-2 border-b border-ops-line px-3">
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-ops-line px-3">
           <Search className="size-4 shrink-0 text-ops-text-tertiary" />
           <input
-            ref={inputRef}
+            autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search tracking, recipient, postcode…"
-            className="h-full w-full bg-transparent text-[13px] text-ops-text outline-none placeholder:text-ops-text-tertiary"
+            onKeyDown={onKeyDown}
+            placeholder="Search entries, drivers, companies"
+            className="h-full w-full bg-transparent text-[14px] text-ops-text outline-none placeholder:text-ops-text-tertiary"
           />
           <Kbd>Esc</Kbd>
         </div>
 
-        <div className="max-h-[340px] overflow-y-auto p-1.5">
-          {items.length === 0 && (
-            <div className="px-3 py-8 text-center text-[12px] text-ops-text-tertiary">
-              No matches for “{query}”
-            </div>
+        <div className="min-h-0 flex-1 overflow-y-auto p-1.5">
+          {results.length === 0 && (
+            <p className="px-3 py-8 text-center text-[12px] text-ops-text-secondary">
+              Nothing matches “{query}”.
+            </p>
           )}
-
-          {routes.length > 0 && <div className="ops-eyebrow px-2 pb-1 pt-2">Go to</div>}
-          {items.map((item, i) => {
-            const selected = i === cursor;
-            if (item.kind === "route") {
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onMouseMove={() => setCursor(i)}
-                  onClick={() => go(item.href)}
-                  className={cn(
-                    "flex h-8 w-full items-center gap-2 rounded-md px-2 text-left text-[13px]",
-                    selected ? "bg-ops-accent-weak text-ops-text" : "text-ops-text-secondary",
-                  )}
-                >
-                  <CornerDownLeft className="size-3.5 text-ops-text-tertiary" />
-                  {item.label}
-                </button>
-              );
-            }
-            const s = item.shipment;
-            const isFirstShipment = items.findIndex((x) => x.kind === "shipment") === i;
+          {rows.map(({ row, i, header }) => {
+            const Icon = row.icon;
             return (
-              <React.Fragment key={item.key}>
-                {isFirstShipment && <div className="ops-eyebrow px-2 pb-1 pt-3">Shipments</div>}
+              <React.Fragment key={row.id}>
+                {header && <div className="ops-eyebrow px-2.5 pb-1 pt-2">{header}</div>}
                 <button
                   type="button"
-                  onMouseMove={() => setCursor(i)}
-                  onClick={() => go(item.href)}
+                  onMouseEnter={() => setCursor(i)}
+                  onClick={() => go(row)}
                   className={cn(
-                    "flex h-9 w-full items-center gap-2 rounded-md px-2 text-left",
-                    selected ? "bg-ops-accent-weak" : "",
+                    "flex w-full items-center gap-2.5 rounded-[var(--ops-r-control)] px-2.5 py-2 text-left",
+                    i === safeCursor ? "bg-ops-active" : "hover:bg-ops-hover",
                   )}
                 >
-                  <Package className="size-3.5 shrink-0 text-ops-text-tertiary" />
-                  <span className="ops-mono shrink-0 text-ops-text">{s.tracking}</span>
-                  <span className="truncate text-[12px] text-ops-text-secondary">
-                    {s.recipient} · {s.postcode}
+                  <Icon className="size-4 shrink-0 text-ops-text-tertiary" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] font-medium text-ops-text">{row.label}</span>
+                    <span className="block truncate text-[11px] text-ops-text-tertiary">{row.detail}</span>
                   </span>
-                  <span className="ml-auto shrink-0">
-                    <StatusPill tone={STATUS_TONE[s.status]}>{STATUS_LABEL[s.status]}</StatusPill>
-                  </span>
+                  {i === safeCursor && <CornerDownLeft className="size-3.5 shrink-0 text-ops-text-tertiary" />}
                 </button>
               </React.Fragment>
             );
           })}
-        </div>
-
-        <div className="flex items-center gap-3 border-t border-ops-line bg-ops-sunken px-3 py-1.5 text-[11px] text-ops-text-tertiary">
-          <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> navigate</span>
-          <span className="flex items-center gap-1"><Kbd>↵</Kbd> open</span>
         </div>
       </div>
     </div>

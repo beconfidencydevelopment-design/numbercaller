@@ -1,19 +1,81 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
+/**
+ * One page header for every screen: title, one line of context, actions on
+ * the right. The current build varies the header per page — different sizes,
+ * the period control in a different place each time — which is most of why it
+ * reads as five screens rather than one product.
+ */
 export function PageHeader({
   title,
-  subtitle,
+  detail,
   actions,
+  tabs,
+  className,
 }: {
   title: string;
-  subtitle?: string;
+  detail?: React.ReactNode;
   actions?: React.ReactNode;
+  tabs?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-ops-line bg-ops-surface px-4 py-2.5">
-      <div className="min-w-0">
-        <h1 className="text-[15px] font-semibold leading-5 text-ops-text">{title}</h1>
-        {subtitle && <p className="truncate text-[11px] text-ops-text-tertiary">{subtitle}</p>}
+    <div className={cn("border-b border-ops-line bg-ops-surface", className)}>
+      <div className="mx-auto flex max-w-[1480px] flex-wrap items-center gap-x-4 gap-y-2 px-5 pb-3 pt-4">
+        <div className="min-w-0">
+          <h1 className="text-[19px] font-semibold tracking-[-0.02em] text-ops-text">{title}</h1>
+          {detail && <p className="mt-0.5 text-[12px] text-ops-text-secondary">{detail}</p>}
+        </div>
+        {actions && <div className="ml-auto flex shrink-0 flex-wrap items-center gap-1.5">{actions}</div>}
       </div>
-      {actions && <div className="ml-auto flex items-center gap-1.5">{actions}</div>}
+      {tabs && <div className="mx-auto max-w-[1480px] px-5">{tabs}</div>}
     </div>
   );
+}
+
+/** Secondary navigation inside a page. Financials is the only user today. */
+export function Tabs({
+  items,
+  active,
+  onChange,
+}: {
+  items: Array<{ id: string; label: string; count?: number }>;
+  active: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <div role="tablist" className="-mb-px flex items-center gap-1 overflow-x-auto">
+      {items.map((t) => {
+        const on = t.id === active;
+        return (
+          <button
+            key={t.id}
+            role="tab"
+            type="button"
+            aria-selected={on}
+            onClick={() => onChange(t.id)}
+            className={cn(
+              "relative flex h-9 shrink-0 items-center gap-1.5 border-b-2 px-3 text-[13px] font-medium transition-colors",
+              on
+                ? "border-ops-accent text-ops-text"
+                : "border-transparent text-ops-text-secondary hover:text-ops-text",
+            )}
+          >
+            {t.label}
+            {t.count !== undefined && t.count > 0 && (
+              <span className="ops-num rounded-full bg-ops-active px-1.5 text-[11px] font-semibold text-ops-text-tertiary">
+                {t.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Consistent page body gutter, so every screen lines up with every other. */
+export function PageBody({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn("mx-auto max-w-[1480px] px-5 py-4", className)}>{children}</div>;
 }

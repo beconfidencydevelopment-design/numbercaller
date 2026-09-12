@@ -1,5 +1,5 @@
-import { TodayView } from "@/components/ops/today-view";
+import { HomeView } from "@/components/ops/home-view";
 
-export default function TodayPage() {
-  return <TodayView />;
+export default function Page() {
+  return <HomeView />;
 }

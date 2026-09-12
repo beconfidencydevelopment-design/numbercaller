@@ -56,202 +56,190 @@ body {
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+
 /* ==========================================================================
-   SNK Operations Console — design system
-   A separate token layer from the marketing site. Near-monochrome base so
-   that colour carries only one meaning in this product: shipment status.
+   SNK Courier operations console — design system
+
+   A separate token layer from the NumberCaller marketing site above.
+
+   The console is a bookkeeping product: money, periods, obligations. The
+   whole surface is a warm near-neutral so that the only saturated colour on
+   screen carries meaning — an amount that is overdue, a driver who is
+   settled, a period that is locked.
    ========================================================================== */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Surfaces — cool neutral ramp, low chroma so status colour stays loud */
-  --ops-canvas: #e9eaee;
+  /* ---- Brand -----------------------------------------------------------
+     The identity colours from the SNK asset pack. `--ops-brand` is the logo
+     orange and is used *only* where the mark itself appears: it measures
+     2.92:1 against white and cannot legally carry text. `--ops-accent`
+     below is the same hue corrected to clear AA, and is what the interface
+     actually uses. Keeping them as two tokens stops anyone "fixing" the
+     logo to match the buttons. */
+  --ops-brand: #f37124;
+  --ops-brand-ink: #2d2e32;
+
+  /* ---- Surfaces --------------------------------------------------------
+     Warm neutral ramp, near-zero chroma. Warm rather than cool because the
+     brand is orange: a cool grey under an orange accent reads cheap. */
+  --ops-canvas: #eceae6;
   --ops-surface: #ffffff;
-  --ops-sunken: #fafbfc;
+  --ops-sunken: #faf9f7;
   --ops-raised: #ffffff;
-  --ops-workspace: #f5f6f8;
-  --ops-hover: #f5f6f8;
-  --ops-active: #eceef2;
+  --ops-workspace: #f6f5f2;
+  --ops-hover: #f5f3f0;
+  --ops-active: #ebe8e3;
 
-  /* Hairlines — dividers do the work that cards do elsewhere */
-  --ops-line: #e5e7eb;
-  --ops-line-strong: #d2d6dd;
+  /* Hairlines do the structural work that nested cards do elsewhere. */
+  --ops-line: #e7e3dd;
+  --ops-line-strong: #d5d0c8;
 
-  /* Text */
-  --ops-text: #101319;
-  --ops-text-secondary: #565d6b;
-  --ops-text-tertiary: #878d99;
+  /* Text. Every step clears 4.5:1 on every surface above, including
+     --ops-active, so metadata stays readable inside a selected row. */
+  --ops-text: #1a1917;
+  --ops-text-secondary: #585550;
+  --ops-text-tertiary: #6c6861;
   --ops-text-inverse: #ffffff;
 
-  /* The single accent. Selection, focus, primary action. Nothing else. */
-  --ops-accent: #5b3ee6;
-  --ops-accent-hover: #4f32d6;
-  --ops-accent-weak: #f1eeff;
-  --ops-accent-line: #d7ccfb;
+  /* ---- Accent ----------------------------------------------------------
+     Interactive only: primary buttons, links, focus, the active nav item.
+     Never a status. Under protanopia this orange sits 2.2 ΔE from the
+     warning gold and 12.4 from the overdue red — which is precisely why
+     status is never encoded by colour alone in this product. */
+  --ops-accent: #b0480a;
+  --ops-accent-hover: #9b3f08;
+  --ops-accent-weak: #fdf1ea;
+  --ops-accent-line: #f3ccb4;
 
-  /* Status semantics — the only saturated colour in the product */
-  --ops-ok-fg: #0d6b45;
-  --ops-ok-bg: #e6f5ed;
-  --ops-ok-line: #b3e0c8;
-  --ops-ok-dot: #15935e;
+  /* ---- Status ----------------------------------------------------------
+     settled/paid, in-progress, attention, overdue/negative, dormant. */
+  --ops-ok-fg: #0c7745;
+  --ops-ok-bg: #def9ed;
+  --ops-ok-line: #bce6d2;
+  --ops-ok-dot: #0c9957;
 
-  --ops-move-fg: #1a52c4;
-  --ops-move-bg: #e9f0fd;
-  --ops-move-line: #c2d6f7;
-  --ops-move-dot: #2f6fe0;
+  --ops-move-fg: #195fe2;
+  --ops-move-bg: #e5ecfb;
+  --ops-move-line: #c8d5ef;
+  --ops-move-dot: #4982ed;
 
-  --ops-warn-fg: #82550a;
-  --ops-warn-bg: #fdf2e0;
-  --ops-warn-line: #f0d7a8;
-  --ops-warn-dot: #cf8a12;
+  --ops-warn-fg: #7d6703;
+  --ops-warn-bg: #f7f1d4;
+  --ops-warn-line: #e8deb0;
+  --ops-warn-dot: #9f8304;
 
-  --ops-risk-fg: #a92a1f;
-  --ops-risk-bg: #fdeceb;
-  --ops-risk-line: #f5c6c2;
-  --ops-risk-dot: #d1362a;
+  --ops-risk-fg: #c82816;
+  --ops-risk-bg: #fbe9e7;
+  --ops-risk-line: #f0cfcc;
+  --ops-risk-dot: #ea4f3e;
 
-  --ops-idle-fg: #565d6b;
-  --ops-idle-bg: #f0f1f4;
-  --ops-idle-line: #dcdfe5;
-  --ops-idle-dot: #8b919d;
+  --ops-idle-fg: #6d685f;
+  --ops-idle-bg: #f4f3f1;
+  --ops-idle-line: #e1dfdb;
+  --ops-idle-dot: #8c8475;
 
-  /* The single inverted card. All three references use one dark tile as the
-     focal point of a metric row; here it is reserved for the metric that
-     hurts most, so the emphasis carries meaning rather than decoration. */
-  --ops-focal-bg: #191c23;
+  /* One inverted tile per screen, at most. It takes the brand's charcoal
+     rather than a neutral black so the dark panel reads as SNK's. */
+  --ops-focal-bg: #2d2e32;
   --ops-focal-fg: #ffffff;
-  --ops-focal-muted: #a3a9b6;
-  --ops-focal-line: #2c313b;
+  --ops-focal-muted: #a8a9ae;
+  --ops-focal-line: #43444a;
 
   --ops-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  /* Shape. Larger radii and softer edges are most of what reads as
-     "premium" in the references the client picked; density is unaffected. */
+  /* Shape */
   --ops-r-card: 14px;
   --ops-r-inner: 10px;
   --ops-r-control: 8px;
 
-  /* Chart series. Validated as a categorical pair (CVD ΔE 29.7, normal 35.3).
-     Volume rides the brand hue; failures keep the reserved status red so the
-     meaning of red is identical in a chart and in a table row. */
-  --ops-series-volume: #5b3ee6;
-  --ops-series-fail: #d1362a;
-  --ops-grid: #ececf1;
+  /* Chart marks are not text, so they may run brighter than the 4.5:1 text
+     floor; 3:1 is the non-text UI requirement and each clears it. */
+  --ops-series-a: #b0480a;
+  --ops-series-b: #195fe2;
+  --ops-series-neg: #c82816;
+  --ops-grid: #e9e6e1;
 
-  /* Elevation. Restrained: ops surfaces sit flat, only overlays lift. */
-  --ops-shadow-pop: 0 1px 2px rgba(16, 19, 25, 0.06),
-    0 8px 24px -6px rgba(16, 19, 25, 0.12);
-  --ops-shadow-drawer: -12px 0 40px -12px rgba(16, 19, 25, 0.18);
+  --ops-shadow-pop: 0 1px 2px rgba(26, 25, 23, 0.06),
+    0 8px 24px -6px rgba(26, 25, 23, 0.12);
+  --ops-shadow-drawer: -12px 0 40px -12px rgba(26, 25, 23, 0.18);
+}
+
+.dark .ops-root,
+.dark.ops-root {
+  color-scheme: dark;
 }
 
 .dark {
-  --ops-canvas: #07080b;
-  --ops-surface: #14171d;
-  --ops-sunken: #101319;
-  --ops-raised: #191d24;
-  --ops-workspace: #101319;
-  --ops-hover: #1b1f27;
-  --ops-active: #222731;
+  --ops-canvas: #0a0908;
+  --ops-surface: #171614;
+  --ops-sunken: #131211;
+  --ops-raised: #1d1b19;
+  --ops-workspace: #131211;
+  --ops-hover: #201e1b;
+  --ops-active: #2a2724;
 
-  --ops-line: #242932;
-  --ops-line-strong: #333945;
+  --ops-line: #2a2724;
+  --ops-line-strong: #3d3934;
 
-  --ops-text: #eef0f4;
-  --ops-text-secondary: #a2a9b8;
-  --ops-text-tertiary: #6f7686;
-  --ops-text-inverse: #0c0e12;
+  --ops-text: #e8e7e4;
+  --ops-text-secondary: #a9a59d;
+  --ops-text-tertiary: #928d84;
 
-  --ops-accent: #9b86ff;
-  --ops-accent-hover: #b3a3ff;
-  --ops-accent-weak: #1d1832;
-  --ops-accent-line: #382e63;
+  --ops-text-inverse: #1a1917;
 
-  --ops-ok-fg: #4dd39a;
-  --ops-ok-bg: #10241c;
-  --ops-ok-line: #1e4536;
-  --ops-ok-dot: #34c98a;
+  --ops-accent: #fa8138;
+  --ops-accent-hover: #fb9455;
+  --ops-accent-weak: #2a1a10;
+  --ops-accent-line: #58341c;
 
-  --ops-move-fg: #7ba6ff;
-  --ops-move-bg: #121d33;
-  --ops-move-line: #23375f;
-  --ops-move-dot: #5b8ff5;
+  --ops-ok-fg: #61d19d;
+  --ops-ok-bg: #13271e;
+  --ops-ok-line: #284839;
+  --ops-ok-dot: #36c984;
 
-  --ops-warn-fg: #e8b45c;
-  --ops-warn-bg: #241c0e;
-  --ops-warn-line: #46351a;
-  --ops-warn-dot: #d99c2b;
+  --ops-move-fg: #79a5f6;
+  --ops-move-bg: #141c2b;
+  --ops-move-line: #2a3751;
+  --ops-move-dot: #4c85f0;
 
-  --ops-risk-fg: #ff8b80;
-  --ops-risk-bg: #2a1412;
-  --ops-risk-line: #55231f;
-  --ops-risk-dot: #e75647;
+  --ops-warn-fg: #eac653;
+  --ops-warn-bg: #272313;
+  --ops-warn-line: #484028;
+  --ops-warn-dot: #e6b619;
 
-  --ops-idle-fg: #a2a9b8;
-  --ops-idle-bg: #1b1f27;
-  --ops-idle-line: #2c313b;
-  --ops-idle-dot: #6f7686;
+  --ops-risk-fg: #f97a6c;
+  --ops-risk-bg: #2c1614;
+  --ops-risk-line: #522d28;
+  --ops-risk-dot: #ef4b39;
 
-  --ops-focal-bg: #2b1614;
-  --ops-focal-fg: #ffece9;
-  --ops-focal-muted: #c8a09a;
-  --ops-focal-line: #4a2521;
+  --ops-idle-fg: #aeaaa2;
+  --ops-idle-bg: #252422;
+  --ops-idle-line: #413e3a;
+  --ops-idle-dot: #888277;
 
-  --ops-series-volume: #9b86ff;
-  --ops-series-fail: #e75647;
-  --ops-grid: #23272f;
+  /* Light inverts to charcoal; dark cannot invert again, so the focal tile
+     lifts instead — a warmer, lighter panel with a stronger edge. */
+  --ops-focal-bg: #2b2825;
+  --ops-focal-fg: #f6f4f1;
+  --ops-focal-muted: #b5b0a7;
+  --ops-focal-line: #47423b;
+
+  --ops-series-a: #fa8138;
+  --ops-series-b: #79a5f6;
+  --ops-series-neg: #f97a6c;
+  --ops-grid: #262320;
 
   --ops-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4),
     0 8px 24px -6px rgba(0, 0, 0, 0.55);
   --ops-shadow-drawer: -12px 0 40px -12px rgba(0, 0, 0, 0.6);
 }
 
-
-/* ==========================================================================
-   Brand variants
-   Two identities on one build so the client can compare them on the same
-   screen rather than across two tabs. Placed after the .dark block so the
-   cascade resolves brand over theme at equal specificity.
-
-   Note on the orange: the vivid orange in the reference dashboards measures
-   3.09:1 against white button text and fails WCAG AA. #c74106 is the most
-   saturated orange that clears 4.5:1 both as a button ground and as link
-   text on every surface in the console, so this is the reference look
-   corrected rather than copied.
-   ========================================================================== */
-
-html[data-brand="orange"] {
-  --ops-accent: #c74106;
-  --ops-accent-hover: #a83505;
-  --ops-accent-weak: #fdf0e9;
-  --ops-accent-line: #f6ccb6;
-  /* Chart marks are not text, so they can run brighter (3.88:1, above the
-     3:1 floor for non-text UI). */
-  --ops-series-volume: #e2510a;
-
-  /* An orange accent sits next to the amber "at risk" state, so warning is
-     nudged toward yellow to keep the two separable. */
-  --ops-warn-fg: #6d5200;
-  --ops-warn-bg: #fbf3da;
-  --ops-warn-line: #ead79b;
-  --ops-warn-dot: #c39c1c;
-}
-
-html.dark[data-brand="orange"] {
-  --ops-accent: #ff8a4c;
-  --ops-accent-hover: #ffa06a;
-  --ops-accent-weak: #2a1a11;
-  --ops-accent-line: #5a3620;
-  --ops-series-volume: #ff8a4c;
-
-  --ops-warn-fg: #ecc65f;
-  --ops-warn-bg: #241f0d;
-  --ops-warn-line: #463c19;
-  --ops-warn-dot: #d9b52d;
-}
-
 @theme inline {
+  --color-ops-brand: var(--ops-brand);
+  --color-ops-brand-ink: var(--ops-brand-ink);
   --color-ops-canvas: var(--ops-canvas);
   --color-ops-surface: var(--ops-surface);
   --color-ops-sunken: var(--ops-sunken);
@@ -290,8 +278,10 @@ html.dark[data-brand="orange"] {
   --color-ops-idle-bg: var(--ops-idle-bg);
   --color-ops-idle-line: var(--ops-idle-line);
   --color-ops-idle-dot: var(--ops-idle-dot);
-  --color-ops-series-volume: var(--ops-series-volume);
-  --color-ops-series-fail: var(--ops-series-fail);
+
+  --color-ops-series-a: var(--ops-series-a);
+  --color-ops-series-b: var(--ops-series-b);
+  --color-ops-series-neg: var(--ops-series-neg);
   --color-ops-grid: var(--ops-grid);
   --color-ops-focal-bg: var(--ops-focal-bg);
   --color-ops-focal-fg: var(--ops-focal-fg);
@@ -307,14 +297,21 @@ html.dark[data-brand="orange"] {
   --shadow-ops-drawer: var(--ops-shadow-drawer);
 }
 
-/* The console runs at 13px. Density is a feature: a dispatcher needs 30 rows
-   on screen, not 8. Numbers are tabular everywhere so columns stay aligned. */
+/* --------------------------------------------------------------------------
+   Base
+   14px root, tighter than the 16px the current build runs at. A ledger
+   should fit a period on one screen; the type scale below keeps the money
+   large where it carries the meaning.
+   -------------------------------------------------------------------------- */
 .ops-root {
   background: var(--ops-canvas);
   color: var(--ops-text);
-  font-size: 13px;
+  /* Native controls follow the theme. Without this the 23 unchecked
+     checkboxes in the expense ledger render as bright white squares on a
+     near-black table, and every select menu opens light. */
+  color-scheme: light;
+  font-size: 14px;
   line-height: 1.45;
-  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -323,32 +320,32 @@ html.dark[data-brand="orange"] {
   color: var(--ops-text);
 }
 
-/* One focus treatment for the whole console, keyboard-only. */
 .ops-root :focus-visible {
   outline: 2px solid var(--ops-accent);
   outline-offset: 1px;
   border-radius: 4px;
 }
 
-/* One card treatment for the whole console. Hairline plus a barely-there
-   lift — enough to separate from the canvas without the heavy drop shadows
-   that make a dense screen feel cluttered. */
-.ops-card {
-  background: var(--ops-surface);
-  border: 1px solid var(--ops-line);
-  border-radius: var(--ops-r-card);
-  box-shadow: 0 1px 2px rgba(16, 19, 25, 0.04);
-  overflow: hidden;
+/* One card treatment for the whole console. Change it here, not per view.
+
+   Declared inside `@layer components` on purpose: in Tailwind v4 an unlayered
+   rule outranks every utility, so a bare `.ops-card` would silently beat
+   `bg-ops-focal-bg` on the one inverted tile per screen. Inside the layer,
+   utilities win — which is the behaviour every component here assumes. */
+@layer components {
+  .ops-card {
+    background: var(--ops-surface);
+    border: 1px solid var(--ops-line);
+    border-radius: var(--ops-r-card);
+    box-shadow: 0 1px 2px rgba(26, 25, 23, 0.04);
+  }
+
+  .dark .ops-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
 }
 
-.dark .ops-card {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* The floating application container.
-   All three client references inset the app inside the page rather than
-   running it edge to edge. It is the single most consistent signal in the
-   set, and it costs only the inset — density inside is untouched. */
+/* The floating application container. */
 .ops-frame {
   height: 100dvh;
   padding: 0;
@@ -368,19 +365,29 @@ html.dark[data-brand="orange"] {
   .ops-frame > * {
     border: 1px solid var(--ops-line);
     border-radius: 18px;
-    box-shadow: 0 1px 2px rgba(16, 19, 25, 0.05), 0 12px 32px -12px rgba(16, 19, 25, 0.14);
+    box-shadow: 0 1px 2px rgba(26, 25, 23, 0.05),
+      0 12px 32px -12px rgba(26, 25, 23, 0.16);
   }
   .dark .ops-frame > * {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
   }
 }
 
+/* --------------------------------------------------------------------------
+   Numerals
+
+   Money is the subject of this product, so the figure treatment is a system
+   rule rather than a per-component choice.
+
+   `.ops-num` — tabular, for anything that sits in a column and must align.
+   `.ops-figure` — proportional, for a large standalone number. Tabular
+   digits look loosely spaced at display sizes.
+   -------------------------------------------------------------------------- */
 .ops-num {
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
-/* Hero and stat values use proportional figures: tabular digits make a large
-   standalone number look loosely spaced. Tabular stays on aligned columns. */
 .ops-figure {
   font-variant-numeric: proportional-nums;
   letter-spacing: -0.02em;
@@ -392,7 +399,7 @@ html.dark[data-brand="orange"] {
   letter-spacing: -0.01em;
 }
 
-/* Micro label: section headers, column groups. */
+/* Micro label: section headers, column groups, table captions. */
 .ops-eyebrow {
   font-size: 11px;
   font-weight: 600;
@@ -401,7 +408,14 @@ html.dark[data-brand="orange"] {
   color: var(--ops-text-tertiary);
 }
 
-/* Scrollbars that don't shout in a dense table. */
+/* A table that scrolls under a header that does not. */
+.ops-sticky-head th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ops-sunken);
+}
+
 .ops-root *::-webkit-scrollbar {
   width: 10px;
   height: 10px;

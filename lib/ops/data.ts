@@ -1,450 +1,641 @@
 import type {
-  DeliveryRoute,
-  Driver,
-  ExceptionReason,
-  RankedShipment,
-  ServiceLevel,
-  Shipment,
-  RouteStop,
-  ShipmentStatus,
-  SlaState,
-  StopState,
+  ActivityEvent,
   StatusTone,
-  TimelineEvent,
+  ChecklistItem,
+  Company,
+  Driver,
+  ExpenseCategory,
+  ExpenseEntry,
+  Obligation,
+  Partner,
+  Payment,
+  PeriodSummary,
+  RecurringEntry,
+  RevenueEntry,
 } from "./types";
 
 /**
- * A fixed clock.
+ * The books, as they stand in the client's live build.
  *
- * Demo data must be deterministic or the server and client render different
- * relative times and React throws a hydration mismatch. Everything in the
- * console is measured against this constant rather than `Date.now()`, so SSR
- * output is byte-identical to the first client render. Swap this for a live
- * clock at the same time you swap the generator for a real API.
+ * Every figure here is transcribed from the production app rather than
+ * invented, because the brief is to redesign that product, not to redesign
+ * the business. Where the live build contradicted itself the *figures* were
+ * kept and the *labels* corrected — each of those is marked `RECONCILED`
+ * below and listed in docs/DESIGN-CONTEXT.md for the client to confirm.
+ *
+ * Deterministic by construction: a fixed clock, no generators, no
+ * `Date.now()` and no `Math.random()` anywhere. Server and client render
+ * byte-identical output, which is what keeps React from throwing a hydration
+ * mismatch on every timestamp. Swap this module for the API at the same seam.
  */
-export const NOW = Date.parse("2026-09-12T14:20:00Z");
 
-const MIN = 60_000;
+/** Fixed clock: Friday 4 September 2026, 14:35 in Toronto. */
+export const NOW = Date.parse("2026-09-04T18:35:00Z");
 
-/** Deterministic PRNG (mulberry32) so every render produces the same board. */
-function seeded(seed: number) {
-  return function next() {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+/** The open period. */
+export const PERIOD = { key: "2026-09", label: "Sep 2026", long: "September 2026" };
+export const PERIOD_START = Date.parse("2026-09-01T04:00:00Z");
+export const PERIOD_DAYS = 30;
+export const DAY_OF_PERIOD = 4;
+
+const d = (iso: string) => Date.parse(`${iso}T12:00:00-04:00`);
+
+/* -------------------------------------------------------------------------- */
+/* Labels                                                                      */
+/* -------------------------------------------------------------------------- */
+
+export const CATEGORY_LABEL: Record<ExpenseCategory, string> = {
+  driver_pay: "Driver Pay",
+  vehicle_rent: "Vehicle Rent",
+  fuel: "Fuel",
+  maintenance: "Maintenance",
+  insurance: "Insurance",
+  other: "Other",
+};
+
+export const CYCLE_LABEL = {
+  biweekly: "Biweekly",
+  monthly: "Monthly",
+  irregular: "Irregular",
+} as const;
+
+export const METHOD_LABEL = {
+  direct_deposit: "Direct deposit",
+  cheque: "Cheque",
+  transfer: "Transfer",
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/* Companies                                                                   */
+/* -------------------------------------------------------------------------- */
+
+export const COMPANIES: Company[] = [
+  {
+    id: "precision",
+    name: "Precision",
+    cycle: "biweekly",
+    onboardedAt: d("2026-08-01"),
+    lastPaymentAt: null,
+    expectation: "Expected around Sep 15 based on 45-day onboarding cycle",
+  },
+  {
+    id: "intelcom",
+    name: "Intelcom",
+    cycle: "biweekly",
+    onboardedAt: d("2026-01-15"),
+    lastPaymentAt: d("2026-08-21"),
+    expectation: "Expected next: ~Sep 8 based on biweekly cycle",
+  },
+  {
+    id: "rona",
+    name: "Rona",
+    cycle: "biweekly",
+    onboardedAt: d("2026-02-10"),
+    lastPaymentAt: d("2026-08-11"),
+    expectation: "~14 days overdue based on biweekly cycle",
+  },
+  {
+    id: "napa",
+    name: "Napa",
+    cycle: "monthly",
+    onboardedAt: d("2026-03-05"),
+    lastPaymentAt: d("2026-08-18"),
+    expectation: "Expected next: ~4 days",
+  },
+  {
+    id: "staples",
+    name: "Staples",
+    cycle: "irregular",
+    onboardedAt: d("2026-04-02"),
+    lastPaymentAt: d("2026-08-18"),
+    expectation: "Last active: Aug 2026",
+  },
+  {
+    id: "canpar",
+    name: "Canpar",
+    cycle: "irregular",
+    onboardedAt: d("2026-05-20"),
+    lastPaymentAt: null,
+    expectation: "No activity recorded",
+  },
+];
+
+/** Costs that belong to the business rather than to a client company. */
+export const GLOBAL_COMPANY = { id: "global", name: "Global" };
+
+export const companyById = (id: string): Company | undefined =>
+  COMPANIES.find((c) => c.id === id);
+
+export const companyName = (id: string): string =>
+  id === GLOBAL_COMPANY.id ? GLOBAL_COMPANY.name : companyById(id)?.name ?? id;
+
+/* -------------------------------------------------------------------------- */
+/* Drivers                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * `logged` is this period's entries; `carried` is the unsettled balance rolled
+ * in from August. Outstanding is the sum of the two minus anything settled —
+ * derived below rather than stored, because the live build stores it and the
+ * stored figure does not always match the columns beside it.
+ */
+export const DRIVERS: Driver[] = [
+  { id: "prabh",  name: "Prabh",    companyId: "precision", entries: 18, logged: 2100, carried: 800, settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "amir",   name: "Amir",     companyId: "precision", entries: 12, logged: 1200, carried: 0,   settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "raj",    name: "Raj",      companyId: "precision", entries: 8,  logged: 800,  carried: 0,   settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "sajan",  name: "Sajan",    companyId: "precision", entries: 5,  logged: 497,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-a",    name: "Driver A", companyId: "intelcom",  entries: 14, logged: 1470, carried: 600, settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "d-b",    name: "Driver B", companyId: "intelcom",  entries: 11, logged: 1225, carried: 0,   settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "d-c",    name: "Driver C", companyId: "intelcom",  entries: 9,  logged: 980,  carried: 0,   settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "d-d",    name: "Driver D", companyId: "intelcom",  entries: 7,  logged: 735,  carried: 0,   settled: 0, lastEntryAt: d("2026-09-03") },
+  { id: "d-e",    name: "Driver E", companyId: "intelcom",  entries: 5,  logged: 490,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-f",    name: "Driver F", companyId: "intelcom",  entries: 3,  logged: 240,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-g",    name: "Driver G", companyId: "intelcom",  entries: 2,  logged: 195,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-h",    name: "Driver H", companyId: "intelcom",  entries: 2,  logged: 160,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-i",    name: "Driver I", companyId: "intelcom",  entries: 2,  logged: 130,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-j",    name: "Driver J", companyId: "intelcom",  entries: 1,  logged: 105,  carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-k",    name: "Driver K", companyId: "intelcom",  entries: 1,  logged: 63,   carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "d-l",    name: "Driver L", companyId: "intelcom",  entries: 1,  logged: 60,   carried: 0,   settled: 0, lastEntryAt: null },
+  { id: "mike",   name: "Mike",     companyId: "rona",      entries: 8,  logged: 600,  carried: 400, settled: 0, lastEntryAt: d("2026-09-04") },
+  { id: "hassan", name: "Hassan",   companyId: "napa",      entries: 6,  logged: 450,  carried: 0,   settled: 450, lastEntryAt: d("2026-09-04") },
+];
+
+export const driverById = (id: string | null): Driver | undefined =>
+  id ? DRIVERS.find((x) => x.id === id) : undefined;
+
+/** What SNK still owes this driver. Derived, never stored. */
+export const outstandingFor = (dr: Driver): number => dr.logged + dr.carried - dr.settled;
+
+export const isSettled = (dr: Driver): boolean => outstandingFor(dr) === 0;
+
+/* -------------------------------------------------------------------------- */
+/* Expense ledger — the open period                                            */
+/* -------------------------------------------------------------------------- */
+
+type Raw = [string, string, ExpenseCategory, string | null, string, number, boolean];
+
+const RAW_EXPENSES: Raw[] = [
+  ["2026-09-04", "precision", "driver_pay", "prabh",  "Deliveries – 42 stops", 280, false],
+  ["2026-09-04", "precision", "driver_pay", "amir",   "Deliveries – 38 stops", 260, false],
+  ["2026-09-04", "intelcom",  "driver_pay", "d-a",    "Route east – 35 stops", 245, false],
+  ["2026-09-04", "intelcom",  "driver_pay", "d-b",    "Route west – 33 stops", 245, false],
+  ["2026-09-04", "rona",      "driver_pay", "mike",   "Deliveries – 12 stops", 180, false],
+  ["2026-09-04", "napa",      "driver_pay", "hassan", "Deliveries – 8 stops",  150, false],
+  ["2026-09-04", "intelcom",  "driver_pay", "d-c",    "Route north – 30 stops", 225, false],
+  ["2026-09-04", "precision", "driver_pay", "raj",    "Deliveries – 28 stops", 200, false],
+
+  ["2026-09-03", "precision", "driver_pay", "prabh",  "Deliveries – 45 stops", 280, false],
+  ["2026-09-03", "precision", "driver_pay", "amir",   "Deliveries – 40 stops", 260, false],
+  ["2026-09-03", "intelcom",  "driver_pay", "d-d",    "Route south – 29 stops", 240, false],
+  ["2026-09-03", "global",    "insurance",  null,     "Monthly commercial vehicle insurance", 918, true],
+
+  ["2026-09-02", "precision", "driver_pay", "prabh",  "Deliveries – 41 stops", 280, false],
+  ["2026-09-02", "precision", "driver_pay", "amir",   "Deliveries – 37 stops", 260, false],
+  ["2026-09-02", "precision", "driver_pay", "raj",    "Deliveries – 26 stops", 200, false],
+  ["2026-09-02", "intelcom",  "driver_pay", "d-a",    "Route east – 34 stops", 245, false],
+  ["2026-09-02", "intelcom",  "driver_pay", "d-b",    "Route west – 32 stops", 240, false],
+  ["2026-09-02", "rona",      "driver_pay", "mike",   "Deliveries – 11 stops", 180, false],
+  ["2026-09-02", "napa",      "driver_pay", "hassan", "Deliveries – 7 stops",  150, false],
+
+  ["2026-09-01", "precision", "vehicle_rent", null, "Fleet lease – September", 2577, true],
+  ["2026-09-01", "intelcom",  "vehicle_rent", null, "Fleet lease – September", 4422, true],
+  ["2026-09-01", "rona",      "fuel",         null, "Fuel card top-up",        240,  true],
+  ["2026-09-01", "napa",      "fuel",         null, "Fuel card top-up",        150,  true],
+];
+
+export const EXPENSES: ExpenseEntry[] = RAW_EXPENSES.map((r, i) => ({
+  id: `e${i + 1}`,
+  at: d(r[0]),
+  companyId: r[1],
+  category: r[2],
+  driverId: r[3],
+  description: r[4],
+  amount: r[5],
+  status: "outstanding",
+  payable: r[6],
+}));
+
+export const EXPENSE_TOTAL = EXPENSES.reduce((n, e) => n + e.amount, 0); // 12,427
+
+/**
+ * Days inside the open period that carry no entries.
+ *
+ * Only days that have already happened. The live build lists Sat 5 and Sun 6
+ * September — both in the future from its own clock — as "No operations",
+ * which reads as missing data rather than as a quiet weekend.
+ * RECONCILED: future days are not rendered.
+ */
+export const QUIET_DAYS: number[] = (() => {
+  const seen = new Set(EXPENSES.map((e) => new Date(e.at).getUTCDate()));
+  const out: number[] = [];
+  for (let day = 1; day <= DAY_OF_PERIOD; day++) {
+    if (!seen.has(day)) out.push(d(`2026-09-${String(day).padStart(2, "0")}`));
+  }
+  return out;
+})();
+
+/* -------------------------------------------------------------------------- */
+/* Per-company history                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Prior-period expense by category, as transcribed from the company profiles.
+ *
+ * July and August only. **September is derived from the ledger** by
+ * `companyHistory()` below rather than transcribed, because the live build
+ * keeps the two apart and they disagree: its Precision profile books the whole
+ * $4,597 as Driver Pay while the expense ledger shows $2,020 of driver pay and
+ * a $2,577 fleet lease, and its Intelcom profile totals $6,780 against a
+ * ledger of $5,862. One period, one source. RECONCILED.
+ */
+const PRIOR_HISTORY: Record<
+  string,
+  { revenueReceived: number; rows: Array<{ category: ExpenseCategory; jul: number; aug: number }> }
+> = {
+  precision: {
+    revenueReceived: 0,
+    rows: [
+      { category: "driver_pay", jul: 3200, aug: 4100 },
+      { category: "fuel", jul: 0, aug: 0 },
+      { category: "maintenance", jul: 0, aug: 120 },
+    ],
+  },
+  intelcom: {
+    revenueReceived: 115656,
+    rows: [
+      { category: "driver_pay", jul: 4800, aug: 5300 },
+      { category: "vehicle_rent", jul: 800, aug: 850 },
+      { category: "fuel", jul: 100, aug: 140 },
+    ],
+  },
+  rona: {
+    revenueReceived: 18400,
+    rows: [
+      { category: "driver_pay", jul: 520, aug: 560 },
+      { category: "fuel", jul: 180, aug: 200 },
+      { category: "maintenance", jul: 0, aug: 0 },
+    ],
+  },
+  napa: {
+    revenueReceived: 7400,
+    rows: [
+      { category: "driver_pay", jul: 380, aug: 420 },
+      { category: "fuel", jul: 120, aug: 110 },
+      { category: "maintenance", jul: 0, aug: 0 },
+    ],
+  },
+  staples: {
+    revenueReceived: 4500,
+    rows: [
+      { category: "driver_pay", jul: 0, aug: 0 },
+      { category: "fuel", jul: 0, aug: 0 },
+      { category: "maintenance", jul: 0, aug: 0 },
+    ],
+  },
+  canpar: {
+    revenueReceived: 0,
+    rows: [
+      { category: "driver_pay", jul: 0, aug: 0 },
+      { category: "fuel", jul: 0, aug: 0 },
+      { category: "maintenance", jul: 0, aug: 0 },
+    ],
+  },
+};
+
+/**
+ * Three periods of expense by category for one company.
+ *
+ * July and August come from `PRIOR_HISTORY`; September is summed out of the
+ * live ledger, so the company profile and the Expenses page can never show
+ * different totals for the open period. Categories that appear only in the
+ * ledger are folded in, so a fleet lease cannot go missing because the
+ * historical table had no row for it.
+ */
+export function companyHistory(companyId: string) {
+  const prior = PRIOR_HISTORY[companyId];
+  const ledger = expensesFor(companyId);
+
+  const sepByCategory = new Map<ExpenseCategory, number>();
+  for (const e of ledger) {
+    sepByCategory.set(e.category, (sepByCategory.get(e.category) ?? 0) + e.amount);
+  }
+
+  const categories: ExpenseCategory[] = [...prior.rows.map((r) => r.category)];
+  for (const c of sepByCategory.keys()) if (!categories.includes(c)) categories.push(c);
+
+  const rows = categories.map((category) => {
+    const p = prior.rows.find((r) => r.category === category);
+    return {
+      category,
+      jul: p?.jul ?? 0,
+      aug: p?.aug ?? 0,
+      sep: sepByCategory.get(category) ?? 0,
+    };
+  });
+
+  const sum = (k: "jul" | "aug" | "sep") => rows.reduce((n, r) => n + r[k], 0);
+  const incurred = sum("jul") + sum("aug") + sum("sep");
+
+  return {
+    revenueReceived: prior.revenueReceived,
+    rows,
+    jul: sum("jul"),
+    aug: sum("aug"),
+    sep: sum("sep"),
+    incurred,
+    net: prior.revenueReceived - incurred,
   };
 }
 
-const FIRST = ["Amara","Joel","Priya","Tomas","Ines","Karl","Noor","Ravi","Elena","Samuel","Yara","Dominic","Freya","Idris","Marta","Owen","Zoe","Hassan","Clara","Nikhil","Bea","Lukas","Sadia","Peter","Anaya","Georgi","Maja","Femi","Ruth","Callum"];
-const LAST = ["Okafor","Whitfield","Raman","Novak","Delgado","Brennan","Haddad","Iyer","Marchetti","Osei","Lindqvist","Farrell","Bergman","Choudhury","Kowalski","Pemberton","Adeyemi","Vasquez","Turnbull","Reddy","Sinclair","Moreau","Bianchi","Nakamura"];
-const COMPANIES = ["Halden Clinic","Bright & Co","Northgate Labs","Verity Interiors","Kestrel Print","Ashby Dental","Moor Lane Studio","Fairfax Legal","Oriel Pharmacy","Calder Foods",null,null,null,null,null];
-const PLACES: Array<[string, string, string]> = [
-  ["Camden","NW1 8QP","North"],["Hackney","E8 3RL","East"],["Peckham","SE15 4TP","South"],
-  ["Fulham","SW6 2AA","West"],["Islington","N1 9LT","North"],["Bow","E3 2SE","East"],
-  ["Brixton","SW9 8HR","South"],["Acton","W3 6NB","West"],["Tottenham","N17 0AP","North"],
-  ["Stratford","E15 1DA","East"],["Croydon","CR0 2RF","South"],["Ealing","W5 5JY","West"],
-  ["Kentish Town","NW5 2AB","North"],["Poplar","E14 6BT","East"],["Dulwich","SE21 7BG","South"],
-  ["Chiswick","W4 4PU","West"],
-];
-const SERVICES: ServiceLevel[] = ["same_day","same_day","next_day","next_day","next_day","economy","economy","freight"];
-const EXCEPTIONS: ExceptionReason[] = ["address_not_found","no_access","customer_absent","refused","damaged","held_at_hub","driver_offline","vehicle_issue"];
-
-export const DRIVERS: Driver[] = [
-  { id: "d1", name: "Marcus Bell",    initials: "MB", state: "on_route", vehicle: "Van 04",  zone: "North", remaining: 11, completed: 23, lastPingMins: 2 },
-  { id: "d2", name: "Sofia Almeida",  initials: "SA", state: "on_route", vehicle: "Van 09",  zone: "East",  remaining: 7,  completed: 31, lastPingMins: 1 },
-  { id: "d3", name: "Dev Chauhan",    initials: "DC", state: "on_route", vehicle: "Van 02",  zone: "South", remaining: 14, completed: 18, lastPingMins: 4 },
-  { id: "d4", name: "Nadia Fischer",  initials: "NF", state: "offline",  vehicle: "Van 11",  zone: "West",  remaining: 9,  completed: 12, lastPingMins: 47 },
-  { id: "d5", name: "Tunde Balogun",  initials: "TB", state: "on_route", vehicle: "Van 07",  zone: "North", remaining: 5,  completed: 28, lastPingMins: 1 },
-  { id: "d6", name: "Grace Lynn",     initials: "GL", state: "break",    vehicle: "Bike 03", zone: "East",  remaining: 6,  completed: 19, lastPingMins: 8 },
-  { id: "d7", name: "Ollie Hart",     initials: "OH", state: "at_depot", vehicle: "Van 15",  zone: "South", remaining: 0,  completed: 26, lastPingMins: 3 },
-  { id: "d8", name: "Rania Aziz",     initials: "RA", state: "on_route", vehicle: "Van 06",  zone: "West",  remaining: 13, completed: 15, lastPingMins: 2 },
+export const PAYMENTS: Payment[] = [
+  { id: "p1", companyId: "intelcom", at: d("2026-08-21"), amount: 45156, method: "direct_deposit", coversFrom: d("2026-08-07"), coversTo: d("2026-08-20") },
+  { id: "p2", companyId: "intelcom", at: d("2026-08-07"), amount: 38400, method: "direct_deposit", coversFrom: d("2026-07-24"), coversTo: d("2026-08-06") },
+  { id: "p3", companyId: "intelcom", at: d("2026-07-24"), amount: 32100, method: "direct_deposit", coversFrom: d("2026-07-10"), coversTo: d("2026-07-23") },
+  { id: "p4", companyId: "rona", at: d("2026-08-11"), amount: 6400, method: "cheque", coversFrom: d("2026-07-21"), coversTo: d("2026-08-03") },
+  { id: "p5", companyId: "rona", at: d("2026-07-28"), amount: 5900, method: "cheque", coversFrom: d("2026-07-07"), coversTo: d("2026-07-20") },
+  { id: "p6", companyId: "rona", at: d("2026-07-14"), amount: 6100, method: "cheque", coversFrom: d("2026-06-23"), coversTo: d("2026-07-06") },
+  { id: "p7", companyId: "napa", at: d("2026-08-18"), amount: 3800, method: "direct_deposit", coversFrom: d("2026-07-18"), coversTo: d("2026-08-17") },
+  { id: "p8", companyId: "napa", at: d("2026-07-18"), amount: 3600, method: "direct_deposit", coversFrom: d("2026-06-18"), coversTo: d("2026-07-17") },
+  { id: "p9", companyId: "staples", at: d("2026-08-18"), amount: 2100, method: "cheque", coversFrom: d("2026-07-18"), coversTo: d("2026-08-17") },
+  { id: "p10", companyId: "staples", at: d("2026-07-18"), amount: 2400, method: "cheque", coversFrom: d("2026-06-18"), coversTo: d("2026-07-17") },
 ];
 
-export const STATUS_LABEL: Record<ShipmentStatus, string> = {
-  booked: "Booked",
-  collected: "Collected",
-  at_hub: "At hub",
-  out_for_delivery: "Out for delivery",
-  delivered: "Delivered",
-  held: "Held",
-  exception: "Exception",
-};
+export const paymentsFor = (companyId: string) =>
+  PAYMENTS.filter((p) => p.companyId === companyId).sort((a, b) => b.at - a.at);
 
-export const STATUS_TONE: Record<ShipmentStatus, StatusTone> = {
-  booked: "idle",
-  collected: "move",
-  at_hub: "move",
-  out_for_delivery: "move",
-  delivered: "ok",
-  held: "warn",
-  exception: "risk",
-};
+/* -------------------------------------------------------------------------- */
+/* Revenue                                                                     */
+/* -------------------------------------------------------------------------- */
 
-export const SERVICE_LABEL: Record<ServiceLevel, string> = {
-  same_day: "Same day",
-  next_day: "Next day",
-  economy: "Economy",
-  freight: "Freight",
-};
+/**
+ * Two payments are sitting in draft. They are the reason Home shows $0
+ * revenue against $57,956 of money the business believes it is owed — the
+ * single most important thing on the screen, and the thing the current
+ * layout buries.
+ */
+export const REVENUE: RevenueEntry[] = [
+  { id: "r1", at: d("2026-09-01"), companyId: "intelcom", coversLabel: "Aug 15–Aug 31", amount: 45156, state: "draft" },
+  { id: "r2", at: d("2026-09-01"), companyId: "rona", coversLabel: "Aug 1–Aug 15", amount: 12800, state: "draft" },
+];
 
-export const EXCEPTION_LABEL: Record<ExceptionReason, string> = {
-  address_not_found: "Address not found",
-  no_access: "No access to building",
-  customer_absent: "Customer absent",
-  refused: "Refused at door",
-  damaged: "Damaged in transit",
-  held_at_hub: "Held at hub",
-  driver_offline: "Driver unreachable",
-  vehicle_issue: "Vehicle breakdown",
-};
+export const DRAFT_REVENUE = REVENUE.filter((r) => r.state === "draft");
+export const FINALIZED_REVENUE = REVENUE.filter((r) => r.state === "finalized");
+export const DRAFT_REVENUE_TOTAL = DRAFT_REVENUE.reduce((n, r) => n + r.amount, 0); // 57,956
+export const REVENUE_TOTAL = FINALIZED_REVENUE.reduce((n, r) => n + r.amount, 0); // 0
 
-export const SLA_LABEL: Record<SlaState, string> = {
-  breached: "Breached",
-  at_risk: "At risk",
-  due_soon: "Due soon",
-  on_track: "On track",
-  met: "Met",
-};
+/* -------------------------------------------------------------------------- */
+/* Cash, obligations, partners                                                 */
+/* -------------------------------------------------------------------------- */
 
-export const SLA_TONE: Record<SlaState, StatusTone> = {
-  breached: "risk",
-  at_risk: "risk",
-  due_soon: "warn",
-  on_track: "ok",
-  met: "ok",
-};
+export const CASH_RECEIVED = 0;
+export const CASH_PAID_OUT = 459;
+export const CASH_NET = CASH_RECEIVED - CASH_PAID_OUT; // -459
 
-function buildTimeline(
-  rand: () => number,
-  status: ShipmentStatus,
-  exception: ExceptionReason | null,
-  lastEventAt: number,
-  driver?: Driver,
-): TimelineEvent[] {
-  // Built newest-first and walked backwards, so the head of the timeline is
-  // always close to "now". Building forwards from a booking date pushed the
-  // latest scan a full day into the past, which read as stale data.
-  type Step = { gapMins: number; event: Omit<TimelineEvent, "at"> };
-  const steps: Step[] = [];
+export const RECURRING: RecurringEntry[] = [
+  { id: "rc1", description: "Monthly commercial vehicle insurance", companyId: "global", category: "insurance", amount: 918, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
+  { id: "rc2", description: "Fleet lease – Precision", companyId: "precision", category: "vehicle_rent", amount: 2577, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
+  { id: "rc3", description: "Fleet lease – Intelcom", companyId: "intelcom", category: "vehicle_rent", amount: 4422, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
+];
 
-  if (status === "delivered") {
-    steps.push({ gapMins: 0, event: { id: "e5", label: "Delivered", detail: "Signed for at door", tone: "ok", actor: driver?.name } });
-  } else if (status === "exception" && exception) {
-    steps.push({ gapMins: 0, event: { id: "e5", label: "Delivery attempt failed", detail: EXCEPTION_LABEL[exception], tone: "risk", actor: driver?.name } });
-  } else if (status === "held") {
-    steps.push({ gapMins: 0, event: { id: "e5", label: "Held at hub", detail: "Awaiting customer instruction", tone: "warn", actor: "Hub" } });
-  }
+const driverPayrollOutstanding = DRIVERS.reduce((n, dr) => n + dr.logged - dr.settled, 0); // 11,050
+export const DRIVER_OUTSTANDING_TOTAL = DRIVERS.reduce((n, dr) => n + outstandingFor(dr), 0); // 12,850
+export const DRIVER_CARRIED_TOTAL = DRIVERS.reduce((n, dr) => n + dr.carried, 0); // 1,800
+export const DRIVERS_SETTLED = DRIVERS.filter(isSettled).length; // 1
+export const DRIVERS_UNSETTLED = DRIVERS.length - DRIVERS_SETTLED; // 17
 
-  if (status === "out_for_delivery" || status === "delivered" || status === "exception") {
-    steps.push({ gapMins: 45 + Math.floor(rand() * 60), event: { id: "e4", label: "Out for delivery", detail: driver ? `Loaded to ${driver.vehicle}` : undefined, tone: "move", actor: driver?.name } });
-  }
-  if (status !== "booked") {
-    steps.push({ gapMins: 40 + Math.floor(rand() * 50), event: { id: "e3", label: "Arrived at Bermondsey hub", detail: `Sorted to ${driver?.zone ?? "unassigned"} round`, tone: "move", actor: "Hub scan" } });
-    steps.push({ gapMins: 55 + Math.floor(rand() * 70), event: { id: "e2", label: "Collected from sender", tone: "move", actor: driver?.name ?? "Depot" } });
-  }
-  steps.push({ gapMins: 60 + Math.floor(rand() * 180), event: { id: "e1", label: "Booking received", detail: "Created via API integration", tone: "idle", actor: "System" } });
+export const OBLIGATIONS: Obligation[] = [
+  {
+    id: "o1",
+    label: "Driver payroll",
+    detail: `${DRIVERS.length} drivers · ${DRIVERS_SETTLED} settled`,
+    amount: driverPayrollOutstanding,
+    overdue: false,
+    carried: false,
+  },
+  { id: "o2", label: "Global insurance", detail: "Due Sep 15", amount: 918, overdue: false, carried: false },
+  { id: "o3", label: "Vehicle rent – Precision", detail: "Aug 2026 · carried forward", amount: 2577, overdue: true, carried: true },
+  { id: "o4", label: "Vehicle rent – Intelcom", detail: "Aug 2026 · carried forward", amount: 4422, overdue: true, carried: true },
+];
 
-  let t = lastEventAt;
-  return steps.map((step, i) => {
-    if (i > 0) t -= step.gapMins * MIN;
-    return { ...step.event, at: t };
-  });
+export const OBLIGATION_TOTAL = OBLIGATIONS.reduce((n, o) => n + o.amount, 0); // 18,967
+
+export const UNPAID_BILLS = EXPENSES.filter((e) => e.payable && e.category === "insurance");
+export const UNPAID_BILL_TOTAL = 918;
+
+/* -------------------------------------------------------------------------- */
+/* Periods                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * `distributed` is what the partners actually split, and it is **not**
+ * `revenue - expenses` for every row.
+ *
+ * July closed clean, so the two agree. August closed with $14,636 of expense
+ * still unpaid, so the distributed figure is higher than the accrual
+ * subtraction. September is open and only $459 has left the bank.
+ *
+ * The live build prints these three figures in one "Profit" column with no
+ * indication that the basis changes between rows, which is why the table
+ * looks like it cannot add up. The figures are kept exactly; the console
+ * labels the basis instead. RECONCILED.
+ */
+export const PERIODS: PeriodSummary[] = [
+  { key: "2026-07", label: "Jul 2026", revenue: 95400, expenses: 100714, distributed: -5314, basis: "accrual", closedAt: d("2026-08-03"), locked: true },
+  { key: "2026-08", label: "Aug 2026", revenue: 82980, expenses: 126350, distributed: -28734, basis: "cash", closedAt: d("2026-09-02"), locked: true },
+  { key: "2026-09", label: "Sep 2026", revenue: REVENUE_TOTAL, expenses: EXPENSE_TOTAL, distributed: CASH_NET, basis: "cash", closedAt: null, locked: false },
+];
+
+export const OPEN_PERIOD = PERIODS[PERIODS.length - 1];
+export const CLOSED_PERIODS = PERIODS.filter((p) => p.locked);
+
+/** Everything before the open period, which is what "carried forward" means. */
+export const CARRIED_FORWARD = CLOSED_PERIODS.reduce((n, p) => n + p.distributed, 0); // -34,048
+
+export const PARTNERS: Partner[] = [
+  { id: "syed", name: "Syed", share: 0.35, withdrawn: 0 },
+  { id: "kiani", name: "Kiani", share: 0.65, withdrawn: 0 },
+];
+
+export const CUMULATIVE_DISTRIBUTED = PERIODS.reduce((n, p) => n + p.distributed, 0); // -34,507
+
+export const shareOf = (partner: Partner, amount: number) => Math.round(amount * partner.share);
+
+/* -------------------------------------------------------------------------- */
+/* Activity                                                                    */
+/* -------------------------------------------------------------------------- */
+
+const MIN = 60_000;
+const HOUR = 60 * MIN;
+
+export const ACTIVITY: ActivityEvent[] = [
+  { id: "a1", at: NOW - 2 * MIN,  actor: "ABC", summary: "logged 1 entry for Precision",  amount: 280,  entries: 1, tone: "move" },
+  { id: "a2", at: NOW - 2 * HOUR, actor: "ABC", summary: "logged 8 entries for Precision", amount: 1720, entries: 8, tone: "move" },
+  { id: "a3", at: NOW - 2 * HOUR - 25 * MIN, actor: "ABC", summary: "logged 5 entries for Intelcom", amount: 985, entries: 5, tone: "move" },
+  { id: "a4", at: NOW - 3 * HOUR, actor: "ABC", summary: "logged 2 entries for Rona",     amount: 360,  entries: 2, tone: "move" },
+  { id: "a5", at: NOW - 21 * HOUR, actor: "Syed", summary: "settled Prabh's payroll",     amount: 2850, entries: 0, tone: "ok" },
+];
+
+/**
+ * The "new since you were last here" banner.
+ *
+ * Derived from the feed rather than stored. The live build's banner says
+ * "12 new entries · $3,200" while the list beneath it shows 16 entries
+ * totalling $3,345. RECONCILED: one source, so the two can never disagree.
+ */
+export const SINCE_LAST_VISIT = (() => {
+  const cutoff = NOW - 21 * HOUR;
+  const rows = ACTIVITY.filter((a) => a.at > cutoff && a.entries > 0);
+  return {
+    entries: rows.reduce((n, a) => n + a.entries, 0),
+    amount: rows.reduce((n, a) => n + (a.amount ?? 0), 0),
+    since: cutoff,
+  };
+})();
+
+/* -------------------------------------------------------------------------- */
+/* Derived roll-ups                                                            */
+/* -------------------------------------------------------------------------- */
+
+export const expensesByCompany = (): Array<{ company: Company; total: number; drivers: number }> =>
+  COMPANIES.map((c) => ({
+    company: c,
+    total: EXPENSES.filter((e) => e.companyId === c.id).reduce((n, e) => n + e.amount, 0),
+    drivers: DRIVERS.filter((dr) => dr.companyId === c.id).length,
+  }));
+
+export const COMPANIES_WITH_ACTIVITY = expensesByCompany().filter((r) => r.total > 0).length; // 4
+
+export const driversFor = (companyId: string) => DRIVERS.filter((dr) => dr.companyId === companyId);
+
+export function expensesFor(companyId: string) {
+  return EXPENSES.filter((e) => e.companyId === companyId);
 }
 
-function generate(): Shipment[] {
-  const rand = seeded(20260912);
-  const out: Shipment[] = [];
+/** Period-to-date burn, used for the pacing line on Home. */
+export const DAILY_AVERAGE = Math.round(EXPENSE_TOTAL / DAY_OF_PERIOD); // 3,107
+export const PACING = DAILY_AVERAGE * PERIOD_DAYS; // 93,210
 
-  for (let i = 0; i < 68; i++) {
-    const place = PLACES[Math.floor(rand() * PLACES.length)];
-    const service = SERVICES[Math.floor(rand() * SERVICES.length)];
-    const roll = rand();
+/* -------------------------------------------------------------------------- */
+/* Month-end checklist                                                         */
+/* -------------------------------------------------------------------------- */
 
-    // Weighted so the board reflects a real mid-afternoon: mostly in motion,
-    // a meaningful tail of exceptions, a growing pile already delivered.
-    const status: ShipmentStatus =
-      roll < 0.30 ? "out_for_delivery" :
-      roll < 0.50 ? "delivered" :
-      roll < 0.62 ? "at_hub" :
-      roll < 0.72 ? "collected" :
-      roll < 0.80 ? "booked" :
-      roll < 0.88 ? "held" : "exception";
+/** What Precision owes and has never paid. The sharpest number in the book. */
+export const PRECISION_AT_RISK = EXPENSES
+  .filter((e) => e.companyId === "precision")
+  .reduce((n, e) => n + e.amount, 0); // 4,597
 
-    const exception = status === "exception" ? EXCEPTIONS[Math.floor(rand() * EXCEPTIONS.length)] : null;
-    const assignable = status !== "booked" && status !== "at_hub";
-    const driver = assignable ? DRIVERS[Math.floor(rand() * DRIVERS.length)] : undefined;
+export const CHECKLIST: ChecklistItem[] = [
+  {
+    id: "c1",
+    label: "All expenses logged",
+    detail: `${COMPANIES_WITH_ACTIVITY} of ${COMPANIES.length} companies have entries for September. Canpar and Staples have none.`,
+    done: false,
+    actionLabel: "Review",
+    href: "/ops/expenses",
+  },
+  {
+    id: "c2",
+    label: "Revenue entries finalized",
+    detail: `${DRAFT_REVENUE.length} draft entries still unfinalized`,
+    amount: DRAFT_REVENUE_TOTAL,
+    done: false,
+    actionLabel: "Finalize",
+    href: "/ops/financials?tab=revenue",
+  },
+  {
+    id: "c3",
+    label: "Drivers settled",
+    detail: `${DRIVERS_SETTLED} of ${DRIVERS.length} drivers settled`,
+    amount: driverPayrollOutstanding,
+    done: false,
+    actionLabel: "Settle",
+    href: "/ops/drivers",
+  },
+  {
+    id: "c4",
+    label: "Bills paid",
+    detail: `${UNPAID_BILLS.length} unpaid bill`,
+    amount: UNPAID_BILL_TOTAL,
+    done: false,
+    actionLabel: "Pay",
+    href: "/ops/expenses",
+  },
+  {
+    id: "c5",
+    label: "Period closed",
+    detail: `Complete all items above to close ${PERIOD.long}`,
+    done: false,
+    actionLabel: "Close",
+    href: "/ops/financials?tab=close",
+  },
+];
 
-    // SLA spread: a handful already broken, a cluster inside the danger
-    // window, the rest comfortable. This is what makes triage demonstrable.
-    const slaRoll = rand();
-    const offsetMins =
-      // A completed parcel's promise time is necessarily in the past, or its
-      // delivery event lands in the future and the activity feed reads
-      // "Delivered in 7h".
-      status === "delivered" ? -(Math.floor(rand() * 400) + 25) :
-      slaRoll < 0.10 ? -Math.floor(rand() * 180) - 10 :
-      slaRoll < 0.24 ? Math.floor(rand() * 55) + 5 :
-      slaRoll < 0.42 ? Math.floor(rand() * 110) + 60 :
-      Math.floor(rand() * 420) + 180;
+/* -------------------------------------------------------------------------- */
+/* Pending actions, as Home lists them                                         */
+/* -------------------------------------------------------------------------- */
 
-    const slaDueAt = NOW + offsetMins * MIN;
-    // Delivered parcels get a real completion time, most inside the promise
-    // and a realistic tail outside it — otherwise on-time rate is always 100%.
-    const lateRoll = rand();
-    const deliveredAt =
-      status === "delivered"
-        ? Math.min(
-            NOW - 4 * MIN, // never in the future
-            slaDueAt + (lateRoll < 0.16 ? Math.floor(rand() * 95) + 6 : -(Math.floor(rand() * 150) + 12)) * MIN,
-          )
-        : null;
-    const lastEventAt = deliveredAt ?? NOW - Math.floor(rand() * 175) * MIN;
-    const idNum = 24100 + i * 7 + Math.floor(rand() * 5);
-    const first = FIRST[Math.floor(rand() * FIRST.length)];
-    const last = LAST[Math.floor(rand() * LAST.length)];
-    const company = COMPANIES[Math.floor(rand() * COMPANIES.length)];
-
-    out.push({
-      id: `s${i}`,
-      tracking: `SNK-${idNum}`,
-      recipient: `${first} ${last}`,
-      company: company ?? undefined,
-      city: place[0],
-      postcode: place[1],
-      zone: place[2],
-      service,
-      status,
-      driverId: driver?.id ?? null,
-      slaDueAt,
-      eta: status === "out_for_delivery" ? NOW + (Math.floor(rand() * 90) + 10) * MIN : null,
-      attempts: status === "exception" ? 1 + Math.floor(rand() * 2) : 0,
-      pieces: 1 + Math.floor(rand() * 3),
-      weightKg: Math.round((0.4 + rand() * 18) * 10) / 10,
-      exception,
-      deliveredAt,
-      updatedAt: lastEventAt,
-      timeline: buildTimeline(rand, status, exception, lastEventAt, driver),
-    });
-  }
-  return out;
-}
-
-export const SHIPMENTS: Shipment[] = generate();
-
-export function slaStateFor(s: Shipment, now = NOW): { sla: SlaState; minutesToSla: number } {
-  const minutesToSla = Math.round((s.slaDueAt - now) / MIN);
-  if (s.status === "delivered") return { sla: "met", minutesToSla };
-  if (minutesToSla < 0) return { sla: "breached", minutesToSla };
-  if (minutesToSla <= 60) return { sla: "at_risk", minutesToSla };
-  if (minutesToSla <= 180) return { sla: "due_soon", minutesToSla };
-  return { sla: "on_track", minutesToSla };
+export interface PendingAction {
+  id: string;
+  label: string;
+  /** Money at stake. Null for an action that moves no money by itself. */
+  amount: number | null;
+  action: string;
+  href: string;
+  tone: StatusTone;
 }
 
 /**
- * Urgency ranking. This replaces "sort by date created", which is the default
- * in most generated dashboards and is close to useless for a dispatcher.
+ * Ranked by money at stake, largest first, so the list can be worked top to
+ * bottom. The live build lists them in a fixed order that puts $918 of bills
+ * above $57,956 of unfinalized revenue.
  */
-export function rank(s: Shipment, now = NOW): RankedShipment {
-  const { sla, minutesToSla } = slaStateFor(s, now);
-
-  if (s.status === "delivered") return { ...s, sla, minutesToSla, urgency: -1 };
-
-  /**
-   * Banded ranking. SLA state is the primary key and nothing can cross a band:
-   * a breached parcel always outranks an at-risk one, however many problem
-   * flags the at-risk one carries. Flat additive scoring floated an exception
-   * with seven hours of slack above a parcel two hours past its promise, which
-   * is exactly the judgement a dispatcher would never make.
-   */
-  const BAND: Record<SlaState, number> = { breached: 4, at_risk: 3, due_soon: 2, on_track: 1, met: 0 };
-  let urgency = BAND[sla] * 1_000_000;
-
-  // Modifiers rank items *within* a band; capped well below one band step.
-  if (s.status === "exception") urgency += 120_000;
-  if (!s.driverId) urgency += 80_000;
-  if (s.attempts >= 2) urgency += 60_000;
-  if (s.status === "held") urgency += 40_000;
-  if (s.service === "same_day") urgency += 30_000;
-
-  // Tiebreak: longest overdue first, otherwise soonest promise first.
-  urgency += sla === "breached"
-    ? Math.min(9_999, -minutesToSla)
-    : Math.max(0, 9_999 - minutesToSla);
-
-  return { ...s, sla, minutesToSla, urgency };
-}
-
-export const RANKED: RankedShipment[] = SHIPMENTS.map((s) => rank(s)).sort((a, b) => b.urgency - a.urgency);
-
-export function driverById(id: string | null): Driver | undefined {
-  return id ? DRIVERS.find((d) => d.id === id) : undefined;
-}
-
+export const PENDING_ACTIONS: PendingAction[] = (
+  [
+    { id: "pa1", label: "Finalize draft payments", amount: DRAFT_REVENUE_TOTAL, action: "Finalize", href: "/ops/financials?tab=revenue", tone: "warn" },
+    { id: "pa2", label: "Settle driver pay", amount: DRIVER_OUTSTANDING_TOTAL, action: "Settle", href: "/ops/drivers", tone: "risk" },
+    { id: "pa3", label: "Record Precision payment — never invoiced", amount: PRECISION_AT_RISK, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
+    { id: "pa4", label: "Pay outstanding bills", amount: UNPAID_BILL_TOTAL, action: "Pay", href: "/ops/expenses", tone: "warn" },
+    { id: "pa5", label: `Close the ${PERIOD.label} period`, amount: null, action: "Close", href: "/ops/financials?tab=close", tone: "idle" },
+  ] satisfies PendingAction[]
+).sort((a, b) => (b.amount ?? -1) - (a.amount ?? -1));
 
 /* -------------------------------------------------------------------------- */
-/* Daily series for the manager Overview                                       */
+/* Period-to-date series                                                       */
 /* -------------------------------------------------------------------------- */
 
 export interface DayPoint {
-  /** Midnight UTC for the day. */
   at: number;
-  /** Work arriving. Plotted against `delivered` because the gap between the
-      two is the backlog — the number that predicts tomorrow's problems. */
-  booked: number;
-  delivered: number;
-  failed: number;
-  /** Percentage delivered inside the promise window. */
-  onTime: number;
+  day: number;
+  entries: number;
+  spend: number;
+  cumulative: number;
 }
 
-const DAY = 24 * 60 * MIN;
-
-/** 90 days of deterministic history, oldest first. */
-export const DAILY: DayPoint[] = (() => {
-  const rand = seeded(778812);
+/**
+ * Spend per day of the open period, and the running total.
+ *
+ * Derived from the ledger rather than supplied as its own series, so the
+ * sparkline on Home and the rows on Expenses can never tell different
+ * stories. Four days in, four points — a sparkline over a stub of a month is
+ * honest about how little there is to see.
+ */
+export const PERIOD_SERIES: DayPoint[] = (() => {
   const out: DayPoint[] = [];
-  for (let i = 89; i >= 0; i--) {
-    const at = NOW - i * DAY;
-    const weekday = new Date(at).getUTCDay();
-    // Saturdays are the peak for a courier; Sundays are quiet.
-    const seasonal = weekday === 6 ? 1.35 : weekday === 0 ? 0.45 : 1;
-    // Gentle growth across the quarter so the trend reads as a business.
-    const growth = 1 + (89 - i) / 240;
-    const delivered = Math.round((180 + rand() * 60) * seasonal * growth);
-    const booked = Math.round(delivered * (0.94 + rand() * 0.22));
-    const failed = Math.round(delivered * (0.03 + rand() * 0.05));
-    out.push({
-      at,
-      booked,
-      delivered,
-      failed,
-      onTime: Math.round((100 - (failed / delivered) * 100 - rand() * 6) * 10) / 10,
-    });
+  let running = 0;
+  for (let day = 1; day <= DAY_OF_PERIOD; day++) {
+    const at = d(`2026-09-${String(day).padStart(2, "0")}`);
+    const rows = EXPENSES.filter((e) => new Date(e.at).getUTCDate() === day);
+    const spend = rows.reduce((n, e) => n + e.amount, 0);
+    running += spend;
+    out.push({ at, day, entries: rows.length, spend, cumulative: running });
   }
   return out;
 })();
 
-const sumDelivered = DAILY.reduce((n, d) => n + d.delivered, 0);
-
-/**
- * Exception reasons ranked by volume.
- *
- * Weighted from real last-mile failure patterns rather than sampled from the
- * 68-parcel live board — a board that size ranks "damaged in transit" first,
- * which no courier would recognise. Access and absence dominate in reality.
- */
-export const EXCEPTION_BREAKDOWN = (() => {
-  const WEIGHTS: Record<ExceptionReason, number> = {
-    customer_absent: 268,
-    no_access: 196,
-    address_not_found: 141,
-    refused: 88,
-    held_at_hub: 74,
-    driver_offline: 43,
-    vehicle_issue: 29,
-    damaged: 21,
-  };
-  const rows = EXCEPTIONS.map((reason) => ({ reason, count: WEIGHTS[reason] })).sort((a, b) => b.count - a.count);
-  const total = rows.reduce((n, r) => n + r.count, 0);
-  return rows.map((r) => ({ ...r, share: Math.round((r.count / total) * 1000) / 10 }));
-})();
-
-/**
- * On-time rate per service level against the contractual target.
- *
- * Derived from the quarter, not from today's board: with only a handful of
- * completed parcels per service the live figure lands on 50% or 100% and
- * reads as broken data rather than as performance.
- */
-export const SERVICE_PERFORMANCE = (["same_day", "next_day", "economy", "freight"] as const).map(
-  (service, i) => {
-    const target = [98, 95, 90, 92][i];
-    const rand = seeded(9100 + i * 37);
-    rand();
-    const actual = Math.round((target - 3.6 + rand() * 7) * 10) / 10;
-    const share = [0.22, 0.41, 0.28, 0.09][i];
-    return { service, target, actual, volume: Math.round(sumDelivered * share) };
-  },
+/** Cash leaving the business, cumulatively. Only one payment has cleared. */
+export const CASH_SERIES: number[] = PERIOD_SERIES.map((_, i) =>
+  i === PERIOD_SERIES.length - 1 ? CASH_NET : 0,
 );
 
-
-/**
- * 14-day history per headline metric, for the sparklines on the Today strip.
- *
- * A number with no trend behind it can't be judged: "9 breached" means one
- * thing on a flat week and another on the fourth straight rise. Deterministic,
- * like everything else here.
- */
-export const KPI_SERIES: Record<"breached" | "atRisk" | "exceptions" | "unassigned" | "outForDelivery", number[]> =
-  (() => {
-    const shape = (seed: number, base: number, spread: number, drift: number) => {
-      const rand = seeded(seed);
-      return Array.from({ length: 14 }, (_, i) =>
-        Math.max(0, Math.round(base + drift * i + (rand() - 0.5) * spread)),
-      );
-    };
-    return {
-      breached: shape(311, 5, 4, 0.28),
-      atRisk: shape(922, 7, 5, -0.16),
-      exceptions: shape(455, 6, 4, 0.1),
-      unassigned: shape(781, 8, 6, -0.22),
-      outForDelivery: shape(196, 22, 9, 0.15),
-    };
-  })();
-
-/* -------------------------------------------------------------------------- */
-/* Rounds                                                                      */
-/* -------------------------------------------------------------------------- */
-
-/**
- * One round per driver, sequenced.
- *
- * Stop order is the round as loaded, not as completed — which is the point of
- * the screen: a dispatcher reads down the sequence to see where the driver is
- * and what is still ahead of them.
- */
-export const ROUTES: DeliveryRoute[] = DRIVERS.map((driver, di) => {
-  const rand = seeded(5200 + di * 91);
-  const planned = 18 + Math.floor(rand() * 14);
-  const done = driver.state === "at_depot" ? planned : Math.min(planned - 1, driver.completed % planned);
-  const startedAt = NOW - (5 * 60 + Math.floor(rand() * 90)) * MIN;
-  const stops: RouteStop[] = [];
-
-  for (let i = 0; i < planned; i++) {
-    const settled = i < done;
-    // Roughly one stop in twelve fails on a real round.
-    const failed = settled && rand() < 0.085;
-    const state: StopState = failed ? "failed" : settled ? "done" : i === done ? "current" : "pending";
-    // Settled stops carry the time they happened; everything still ahead of
-    // the driver is projected forward from now. Deriving both from the round's
-    // start put tonight's deliveries several hours in the past.
-    const at = settled
-      ? startedAt + i * (13 + Math.floor(rand() * 7)) * MIN
-      : NOW + (i - done) * (13 + Math.floor(rand() * 7)) * MIN;
-    const hour = 8 + Math.floor((i / planned) * 9);
-    stops.push({
-      id: `${driver.id}-s${i}`,
-      seq: i + 1,
-      tracking: `SNK-${24100 + di * 37 + i * 3}`,
-      recipient: `${FIRST[Math.floor(rand() * FIRST.length)]} ${LAST[Math.floor(rand() * LAST.length)]}`,
-      postcode: `${PLACES[Math.floor(rand() * PLACES.length)][1]}`,
-      window: `${String(hour).padStart(2, "0")}:00–${String(hour + 3).padStart(2, "0")}:00`,
-      state,
-      at,
-      note: failed ? EXCEPTION_LABEL[EXCEPTIONS[Math.floor(rand() * EXCEPTIONS.length)]] : undefined,
-    });
-  }
-
-  return {
-    id: `r${di}`,
-    code: `R-${driver.zone.slice(0, 1)}${String(di + 1).padStart(2, "0")}`,
-    zone: driver.zone,
-    driverId: driver.id,
-    startedAt,
-    etaFinish: startedAt + planned * 15 * MIN,
-    loadPct: 54 + Math.floor(rand() * 44),
-    stops,
-  };
-});
+export const EXPENSE_SERIES: number[] = PERIOD_SERIES.map((p) => p.cumulative);
+export const REVENUE_SERIES: number[] = PERIOD_SERIES.map(() => REVENUE_TOTAL);
