@@ -152,6 +152,70 @@ export function Money({
   );
 }
 
+/**
+ * Month-over-month change.
+ *
+ * Direction is carried by the arrow glyph and the sign, never only by the
+ * tint — and "worse" is decided by the caller, because a rise in expenses and
+ * a rise in revenue are not the same news.
+ */
+export function DeltaChip({
+  pct,
+  dir,
+  good,
+  caption = "vs last month",
+  className,
+}: {
+  pct: number;
+  dir: "up" | "down" | "flat";
+  /** Whether this movement is good news. Ignored when flat. */
+  good?: boolean;
+  caption?: string;
+  className?: string;
+}) {
+  const tone: StatusTone = dir === "flat" ? "idle" : good ? "ok" : "risk";
+  const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "—";
+  return (
+    <span className={cn("inline-flex items-baseline gap-1.5 text-[11px]", className)}>
+      <span className={cn("ops-num rounded-md px-1.5 py-[2px] font-semibold ring-1 ring-inset", TONE_PILL[tone])}>
+        {glyph} {pct}%
+      </span>
+      <span className="text-ops-text-tertiary">{caption}</span>
+    </span>
+  );
+}
+
+/**
+ * A segmented meter.
+ *
+ * Reads as a count of discrete units rather than a continuous fill, which is
+ * the honest shape for "17 of 18 drivers" — and it is a treatment the
+ * generated-dashboard look never reaches for.
+ */
+export function DottedMeter({
+  value,
+  max,
+  tone = "accent",
+  segments = 24,
+  className,
+}: {
+  value: number;
+  max: number;
+  tone?: "accent" | StatusTone;
+  segments?: number;
+  className?: string;
+}) {
+  const filled = max > 0 ? Math.round((value / max) * segments) : 0;
+  const on = tone === "accent" ? "bg-ops-accent" : TONE_DOT[tone];
+  return (
+    <div className={cn("flex h-2 w-full gap-[3px]", className)} aria-hidden>
+      {Array.from({ length: segments }, (_, i) => (
+        <span key={i} className={cn("h-full min-w-0 flex-1 rounded-[2px]", i < filled ? on : "bg-ops-active")} />
+      ))}
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /* Structure                                                                   */
 /* -------------------------------------------------------------------------- */
@@ -161,16 +225,24 @@ export function SectionTitle({
   count,
   hint,
   action,
+  icon: Icon,
   className,
 }: {
   title: string;
   count?: number;
   hint?: React.ReactNode;
   action?: React.ReactNode;
+  /** A small line icon in a tinted disc before the title. */
+  icon?: React.ComponentType<{ className?: string }>;
   className?: string;
 }) {
   return (
     <div className={cn("flex min-h-8 w-full items-center gap-2", className)}>
+      {Icon && (
+        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ops-active text-ops-text-secondary">
+          <Icon className="size-3.5" />
+        </span>
+      )}
       <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
       {count !== undefined && (
         <span className="ops-num rounded-md bg-ops-active px-1.5 py-px text-[11px] font-semibold text-ops-text-secondary">

@@ -204,8 +204,28 @@ Density rules that came out of the same pass:
 - **Companies is a table, not a stack of cards with progress bars.** Six rows
   at 36px is a block you take in at once; the same six as cards was 440px of
   mostly air.
+- **Headline figures: value first, then a hairline, then the label.** The
+  figure is what the eye lands on, so it leads; the label underneath is
+  confirmation, with a small icon in a tinted disc. The month-over-month chip
+  sits beside the value. This is the shape the current Dribbble crop has
+  settled on (Repo Studio's Fluxo, Excited's Ledge, Sujon Hossain's Raxon) and
+  it reads as a ledger rather than a template.
+- **Deltas are the client's own figures**, transcribed in `HEADLINE_DELTA`
+  and labelled "vs last month" as their cards say. The demo ledger has no
+  August to compute against; swap for a derived value when the API has prior
+  periods. Direction tint is decided per figure — rising expenses are red,
+  rising revenue would be green.
+- **Segmented meters, not continuous bars, for counts.** "17 of 18 drivers"
+  is eighteen units, so `DottedMeter` draws eighteen. Continuous fills are
+  reserved for money against money.
+- **A line icon in a tinted disc before every card title.** Gives each block
+  an identity at a glance; every recent reference does it.
 - Reference screens for this page: Wave's Payable & Owing, Xero's financial
-  position, QuickBooks' Business at a glance, Monarch's cash-flow report.
+  position, QuickBooks' Business at a glance, Monarch's cash-flow report
+  (Mobbin); Fluxo, Ledge, Raxon and Ronas IT's fintech dashboard (Dribbble,
+  Aug–Sep 2026). What was deliberately *not* taken from Dribbble: serif
+  display numerals, kebab menus that do nothing, decorative sparklines, AI
+  assistant panels.
 
 ## Conventions
 

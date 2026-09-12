@@ -600,6 +600,26 @@ export const PENDING_ACTIONS: PendingAction[] = (
 ).sort((a, b) => (b.amount ?? -1) - (a.amount ?? -1));
 
 /* -------------------------------------------------------------------------- */
+/* Month-over-month deltas on the headline figures                            */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Transcribed from the live build's headline cards, not derived.
+ *
+ * The demo ledger only holds the open period, so there is no August cash
+ * position to compute a change against. The client's own figures are kept
+ * verbatim and labelled as a comparison to last month, which is what their
+ * cards say. Replace with a computed value the moment the API exposes prior
+ * periods.
+ */
+export const HEADLINE_DELTA: Record<"cash" | "revenue" | "expenses" | "profit", { pct: number; dir: "up" | "down" | "flat" }> = {
+  cash: { pct: 17, dir: "down" },
+  revenue: { pct: 0, dir: "flat" },
+  expenses: { pct: 12, dir: "up" },
+  profit: { pct: 17, dir: "down" },
+};
+
+/* -------------------------------------------------------------------------- */
 /* Period-to-date series                                                       */
 /* -------------------------------------------------------------------------- */
 

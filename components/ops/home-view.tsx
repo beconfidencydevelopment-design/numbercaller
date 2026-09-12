@@ -2,7 +2,20 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Download, Plus, X } from "lucide-react";
+import {
+  Activity,
+  ArrowRight,
+  Building2,
+  CalendarRange,
+  Check,
+  Download,
+  FileText,
+  Plus,
+  Receipt,
+  Users,
+  Wallet,
+  X,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -10,6 +23,8 @@ import {
   Button,
   Card,
   CardHeader,
+  DeltaChip,
+  DottedMeter,
   Money,
   RowAction,
   SectionTitle,
@@ -35,6 +50,7 @@ import {
   DRIVER_OUTSTANDING_TOTAL,
   EXPENSES,
   EXPENSE_TOTAL,
+  HEADLINE_DELTA,
   NOW,
   PACING,
   PARTNERS,
@@ -57,16 +73,23 @@ import { daysAgo, formatDate, formatTime, initialsOf, money, relativeTime } from
 /**
  * A headline figure.
  *
- * No sparkline. The period is four days old, so any trend line here would be
- * four points wide and two of them would be flat — a chart that decorates
- * rather than informs, and the surest tell of a dashboard nobody had to use.
- * The space goes to a sentence explaining the number instead, which is what
- * every real accounting product does with it.
+ * Value first, with the month-over-month change beside it; a hairline; then
+ * the label and its basis with an icon. The figure is what the eye lands on,
+ * so it leads — the label is confirmation, not a heading. This is the shape
+ * the current crop of finance products has settled on, and it reads as a
+ * ledger rather than a dashboard template.
+ *
+ * No sparkline. The period is four days old, so any trend line would be four
+ * points wide with two of them flat. The space goes to one sentence that
+ * explains the number.
  */
 function Figure({
   label,
   basis,
+  icon: Icon,
   value,
+  delta,
+  good,
   note,
   tone = "neutral",
   focal,
@@ -74,7 +97,11 @@ function Figure({
 }: {
   label: string;
   basis: string;
+  icon: React.ComponentType<{ className?: string }>;
   value: number;
+  delta: { pct: number; dir: "up" | "down" | "flat" };
+  /** Whether the delta direction is good news for this figure. */
+  good: boolean;
   note: React.ReactNode;
   tone?: "neutral" | "risk";
   focal?: boolean;
@@ -84,43 +111,54 @@ function Figure({
     <Link
       href={href}
       className={cn(
-        "flex min-w-0 flex-col rounded-[var(--ops-r-card)] border p-3.5 transition-colors",
+        "flex min-w-0 flex-col rounded-[var(--ops-r-card)] border transition-colors",
         focal
           ? "border-ops-focal-line bg-ops-focal-bg"
           : "border-ops-line bg-ops-surface hover:border-ops-line-strong",
       )}
     >
-      <div className="flex items-baseline gap-1.5">
-        <span
+      <div className="px-4 pb-3 pt-3.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <span
+            className={cn(
+              "ops-figure text-[28px] font-semibold leading-none tracking-[-0.025em]",
+              focal ? "text-ops-focal-fg" : tone === "risk" ? "text-ops-risk-fg" : "text-ops-text",
+            )}
+          >
+            {money(value)}
+          </span>
+          <DeltaChip pct={delta.pct} dir={delta.dir} good={good} caption="" />
+        </div>
+        <p
           className={cn(
-            "text-[11px] font-semibold uppercase tracking-[0.04em]",
+            "mt-2 text-[11px] leading-[1.45]",
             focal ? "text-ops-focal-muted" : "text-ops-text-tertiary",
           )}
         >
-          {label}
-        </span>
-        <span className={cn("text-[11px]", focal ? "text-ops-focal-muted/75" : "text-ops-text-tertiary")}>
-          {basis}
-        </span>
+          {note}
+        </p>
       </div>
 
       <div
         className={cn(
-          "ops-figure mt-1.5 text-[27px] font-semibold leading-none",
-          focal ? "text-ops-focal-fg" : tone === "risk" ? "text-ops-risk-fg" : "text-ops-text",
+          "flex items-center gap-2 border-t px-4 py-2",
+          focal ? "border-ops-focal-line" : "border-ops-line",
         )}
       >
-        {money(value)}
+        <span
+          className={cn(
+            "grid size-5 shrink-0 place-items-center rounded-full",
+            focal ? "bg-white/10 text-ops-focal-fg" : "bg-ops-active text-ops-text-secondary",
+          )}
+        >
+          <Icon className="size-3" />
+        </span>
+        <span className={cn("text-[12px] font-medium", focal ? "text-ops-focal-fg" : "text-ops-text")}>{label}</span>
+        <span className={cn("text-[11px]", focal ? "text-ops-focal-muted" : "text-ops-text-tertiary")}>{basis}</span>
+        <span className={cn("ml-auto text-[11px]", focal ? "text-ops-focal-muted" : "text-ops-text-tertiary")}>
+          vs last month
+        </span>
       </div>
-
-      <p
-        className={cn(
-          "mt-2 text-[11px] leading-[1.45]",
-          focal ? "text-ops-focal-muted" : "text-ops-text-tertiary",
-        )}
-      >
-        {note}
-      </p>
     </Link>
   );
 }
@@ -205,6 +243,7 @@ function Companies() {
     <Card className="overflow-hidden">
       <CardHeader>
         <SectionTitle
+          icon={Building2}
           title="Companies"
           hint={`${COMPANIES.length} clients · ${COMPANIES_WITH_ACTIVITY} active · ${money(EXPENSE_TOTAL)} total spend · ${neverPaid} never paid`}
           action={
@@ -298,6 +337,7 @@ function DriverSettlement() {
     <Card className="overflow-hidden">
       <CardHeader>
         <SectionTitle
+          icon={Users}
           title="Driver settlement"
           action={
             <Link
@@ -321,10 +361,8 @@ function DriverSettlement() {
           </div>
         </div>
 
-        <div className="mt-2.5 flex h-1.5 overflow-hidden rounded-full bg-ops-active">
-          <div className="bg-ops-risk-dot" style={{ width: `${(DRIVERS_UNSETTLED / DRIVERS.length) * 100}%` }} />
-          <div className="flex-1 bg-ops-ok-dot" />
-        </div>
+        {/* One segment per driver: eighteen units, seventeen still owed. */}
+        <DottedMeter className="mt-3" value={DRIVERS_UNSETTLED} max={DRIVERS.length} segments={DRIVERS.length} tone="risk" />
       </div>
 
       <dl className="divide-y divide-ops-line border-t border-ops-line text-[12px]">
@@ -357,6 +395,7 @@ function LoggedThisPeriod() {
     <Card className="overflow-hidden">
       <CardHeader>
         <SectionTitle
+          icon={Receipt}
           title="Logged this period"
           hint={`through ${formatDate(NOW)}`}
           action={
@@ -412,6 +451,7 @@ function PartnerSplit() {
     <Card className="overflow-hidden">
       <CardHeader>
         <SectionTitle
+          icon={Wallet}
           title="Partner split"
           hint="cash basis"
           action={
@@ -466,7 +506,7 @@ function RecentActivity() {
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <SectionTitle title="Recent activity" />
+        <SectionTitle icon={Activity} title="Recent activity" />
       </CardHeader>
       <ol className="divide-y divide-ops-line">
         {ACTIVITY.map((ev) => (
@@ -495,7 +535,7 @@ function MonthByMonth() {
   return (
     <Card className="overflow-hidden">
       <CardHeader>
-        <SectionTitle title="Monthly comparison" hint="last three periods" />
+        <SectionTitle icon={CalendarRange} title="Monthly comparison" hint="last three periods" />
       </CardHeader>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] text-[13px]">
@@ -618,7 +658,10 @@ export function HomeView() {
           <Figure
             label="Cash position"
             basis="cash basis"
+            icon={Wallet}
             value={CASH_NET}
+            delta={HEADLINE_DELTA.cash}
+            good={HEADLINE_DELTA.cash.dir === "up"}
             tone="risk"
             focal
             href="/ops/financials"
@@ -627,26 +670,35 @@ export function HomeView() {
           <Figure
             label="Revenue"
             basis="finalized"
+            icon={FileText}
             value={REVENUE_TOTAL}
+            delta={HEADLINE_DELTA.revenue}
+            good={HEADLINE_DELTA.revenue.dir === "up"}
             href="/ops/financials?tab=revenue"
             note={
               <>
                 Nothing finalized this period ·{" "}
-                <span className="font-semibold text-ops-warn-fg">{money(DRAFT_REVENUE_TOTAL)} in draft</span>
+                <span className="font-semibold text-ops-warn-fg">{money(DRAFT_REVENUE_TOTAL)} in draft</span>.
               </>
             }
           />
           <Figure
             label="Total expenses"
             basis="incurred"
+            icon={Receipt}
             value={EXPENSE_TOTAL}
+            delta={HEADLINE_DELTA.expenses}
+            good={HEADLINE_DELTA.expenses.dir === "down"}
             href="/ops/expenses"
             note={`${EXPENSES.length} entries · ${money(DAILY_AVERAGE)} a day · on pace for ${money(PACING)}.`}
           />
           <Figure
             label="Net profit"
             basis="cash basis"
+            icon={Activity}
             value={CASH_NET}
+            delta={HEADLINE_DELTA.profit}
+            good={HEADLINE_DELTA.profit.dir === "up"}
             tone="risk"
             href="/ops/financials"
             note={`Only ${money(CASH_PAID_OUT)} has actually left the bank. ${money(EXPENSE_TOTAL)} was incurred; the rest is owed, not paid.`}
