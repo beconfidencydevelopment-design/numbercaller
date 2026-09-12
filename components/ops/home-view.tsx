@@ -14,8 +14,8 @@ import {
   DashedRule,
   DeltaChip,
   Funnel,
-  Gauge,
   LineChart,
+  SegmentedGauge,
   Money,
   RowAction,
   ShareBar,
@@ -85,16 +85,16 @@ function ChartHead({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 px-5 pt-5">
-      <div className="min-w-0">
-        <div className="flex items-center gap-3">
-          <h2 className="text-[14px] font-medium text-ops-text-secondary">{title}</h2>
-          {action}
+    <div className="px-5 pt-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-[16px] font-medium text-ops-text">{title}</h2>
+          <p className="mt-1 text-[13px] text-ops-text-tertiary">{subtitle}</p>
         </div>
-        <p className="mt-3 text-[14px] text-ops-text">{subtitle}</p>
+        {action && <div className="shrink-0">{action}</div>}
       </div>
       {figures && (
-        <div className="flex flex-wrap items-start gap-6">
+        <div className="mt-4 flex flex-wrap items-start gap-8">
           {figures.map((f) => (
             <div key={f.key} className="min-w-0">
               <div className="flex items-center gap-2 text-[13px] text-ops-text-secondary">
@@ -110,6 +110,19 @@ function ChartHead({
         </div>
       )}
     </div>
+  );
+}
+
+/** The one control a card header carries: an outlined pill, top right. */
+function HeadAction({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex h-8 shrink-0 items-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 text-[13px] font-medium text-ops-text hover:border-ops-accent hover:text-ops-accent"
+    >
+      {children}
+      <ArrowRight className="size-3" />
+    </Link>
   );
 }
 
@@ -202,9 +215,7 @@ function PartnerSplit() {
         title="Partner split"
         subtitle={`${money(CASH_NET)} distributed on a cash basis, ${Math.round(PARTNERS[0].share * 100)} / ${Math.round(PARTNERS[1].share * 100)}.`}
         action={
-          <Link href="/ops/financials?tab=withdrawals" className="text-[13px] font-medium text-ops-accent hover:underline">
-            Withdrawals →
-          </Link>
+          <HeadAction href="/ops/financials?tab=withdrawals">Withdrawals</HeadAction>
         }
       />
       <table className="mt-3 w-full text-[14px]">
@@ -388,35 +399,32 @@ function MonthByMonth() {
 
 function DriverSettlement() {
   const lastSettled = ACTIVITY.find((a) => a.tone === "ok");
+  const settledPct = Math.round((DRIVERS_SETTLED / DRIVERS.length) * 100);
   return (
-    <Card className="flex h-full flex-col overflow-hidden">
-      <ChartHead
-        title="Driver settlement"
-        subtitle={`${DRIVERS_UNSETTLED} of ${DRIVERS.length} drivers are still owed for ${PERIOD.label}.`}
-        action={
-          <Link href="/ops/drivers" className="text-[13px] font-medium text-ops-accent hover:underline">
-            Settle →
-          </Link>
-        }
-      />
-      <div className="flex flex-1 flex-col justify-center px-5 pb-3 pt-6">
-        <Gauge value={DRIVERS_SETTLED} max={DRIVERS.length} tone="ok" label={`${DRIVERS_SETTLED} of ${DRIVERS.length}`} sublabel="drivers settled" />
+    <Card className="flex h-full flex-col overflow-hidden p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[16px] font-medium text-ops-text">Driver settlement</h2>
+          <p className="mt-1 text-[13px] text-ops-text-tertiary">{PERIOD.label} payroll</p>
+        </div>
+        <HeadAction href="/ops/drivers">Settle</HeadAction>
       </div>
-      <dl className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line text-[13px]">
-        {[
-          { label: "Outstanding", value: money(DRIVER_OUTSTANDING_TOTAL), strong: true },
-          { label: "Logged this period", value: money(DRIVER_OUTSTANDING_TOTAL - DRIVER_CARRIED_TOTAL) },
-          { label: "Carried from August", value: money(DRIVER_CARRIED_TOTAL) },
-          { label: "Last settled", value: lastSettled ? `${formatDate(lastSettled.at)} · ${money(lastSettled.amount ?? 0)}` : "—", quiet: true },
-        ].map((r) => (
-          <div key={r.label} className="flex h-10 items-center justify-between gap-3 px-5">
-            <dt className={cn(r.strong ? "font-medium text-ops-text" : "text-ops-text-secondary")}>{r.label}</dt>
-            <dd className={cn("ops-num", r.strong ? "text-[14px] font-medium text-ops-text" : r.quiet ? "text-ops-text-tertiary" : "font-medium text-ops-text")}>
-              {r.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+
+      <div className="mt-5">
+        <div className="ops-figure text-[32px] font-medium leading-none text-ops-text">{money(DRIVER_OUTSTANDING_TOTAL)}</div>
+        <p className="mt-2 text-[13px] text-ops-text-secondary">
+          <span className="font-medium text-ops-text">{DRIVERS_UNSETTLED} unsettled</span> · {DRIVERS_SETTLED} settled
+        </p>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-center py-5">
+        <SegmentedGauge value={DRIVERS_SETTLED} max={DRIVERS.length} label={`${settledPct}%`} sublabel="of drivers settled" />
+      </div>
+
+      <p className="text-[13px] leading-[1.5] text-ops-text-secondary">
+        {money(DRIVER_OUTSTANDING_TOTAL - DRIVER_CARRIED_TOTAL)} this period + {money(DRIVER_CARRIED_TOTAL)} carried from August
+        {lastSettled ? ` · last settled ${formatDate(lastSettled.at)} (${money(lastSettled.amount ?? 0)})` : ""}
+      </p>
     </Card>
   );
 }
@@ -452,9 +460,7 @@ function Companies() {
         title="Companies"
         subtitle={`${COMPANIES.length} clients · ${COMPANIES_WITH_ACTIVITY} active · ${money(EXPENSE_TOTAL)} total spend · ${neverPaid} never paid`}
         action={
-          <Link href="/ops/clients" className="text-[13px] font-medium text-ops-accent hover:underline">
-            All clients →
-          </Link>
+          <HeadAction href="/ops/clients">All clients</HeadAction>
         }
       />
       <div className="mt-3 overflow-x-auto">
@@ -553,9 +559,7 @@ function LoggedThisPeriod() {
         title="Logged this period"
         subtitle={`${EXPENSES.length} entries through ${formatDate(NOW)}, by who the cost was for.`}
         action={
-          <Link href="/ops/expenses" className="text-[13px] font-medium text-ops-accent hover:underline">
-            Ledger →
-          </Link>
+          <HeadAction href="/ops/expenses">Ledger</HeadAction>
         }
       />
       <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 px-5 sm:grid-cols-4">

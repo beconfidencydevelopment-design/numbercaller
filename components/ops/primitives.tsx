@@ -176,7 +176,8 @@ export function DeltaChip({
   caption?: string;
   className?: string;
 }) {
-  const tone: StatusTone = dir === "flat" ? "idle" : good ? "ok" : "risk";
+  void good; // kept for callers; tint follows direction, as the reference and the client's build do
+  const tone: StatusTone = dir === "flat" ? "idle" : dir === "up" ? "ok" : "risk";
   // Flat reads "— 0%", as the client's cards print it; a bare "—0%" looks like a negative.
   const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "— ";
   return (
@@ -820,6 +821,94 @@ export function Funnel({
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Segmented gauge — a health ramp in five chunks                              */
+/* -------------------------------------------------------------------------- */
+
+const polar = (cx: number, cy: number, r: number, deg: number): [number, number] => {
+  const a = ((deg - 180) * Math.PI) / 180;
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+};
+
+/** An arc from `a0` to `a1` degrees along the top semicircle (0 = left, 180 = right). */
+const arc = (cx: number, cy: number, r: number, a0: number, a1: number) => {
+  const [x0, y0] = polar(cx, cy, r, a0);
+  const [x1, y1] = polar(cx, cy, r, a1);
+  return `M${x0},${y0} A${r},${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1},${y1}`;
+};
+
+/**
+ * A semicircle in `segments` chunks with gaps between them. The fill runs
+ * continuously from the left and stops wherever the ratio lands — mid-chunk
+ * if that is where it falls — so the picture says "this far" rather than
+ * rounding to a whole chunk. The stroke is a ramp from the warning tone to
+ * the good tone, left to right; the lit part carries a faint hatch so the
+ * fill survives greyscale.
+ */
+export function SegmentedGauge({
+  value,
+  max,
+  segments = 5,
+  label,
+  sublabel,
+  className,
+}: {
+  value: number;
+  max: number;
+  segments?: number;
+  label: React.ReactNode;
+  sublabel?: React.ReactNode;
+  className?: string;
+}) {
+  const id = React.useId();
+  const pct = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
+  const cx = 100;
+  const cy = 96;
+  const r = 78;
+  const gapDeg = 3.5;
+  const span = (180 - gapDeg * (segments - 1)) / segments;
+  const chunks = Array.from({ length: segments }, (_, i) => {
+    const a0 = i * (span + gapDeg);
+    const a1 = a0 + span;
+    const litTo = Math.max(0, Math.min(1, pct * segments - i));
+    return { a0, a1, litTo };
+  });
+
+  return (
+    <div className={cn("relative mx-auto w-full max-w-[260px]", className)}>
+      <svg viewBox="0 0 200 104" className="w-full" aria-hidden>
+        <defs>
+          <linearGradient id={`${id}-ramp`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="var(--ops-warn-dot)" />
+            <stop offset="100%" stopColor="var(--ops-ok-dot)" />
+          </linearGradient>
+          <pattern id={`${id}-hatch`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="var(--ops-surface)" strokeWidth="1.5" strokeOpacity="0.35" />
+          </pattern>
+        </defs>
+        {chunks.map((c, i) => (
+          <path key={`t${i}`} d={arc(cx, cy, r, c.a0, c.a1)} fill="none" stroke="var(--ops-active)" strokeWidth="18" strokeLinecap="butt" />
+        ))}
+        {chunks
+          .filter((c) => c.litTo > 0)
+          .map((c, i) => {
+            const end = c.a0 + (c.a1 - c.a0) * c.litTo;
+            return (
+              <g key={`f${i}`}>
+                <path d={arc(cx, cy, r, c.a0, end)} fill="none" stroke={`url(#${id}-ramp)`} strokeWidth="18" strokeLinecap="butt" />
+                <path d={arc(cx, cy, r, c.a0, end)} fill="none" stroke={`url(#${id}-hatch)`} strokeWidth="18" strokeLinecap="butt" />
+              </g>
+            );
+          })}
+      </svg>
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
+        <span className="ops-figure text-[28px] font-medium leading-none text-ops-text">{label}</span>
+        {sublabel && <span className="mt-2 text-[13px] text-ops-text-secondary">{sublabel}</span>}
       </div>
     </div>
   );
