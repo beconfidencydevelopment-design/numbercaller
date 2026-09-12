@@ -31,7 +31,7 @@ export default function RootLayout({
             console renders light and then snaps to dark on hydration. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('snk-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}`,
+            __html: `try{var d=document.documentElement;var t=localStorage.getItem('snk-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){d.classList.add('dark')}d.setAttribute('data-brand',localStorage.getItem('snk-brand')==='orange'?'orange':'violet')}catch(e){}`,
           }}
         />
       </head>

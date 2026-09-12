@@ -21,7 +21,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Kbd } from "./primitives";
-import { usePersistedFlag, useTheme } from "@/lib/ops/client-state";
+import { usePersistedFlag, useBrand, useTheme } from "@/lib/ops/client-state";
 import { NOW, RANKED, DRIVERS } from "@/lib/ops/data";
 import { formatClock } from "@/lib/ops/format";
 
@@ -56,6 +56,51 @@ const SECONDARY: NavItem[] = [
   { href: "/ops/reports", label: "Reports", icon: ChartNoAxesColumn },
   { href: "/ops/settings", label: "Settings", icon: Settings },
 ];
+
+/**
+ * Brand comparison control. Review-only — remove once the identity is
+ * signed off, along with the losing `data-brand` block in globals.css.
+ */
+function BrandSwitch() {
+  const { brand, setBrand } = useBrand();
+  const OPTIONS = [
+    { id: "violet" as const, label: "Violet", swatch: "#5b3ee6" },
+    { id: "orange" as const, label: "Orange", swatch: "#c74106" },
+  ];
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Brand colour"
+      title="Brand colour — for review"
+      className="flex items-center gap-0.5 rounded-full border border-ops-line bg-ops-sunken p-0.5"
+    >
+      {OPTIONS.map((o) => {
+        const active = brand === o.id;
+        return (
+          <button
+            key={o.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={`${o.label} brand`}
+            onClick={() => setBrand(o.id)}
+            className={cn(
+              "grid size-[22px] place-items-center rounded-full transition-colors",
+              active ? "bg-ops-surface shadow-sm" : "hover:bg-ops-hover",
+            )}
+          >
+            <span
+              className={cn("size-2.5 rounded-full", active ? "ring-2 ring-ops-surface" : "opacity-55")}
+              style={{ background: o.swatch }}
+              aria-hidden
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   const pathname = usePathname();
@@ -225,6 +270,8 @@ export function AppShell({
               </span>
               Live · synced {formatClock(NOW)}
             </span>
+
+            <BrandSwitch />
 
             <button
               type="button"

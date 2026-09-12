@@ -398,8 +398,6 @@ export const KPI_SERIES: Record<"breached" | "atRisk" | "exceptions" | "unassign
 /* Rounds                                                                      */
 /* -------------------------------------------------------------------------- */
 
-const STOP_STREETS = ["Ashby Row","Kestrel Way","Moor Lane","Pemberton Rise","Halden Street","Verity Close","Oriel Gardens","Calder Walk","Fairfax Terrace","Northgate Hill","Bright Avenue","Linden Croft"];
-
 /**
  * One round per driver, sequenced.
  *

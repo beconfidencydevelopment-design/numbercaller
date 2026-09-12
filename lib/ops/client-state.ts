@@ -56,7 +56,7 @@ export function usePersistedFlag(key: string): [boolean, (value: boolean) => voi
 
 function subscribeTheme(cb: () => void) {
   const observer = new MutationObserver(cb);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-brand"] });
   return () => observer.disconnect();
 }
 
@@ -83,4 +83,34 @@ export function useTheme(): { dark: boolean; toggle: () => void } {
   }, []);
 
   return { dark, toggle };
+}
+
+
+export type Brand = "violet" | "orange";
+
+/**
+ * Brand variant, read live off the root element.
+ *
+ * This exists so a client can compare two identities on one deployment
+ * rather than across two tabs. It is a review control — strip the switch
+ * (and this hook) once the brand is signed off, and keep whichever
+ * `data-brand` block won in globals.css.
+ */
+export function useBrand(): { brand: Brand; setBrand: (b: Brand) => void } {
+  const brand = React.useSyncExternalStore(
+    subscribeTheme, // same attribute observer; it watches the root element
+    () => (document.documentElement.getAttribute("data-brand") === "orange" ? "orange" : "violet"),
+    () => "violet" as Brand,
+  );
+
+  const setBrand = React.useCallback((next: Brand) => {
+    document.documentElement.setAttribute("data-brand", next);
+    try {
+      localStorage.setItem("snk-brand", next);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  return { brand, setBrand };
 }

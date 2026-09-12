@@ -207,6 +207,50 @@ body {
   --ops-shadow-drawer: -12px 0 40px -12px rgba(0, 0, 0, 0.6);
 }
 
+
+/* ==========================================================================
+   Brand variants
+   Two identities on one build so the client can compare them on the same
+   screen rather than across two tabs. Placed after the .dark block so the
+   cascade resolves brand over theme at equal specificity.
+
+   Note on the orange: the vivid orange in the reference dashboards measures
+   3.09:1 against white button text and fails WCAG AA. #c74106 is the most
+   saturated orange that clears 4.5:1 both as a button ground and as link
+   text on every surface in the console, so this is the reference look
+   corrected rather than copied.
+   ========================================================================== */
+
+html[data-brand="orange"] {
+  --ops-accent: #c74106;
+  --ops-accent-hover: #a83505;
+  --ops-accent-weak: #fdf0e9;
+  --ops-accent-line: #f6ccb6;
+  /* Chart marks are not text, so they can run brighter (3.88:1, above the
+     3:1 floor for non-text UI). */
+  --ops-series-volume: #e2510a;
+
+  /* An orange accent sits next to the amber "at risk" state, so warning is
+     nudged toward yellow to keep the two separable. */
+  --ops-warn-fg: #6d5200;
+  --ops-warn-bg: #fbf3da;
+  --ops-warn-line: #ead79b;
+  --ops-warn-dot: #c39c1c;
+}
+
+html.dark[data-brand="orange"] {
+  --ops-accent: #ff8a4c;
+  --ops-accent-hover: #ffa06a;
+  --ops-accent-weak: #2a1a11;
+  --ops-accent-line: #5a3620;
+  --ops-series-volume: #ff8a4c;
+
+  --ops-warn-fg: #ecc65f;
+  --ops-warn-bg: #241f0d;
+  --ops-warn-line: #463c19;
+  --ops-warn-dot: #d9b52d;
+}
+
 @theme inline {
   --color-ops-canvas: var(--ops-canvas);
   --color-ops-surface: var(--ops-surface);
