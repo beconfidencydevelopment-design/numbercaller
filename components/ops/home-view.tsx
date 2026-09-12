@@ -216,9 +216,8 @@ function PendingActions() {
 
 function PartnerSplit() {
   /* Two shares of one pot, so the honest form is a part-to-whole bar — not a
-     two-slice pie, and not a table of two rows that leaves the card half
-     empty. Widths use the absolute shares because the split is 35/65 whether
-     the period made money or lost it; the labels keep the sign. */
+     two-slice pie. Widths use the absolute shares because the split is 35/65
+     whether the period made money or lost it; the labels keep the sign. */
   const segments = PARTNERS.map((p, i) => ({
     id: p.id,
     label: p.name,
@@ -235,39 +234,65 @@ function PartnerSplit() {
         action={<HeadAction href="/ops/financials?tab=withdrawals">Withdrawals</HeadAction>}
       />
 
-      <div className="flex flex-1 flex-col gap-5 px-5 py-5">
+      <div className="px-5 pt-5">
         {anyValue ? (
           <CompositionBar segments={segments} />
         ) : (
           <div className="h-2 w-full rounded-full bg-ops-active" aria-hidden />
         )}
-
-        {/* The list takes the card's spare height rather than leaving it above
-            the rows: two partners beside a seven-row card will always have
-            slack, so it is spread between them instead of pooled. */}
-        <ul className="flex flex-1 flex-col justify-around gap-5">
-          {PARTNERS.map((p, i) => (
-            <li key={p.id} className="flex items-center gap-3">
-              <span className="size-2 shrink-0 rounded-full" style={{ background: `var(--ops-cat-${i + 1})` }} aria-hidden />
-              <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} className="size-12" />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-body text-ops-text">{p.name}</span>
-                <span className="ops-num block text-body text-ops-text-tertiary">
-                  {Math.round(p.share * 100)}% share
-                </span>
-              </span>
-              <span className="shrink-0 text-right">
-                <Money value={shareOf(p, CASH_NET)} className="block text-figure font-medium" />
-                {/* Where each partner stands across every period, which is the
-                    number that decides whether a withdrawal is even possible. */}
-                <span className="ops-num block text-body text-ops-text-tertiary">
-                  {money(shareOf(p, CUMULATIVE_DISTRIBUTED))} to date
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
       </div>
+
+      {/* Each partner as a block rather than a row. A share on its own cannot
+          be acted on: what decides whether a withdrawal is possible is the
+          balance — everything earned to date, less everything taken out — so
+          the four figures the Withdrawals tab keeps for each partner are all
+          here, with the balance carrying the emphasis. */}
+      <ul className="flex flex-1 flex-col divide-y divide-dashed divide-ops-line px-5">
+        {PARTNERS.map((p, i) => {
+          const toDate = shareOf(p, CUMULATIVE_DISTRIBUTED);
+          const balance = toDate - p.withdrawn;
+          return (
+            <li key={p.id} className="flex flex-1 flex-col justify-center gap-4 py-5">
+              <div className="flex items-center gap-3">
+                <span className="size-2 shrink-0 rounded-full" style={{ background: `var(--ops-cat-${i + 1})` }} aria-hidden />
+                <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} className="size-10" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-body font-medium text-ops-text">{p.name}</span>
+                  <span className="ops-num block text-body text-ops-text-tertiary">
+                    {Math.round(p.share * 100)}% share
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <Money value={shareOf(p, CASH_NET)} className="block text-figure font-medium" />
+                  <span className="block text-body text-ops-text-tertiary">this period</span>
+                </span>
+              </div>
+
+              {/* Earned to date, less taken out, is the balance — so the row
+                  reads as the sum it is. The first two are equal today only
+                  because neither partner has withdrawn anything; the client's
+                  own Withdrawals tab keeps all three for the same reason. */}
+              <dl className="flex items-center gap-3 rounded-[var(--ops-r-inner)] bg-ops-sunken px-4 py-3">
+                {[
+                  { label: "To date", value: toDate, op: "−" },
+                  { label: "Withdrawn", value: p.withdrawn, op: "=" },
+                  { label: "Balance", value: balance, strong: true },
+                ].map((r) => (
+                  <React.Fragment key={r.label}>
+                    <div className="min-w-0 flex-1">
+                      <dt className="truncate text-body text-ops-text-tertiary">{r.label}</dt>
+                      <dd className="mt-1">
+                        <Money value={r.value} className={cn("text-body", r.strong ? "font-medium" : "font-normal")} />
+                      </dd>
+                    </div>
+                    {r.op && <span className="ops-num shrink-0 text-body text-ops-text-tertiary">{r.op}</span>}
+                  </React.Fragment>
+                ))}
+              </dl>
+            </li>
+          );
+        })}
+      </ul>
 
       <dl className="grid grid-cols-3 divide-x divide-dashed divide-ops-line border-t border-dashed border-ops-line">
         {[
