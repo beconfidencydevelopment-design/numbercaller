@@ -571,6 +571,80 @@ export function CategoryTag({ category }: { category: ExpenseCategory }) {
 }
 
 /**
+ * The console's segmented control: All / Outstanding / Settled, Cards /
+ * Table, One driver / All 17.
+ *
+ * It was written three times, each with its own padding, and a radiogroup
+ * where every option is tabbable puts focus on an option nobody chose — open
+ * the bulk dialog and the accent ring landed on "One entry" while "All 2
+ * drafts" was selected. Only the checked option is tabbable and the arrow
+ * keys move between them, which is what a radio group is supposed to do and
+ * what a row of plain buttons never does.
+ *
+ * The chip has to fit the track it sits in. A 28px chip inside a 32px track
+ * with 4px of padding needs 36px and overflows by four, which is what made
+ * the selected pill look crammed against its own border. The two sizes are
+ * the two that add up: 24px in 32px, and 28px in 36px.
+ */
+export function Segmented<T extends string | boolean>({
+  label,
+  value,
+  onChange,
+  options,
+  size = "md",
+  className,
+}: {
+  label: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: Array<{ id: T; label: string; icon?: React.ReactNode }>;
+  size?: "sm" | "md";
+  className?: string;
+}) {
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+    if (step === 0) return;
+    e.preventDefault();
+    const i = options.findIndex((o) => o.id === value);
+    const next = options[(i + step + options.length) % options.length];
+    onChange(next.id);
+    (e.currentTarget.querySelectorAll<HTMLElement>("[role=radio]")[options.indexOf(next)])?.focus();
+  };
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={label}
+      onKeyDown={onKeyDown}
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1",
+        size === "sm" ? "h-8" : "h-9",
+        className,
+      )}
+    >
+      {options.map((o) => (
+        <button
+          key={String(o.id)}
+          type="button"
+          role="radio"
+          aria-checked={value === o.id}
+          tabIndex={value === o.id ? 0 : -1}
+          onClick={() => onChange(o.id)}
+          className={cn(
+            "inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-[6px] px-3 text-body font-medium transition-colors",
+            size === "sm" ? "h-6" : "h-7",
+            value === o.id ? "bg-ops-active text-ops-text" : "text-ops-text-secondary hover:text-ops-text",
+          )}
+        >
+          {o.icon}
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/**
  * A company, wherever one is named in a table.
  *
  * A neutral tile ringed in the company's own categorical colour — the same

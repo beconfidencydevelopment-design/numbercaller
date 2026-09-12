@@ -18,9 +18,11 @@ import {
   EmptyState,
   Money,
   RowAction,
+  Segmented,
   StatusPill,
 } from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
+import { Select } from "./select";
 import { useOpsModal } from "./ops-modals";
 import {
   CATEGORY_LABEL,
@@ -222,24 +224,30 @@ export function ExpensesView() {
               />
             </label>
 
-            <Select value={company} onChange={setCompany} label="Company">
-              <option value="all">All companies</option>
-              {COMPANIES.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-              <option value={GLOBAL_COMPANY.id}>{GLOBAL_COMPANY.name}</option>
-            </Select>
+            <Select
+              size="sm"
+              label="Company"
+              value={company}
+              onChange={setCompany}
+              className="w-[176px]"
+              options={[
+                { value: "all", label: "All companies" },
+                ...COMPANIES.map((c) => ({ value: c.id, label: c.name })),
+                { value: GLOBAL_COMPANY.id, label: GLOBAL_COMPANY.name },
+              ]}
+            />
 
-            <Select value={category} onChange={setCategory} label="Category">
-              <option value="all">All categories</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {CATEGORY_LABEL[c]}
-                </option>
-              ))}
-            </Select>
+            <Select
+              size="sm"
+              label="Category"
+              value={category}
+              onChange={setCategory}
+              className="w-[168px]"
+              options={[
+                { value: "all", label: "All categories" },
+                ...CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABEL[c] })),
+              ]}
+            />
 
             {filtersOn && (
               <Button
@@ -278,37 +286,17 @@ export function ExpensesView() {
                 </div>
               )}
 
-              {/* A three-way segmented control, because the options are mutually
-              exclusive and there are few enough to show at once. */}
-              <div
-                role="radiogroup"
-                aria-label="Status"
-                className="flex h-8 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1"
-              >
-                {(
-                  [
-                    ["all", "All"],
-                    ["outstanding", "Outstanding"],
-                    ["settled", "Settled"],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    role="radio"
-                    aria-checked={status === id}
-                    onClick={() => setStatus(id)}
-                    className={cn(
-                      "h-7 rounded-[6px] px-3 text-body font-medium transition-colors",
-                      status === id
-                        ? "bg-ops-active text-ops-text"
-                        : "text-ops-text-secondary hover:text-ops-text",
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              <Segmented
+                label="Status"
+                size="sm"
+                value={status}
+                onChange={setStatus}
+                options={[
+                  { id: "all" as StatusFilter, label: "All" },
+                  { id: "outstanding" as StatusFilter, label: "Outstanding" },
+                  { id: "settled" as StatusFilter, label: "Settled" },
+                ]}
+              />
             </div>
           </div>
 
@@ -522,26 +510,3 @@ export function ExpensesView() {
 
 const PERIOD_NOTE = "period to date";
 
-/** Native select, styled to match the rest of the control row. */
-function Select({
-  value,
-  onChange,
-  label,
-  children,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <select
-      aria-label={label}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="h-8 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-2 text-body font-medium text-ops-text outline-none hover:bg-ops-hover focus:border-ops-line-strong"
-    >
-      {children}
-    </select>
-  );
-}

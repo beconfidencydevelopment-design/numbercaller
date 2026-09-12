@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import { IconCheck, IconPlus } from "@/components/icons";
-import { Avatar, Button, CompanyTag, StatusPill } from "./primitives";
-import { Acknowledge, Effect, Field, FieldRow, Modal, ModalFooter, MoneyField, ScopeToggle } from "./modal";
+import { Avatar, Button, CompanyTag, Segmented, StatusPill } from "./primitives";
+import { Select } from "./select";
+import { Acknowledge, Effect, Field, FieldRow, Modal, ModalFooter, MoneyField } from "./modal";
 import {
   CARRIED_FORWARD,
   CASH_NET,
@@ -231,14 +233,15 @@ function LogExpense({ request, onClose }: { request: Extract<ModalRequest, { kin
             </Field>
             <Field label="Company">
               {(p) => (
-                <select {...p} value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
-                  {COMPANIES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                  <option value={GLOBAL_COMPANY.id}>{GLOBAL_COMPANY.name} (own costs)</option>
-                </select>
+                <Select
+                  {...p}
+                  value={companyId}
+                  onChange={setCompanyId}
+                  options={[
+                    ...COMPANIES.map((c) => ({ value: c.id, label: c.name })),
+                    { value: GLOBAL_COMPANY.id, label: `${GLOBAL_COMPANY.name} (own costs)` },
+                  ]}
+                />
               )}
             </Field>
           </FieldRow>
@@ -246,13 +249,12 @@ function LogExpense({ request, onClose }: { request: Extract<ModalRequest, { kin
           <FieldRow>
             <Field label="Category">
               {(p) => (
-                <select {...p} value={category} onChange={(e) => setCategory(e.target.value as ExpenseCategory)}>
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {CATEGORY_LABEL[c]}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  {...p}
+                  value={category}
+                  onChange={(v) => setCategory(v as ExpenseCategory)}
+                  options={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABEL[c] }))}
+                />
               )}
             </Field>
             <Field
@@ -261,20 +263,22 @@ function LogExpense({ request, onClose }: { request: Extract<ModalRequest, { kin
               error={show("driver")}
             >
               {(p) => (
-                <select
-                  {...p}
-                  disabled={!needsDriver}
-                  value={driverId}
-                  onChange={(e) => setDriverId(e.target.value)}
-                  className={`${p.className} disabled:bg-ops-active disabled:text-ops-text-tertiary`}
-                >
-                  <option value="">{needsDriver ? "Select a driver" : "Company bill"}</option>
-                  {roster.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </select>
+                needsDriver ? (
+                  <Select
+                    {...p}
+                    value={driverId}
+                    onChange={setDriverId}
+                    placeholder="Select a driver"
+                    options={roster.map((d) => ({ value: d.id, label: d.name }))}
+                  />
+                ) : (
+                  /* Not a disabled control. A bill has no driver, which is a
+                     fact about the entry rather than a field you are barred
+                     from, so it states the fact. */
+                  <span className={cn(p.className, "flex items-center bg-ops-sunken text-ops-text-tertiary")}>
+                    Company bill
+                  </span>
+                )
               )}
             </Field>
           </FieldRow>
@@ -378,13 +382,12 @@ function RecordPayment({
           <FieldRow>
             <Field label="Company">
               {(p) => (
-                <select {...p} value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
-                  {COMPANIES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  {...p}
+                  value={companyId}
+                  onChange={setCompanyId}
+                  options={COMPANIES.map((c) => ({ value: c.id, label: c.name }))}
+                />
               )}
             </Field>
             <Field label="Date received" error={show("at")}>
@@ -402,13 +405,12 @@ function RecordPayment({
             />
             <Field label="Method">
               {(p) => (
-                <select {...p} value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}>
-                  {METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {METHOD_LABEL[m]}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  {...p}
+                  value={method}
+                  onChange={(v) => setMethod(v as PaymentMethod)}
+                  options={METHODS.map((m) => ({ value: m, label: METHOD_LABEL[m] }))}
+                />
               )}
             </Field>
           </FieldRow>
@@ -527,7 +529,7 @@ function SettleDriver({
           {/* Settling everyone and settling one person are the same act at
               two scales, so they are one form. Two separate dialogs would
               mean two places to keep the payroll arithmetic correct. */}
-          <ScopeToggle
+          <Segmented
             label="Scope"
             value={all}
             onChange={setAll}
@@ -548,14 +550,17 @@ function SettleDriver({
             <>
               <Field label="Driver">
                 {(p) => (
-                  <select {...p} value={driverId} onChange={(e) => setDriverId(e.target.value)}>
-                    {DRIVERS.map((d) => (
-                      <option key={d.id} value={d.id} disabled={isSettled(d)}>
-                        {d.name} · {companyName(d.companyId)}
-                        {isSettled(d) ? " (settled)" : ` · ${money(outstandingFor(d))}`}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    {...p}
+                    value={driverId}
+                    onChange={setDriverId}
+                    options={DRIVERS.map((d) => ({
+                      value: d.id,
+                      label: `${d.name} · ${companyName(d.companyId)}`,
+                      detail: isSettled(d) ? "Settled" : money(outstandingFor(d)),
+                      disabled: isSettled(d),
+                    }))}
+                  />
                 )}
               </Field>
 
@@ -670,13 +675,16 @@ function RecordWithdrawal({
         <form id="record-withdrawal" onSubmit={submit} className="flex flex-col gap-4">
           <Field label="Partner">
             {(p) => (
-              <select {...p} value={partnerId} onChange={(e) => setPartnerId(e.target.value)}>
-                {PARTNERS.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name} · {Math.round(x.share * 100)}% share
-                  </option>
-                ))}
-              </select>
+              <Select
+                {...p}
+                value={partnerId}
+                onChange={setPartnerId}
+                options={PARTNERS.map((x) => ({
+                  value: x.id,
+                  label: x.name,
+                  detail: `${Math.round(x.share * 100)}% share`,
+                }))}
+              />
             )}
           </Field>
 
@@ -782,7 +790,7 @@ function FinalizeRevenue({
       ) : (
         <form id="finalize-revenue" onSubmit={submit} className="flex flex-col gap-4">
           {DRAFT_REVENUE.length > 1 && (
-            <ScopeToggle
+            <Segmented
               label="Scope"
               value={all}
               onChange={setAll}
@@ -796,13 +804,16 @@ function FinalizeRevenue({
           {!all && (
             <Field label="Draft entry">
               {(p) => (
-                <select {...p} value={revenueId} onChange={(e) => setRevenueId(e.target.value)}>
-                  {DRAFT_REVENUE.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {companyName(r.companyId)} · {r.coversLabel} · {money(r.amount)}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  {...p}
+                  value={revenueId}
+                  onChange={setRevenueId}
+                  options={DRAFT_REVENUE.map((r) => ({
+                    value: r.id,
+                    label: `${companyName(r.companyId)} · ${r.coversLabel}`,
+                    detail: money(r.amount),
+                  }))}
+                />
               )}
             </Field>
           )}

@@ -17,10 +17,12 @@ import {
   CompanyTag,
   Money,
   SectionTitle,
+  Segmented,
   ShareBar,
   StatusPill,
 } from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
+import { Select } from "./select";
 import { useOpsModal } from "./ops-modals";
 import {
   COMPANIES,
@@ -281,42 +283,29 @@ export function DriversView() {
         {/* Controls                                                       */}
         {/* ------------------------------------------------------------- */}
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2 text-body text-ops-text-secondary">
+          <span className="flex items-center gap-2 text-body text-ops-text-secondary">
             Sort by
-            <select
+            <Select
+              size="sm"
+              label="Sort drivers by"
               value={sort}
-              onChange={(e) => setSort(e.target.value as Sort)}
-              className="h-8 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-2 text-body font-medium text-ops-text outline-none hover:bg-ops-hover"
-            >
-              {SORTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              onChange={(v) => setSort(v as Sort)}
+              className="w-[212px]"
+              options={SORTS.map((x) => ({ value: x.id, label: x.label }))}
+            />
+          </span>
 
-          <div role="radiogroup" aria-label="View" className="ml-auto flex h-8 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1">
-            {([
-              ["cards", "Cards", IconCards],
-              ["table", "Table", IconList],
-            ] as const).map(([id, label, Icon]) => (
-              <button
-                key={id}
-                type="button"
-                role="radio"
-                aria-checked={view === id}
-                onClick={() => setView(id)}
-                className={cn(
-                  "flex h-7 items-center gap-2 rounded-[6px] px-3 text-body font-medium transition-colors",
-                  view === id ? "bg-ops-active text-ops-text" : "text-ops-text-secondary hover:text-ops-text",
-                )}
-              >
-                <Icon className="size-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            label="View"
+            size="sm"
+            className="ml-auto"
+            value={view}
+            onChange={setView}
+            options={[
+              { id: "cards" as View, label: "Cards", icon: <IconCards className="size-3.5" size={14} /> },
+              { id: "table" as View, label: "Table", icon: <IconList className="size-3.5" size={14} /> },
+            ]}
+          />
         </div>
 
         {/* ------------------------------------------------------------- */}

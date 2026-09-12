@@ -236,7 +236,7 @@ function PendingActions() {
 
               <Link
                 href={a.href}
-                className="inline-flex h-8 w-24 shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-body font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
+                className="inline-flex h-8 min-w-24 shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 text-body font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
               >
                 {a.action}
                 <IconArrowRight className="size-3" />

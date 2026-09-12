@@ -147,6 +147,45 @@ ok("an invalid submit does not close the dialog", invalid.stillOpen);
 ok("every invalid field is marked", invalid.count > 0, `${invalid.count} fields`);
 ok("every invalid field states its reason in words", invalid.described);
 
+/* The select inside the dialog. Its menu is portalled to the body, so it is
+   outside the dialog it belongs to in the DOM and has to prove it still sits
+   over it, still lines up with its own control, and that one Escape closes
+   one layer rather than two. */
+await click("Add expense");
+await settle();
+await page.evaluate(() => document.querySelectorAll('[role="dialog"] [role="combobox"]')[1]?.focus());
+await page.keyboard.press("Enter");
+await settle();
+const menu = await page.evaluate(() => {
+  const btn = document.querySelectorAll('[role="dialog"] [role="combobox"]')[1];
+  const list = document.querySelector('[role="listbox"]');
+  if (!list) return null;
+  const b = btn.getBoundingClientRect();
+  const l = list.getBoundingClientRect();
+  return {
+    alignedLeft: Math.abs(l.left - b.left) <= 1,
+    /* Below when there is room, above when there is not, never across it.
+       Covering its own control is exactly what the native menu did. */
+    clear: l.top >= b.bottom || l.bottom <= b.top,
+    atLeastAsWide: l.width >= b.width - 1,
+    onScreen: l.right <= window.innerWidth && l.bottom <= window.innerHeight && l.top >= 0,
+  };
+});
+ok("a select opens a menu", Boolean(menu));
+ok("the menu clears its own control and lines up with it", Boolean(menu?.clear && menu?.alignedLeft));
+ok("it is at least as wide as the control and stays on screen", Boolean(menu?.atLeastAsWide && menu?.onScreen));
+
+await page.keyboard.press("Escape");
+await settle();
+const layers = await page.evaluate(() => ({
+  menu: Boolean(document.querySelector('[role="listbox"]')),
+  dialog: Boolean(document.querySelector('[role="dialog"]')),
+}));
+ok("one Escape closes the menu", !layers.menu);
+ok("and leaves the dialog open", layers.dialog);
+await page.keyboard.press("Escape");
+await settle();
+
 /* The destructive path. Reopening a period that a later period was closed on
    top of must not be one careless Enter away, and the period with nothing
    downstream must not be made tedious for the sake of symmetry. */

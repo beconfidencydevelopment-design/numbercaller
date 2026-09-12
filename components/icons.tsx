@@ -17,6 +17,7 @@ import * as React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Activity03Icon,
+  ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowRight02Icon,
@@ -82,6 +83,7 @@ export const IconLogOut = make(Logout03Icon, "IconLogOut");
 export const IconArrowRight = make(ArrowRight02Icon, "IconArrowRight");
 export const IconChevronLeft = make(ArrowLeft01Icon, "IconChevronLeft");
 export const IconChevronRight = make(ArrowRight01Icon, "IconChevronRight");
+export const IconChevronDown = make(ArrowDown01Icon, "IconChevronDown");
 export const IconEnter = make(CornerDownLeftIcon, "IconEnter");
 
 /* Actions */
