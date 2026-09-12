@@ -214,7 +214,30 @@ Two things were **left exactly as they are** and need a decision:
   a guess. The console labels the column "Distributed (cash basis)" and
   footnotes the gap rather than changing the number.
 
-## Home — which form, where, and why
+## Home — the reference's chart set, verbatim
+
+The client asked for the same graphs as Zajno's Skymetrics, in the same
+places, so Home now runs: four stat tiles → a two-series line with a crosshair
+tooltip beside a segmented funnel → a semicircle gauge, a composition bar with
+legend, and a mini table → the Companies ledger → Actions pending beside the
+activity feed → the client's Monthly comparison table.
+
+Rules that came with it:
+
+- **One typeface.** Geist for everything. Numerals get `tabular-nums` in
+  columns and proportional figures standalone — a feature setting, not a
+  second font.
+- **Deltas are coloured by direction** — up green, down red, flat grey — as
+  the reference and the client's own build do. Tinting by "is this good?" made
+  every card on a bad month red and lost the one thing the tint is for.
+- **Cards in a row share a height.** Grid rows stretch and the chart or list
+  inside absorbs the difference; the bottom edge is never padded.
+- **An open period is drawn faint and dashed** on the line, with the wash
+  stopping at the last closed month, so a four-day-old September does not
+  read as revenue collapsing. Its axis label sits in a pill.
+- **20px card padding, 20px gutters, 14px body, 28px figures.**
+
+## Home — which form, where, and why (the reasoning behind each block)
 
 The reference for this round is Zajno's Skymetrics dashboard (Dribbble
 27460154). Its vocabulary is specific and every card on Home now follows it:

@@ -22,10 +22,10 @@ export function PageHeader({
 }) {
   return (
     <div className={cn("border-b border-ops-line bg-ops-surface", className)}>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 pb-3 pt-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 pb-5 pt-6">
         <div className="min-w-0">
-          <h1 className="text-[24px] font-medium tracking-[-0.02em] text-ops-text">{title}</h1>
-          {detail && <p className="mt-1 text-[12px] text-ops-text-secondary">{detail}</p>}
+          <h1 className="text-[28px] font-medium tracking-[-0.02em] text-ops-text">{title}</h1>
+          {detail && <p className="mt-1 text-[13px] text-ops-text-secondary">{detail}</p>}
         </div>
         {actions && <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
       </div>
@@ -56,7 +56,7 @@ export function Tabs({
             aria-selected={on}
             onClick={() => onChange(t.id)}
             className={cn(
-              "relative flex h-9 shrink-0 items-center gap-2 border-b-2 px-3 text-[13px] font-medium transition-colors",
+              "relative flex h-9 shrink-0 items-center gap-2 border-b-2 px-3 text-[14px] font-medium transition-colors",
               on
                 ? "border-ops-accent text-ops-text"
                 : "border-transparent text-ops-text-secondary hover:text-ops-text",
@@ -64,7 +64,7 @@ export function Tabs({
           >
             {t.label}
             {t.count !== undefined && t.count > 0 && (
-              <span className="ops-num rounded-full bg-ops-active px-2 text-[11px] font-semibold text-ops-text-tertiary">
+              <span className="ops-num rounded-full bg-ops-active px-2 text-[12px] font-semibold text-ops-text-tertiary">
                 {t.count}
               </span>
             )}
@@ -82,5 +82,5 @@ export function PageBody({ children, className }: { children: React.ReactNode; c
      of dead margin either side on a 1920 monitor and put the page title 100px
      right of the search field above it. Wide screens get wider tables, which
      is what a ledger wants. */
-  return <div className={cn("px-6 py-4", className)}>{children}</div>;
+  return <div className={cn("px-6 py-5", className)}>{children}</div>;
 }

@@ -148,8 +148,10 @@ body {
   --ops-focal-line: #43444a;
 
   --ops-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --ops-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
-    Consolas, monospace;
+  /* One typeface. `--ops-mono` is kept as a name so nothing breaks, but it
+     resolves to the same face; numerals differ from text only by feature
+     settings (tabular in columns, proportional on a standalone figure). */
+  --ops-mono: var(--ops-sans);
 
   /* ---- Spacing --------------------------------------------------------
      One scale for every padding, margin and gap. Tailwind's spacing utilities
@@ -440,22 +442,22 @@ body {
    `.ops-figure` — proportional, for a large standalone number. Tabular
    digits look loosely spaced at display sizes.
    -------------------------------------------------------------------------- */
-/* Every numeral is set in the mono. Tabular by nature, so columns align
-   without a feature flag, and the register reads as a ledger. */
+/* Numerals in a column align on the digit. */
 .ops-num {
-  font-family: var(--ops-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }
 
+/* A standalone figure uses the face's proportional digits — tabular makes a
+   large number look loose — and a touch of negative tracking. */
 .ops-figure {
-  font-family: var(--ops-mono);
-  letter-spacing: -0.03em;
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.02em;
 }
 
 .ops-mono {
-  font-family: var(--ops-mono);
-  font-size: 12px;
-  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
 }
 
 /* Micro label: section headers, column groups, table captions. */
@@ -464,7 +466,7 @@ body {
    is what keeps its figures legible at a glance: the numbers are the only
    thing in the mono, so the numbers are what you see. */
 .ops-eyebrow {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ops-text-tertiary);
 }

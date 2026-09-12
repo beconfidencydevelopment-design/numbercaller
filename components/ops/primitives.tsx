@@ -55,7 +55,7 @@ export function StatusPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full px-2 py-1 text-[11px] font-medium whitespace-nowrap ring-1 ring-inset",
+        "inline-flex items-center gap-2 rounded-full px-2 py-1 text-[12px] font-medium whitespace-nowrap ring-1 ring-inset",
         TONE_PILL[tone],
         className,
       )}
@@ -70,7 +70,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-ops-line bg-ops-sunken px-2 py-1 text-[11px] font-medium whitespace-nowrap text-ops-text-secondary",
+        "inline-flex items-center gap-1 rounded-md border border-ops-line bg-ops-sunken px-2 py-1 text-[12px] font-medium whitespace-nowrap text-ops-text-secondary",
         className,
       )}
     >
@@ -91,7 +91,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold tracking-wide",
+        "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold tracking-wide",
         tone === "accent"
           ? "bg-ops-accent-weak text-ops-accent"
           : "bg-ops-active text-ops-text-secondary",
@@ -106,7 +106,7 @@ export function Avatar({
 
 export function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="rounded border border-ops-line bg-ops-sunken px-1 py-1 font-mono text-[10px] leading-4 text-ops-text-tertiary">
+    <kbd className="rounded border border-ops-line bg-ops-sunken px-1 py-1 font-mono text-[11px] leading-4 text-ops-text-tertiary">
       {children}
     </kbd>
   );
@@ -155,9 +155,12 @@ export function Money({
 /**
  * Month-over-month change.
  *
- * Direction is carried by the arrow glyph and the sign, never only by the
- * tint — and "worse" is decided by the caller, because a rise in expenses and
- * a rise in revenue are not the same news.
+ * Coloured by direction — up is green, down is red, flat is grey — which is
+ * how both the reference and the client's own build read it. An earlier
+ * version tinted by whether the move was *good*, which made every card on a
+ * bad month red and lost the one thing the tint is for: telling up from
+ * down at a glance. Direction is also carried by the arrow, never by tint
+ * alone.
  */
 export function DeltaChip({
   pct,
@@ -177,9 +180,9 @@ export function DeltaChip({
   // Flat reads "— 0%", as the client's cards print it; a bare "—0%" looks like a negative.
   const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "— ";
   return (
-    <span className={cn("inline-flex items-baseline gap-2 text-[11px]", className)}>
+    <span className={cn("inline-flex items-baseline gap-2 text-[12px]", className)}>
       {/* Tint only, no ring — the pill should sit on the card, not on top of it. */}
-      <span className={cn("ops-num rounded-[5px] px-2 py-1 text-[10.5px] font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
+      <span className={cn("ops-num rounded-[5px] px-2 py-1 text-[12px] font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
         {glyph}{pct}%
       </span>
       {caption && <span className="ops-num text-ops-text-tertiary">{caption}</span>}
@@ -245,13 +248,13 @@ export function SectionTitle({
           <Icon className="size-3.5" />
         </span>
       )}
-      <h2 className="whitespace-nowrap text-[13px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
+      <h2 className="whitespace-nowrap text-[14px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
       {count !== undefined && (
-        <span className="ops-num rounded-md bg-ops-active px-2 py-1 text-[11px] font-semibold text-ops-text-secondary">
+        <span className="ops-num rounded-md bg-ops-active px-2 py-1 text-[12px] font-semibold text-ops-text-secondary">
           {count}
         </span>
       )}
-      {hint && <span className="truncate text-[12px] text-ops-text-tertiary">{hint}</span>}
+      {hint && <span className="truncate text-[13px] text-ops-text-tertiary">{hint}</span>}
       {action && <div className="ml-auto shrink-0">{action}</div>}
     </div>
   );
@@ -301,8 +304,8 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center px-6 py-12 text-center", className)}>
-      <div className="text-[13px] font-medium text-ops-text">{title}</div>
-      {detail && <p className="mt-1 max-w-[42ch] text-[12px] text-ops-text-secondary">{detail}</p>}
+      <div className="text-[14px] font-medium text-ops-text">{title}</div>
+      {detail && <p className="mt-1 max-w-[42ch] text-[13px] text-ops-text-secondary">{detail}</p>}
       {action && <div className="mt-3">{action}</div>}
     </div>
   );
@@ -442,7 +445,7 @@ export const Button = React.forwardRef<
            with. */
         "inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--ops-r-control)] border font-medium transition-colors",
         "disabled:pointer-events-none disabled:border-ops-line disabled:bg-ops-active disabled:text-ops-text-tertiary",
-        size === "sm" ? "h-7 px-3 text-[12px]" : "h-8 px-3 text-[13px]",
+        size === "sm" ? "h-8 px-3 text-[13px]" : "h-10 px-4 text-[14px]",
         BUTTON[variant],
         className,
       )}
@@ -467,7 +470,7 @@ export function RowAction({
       type="button"
       {...props}
       className={cn(
-        "inline-flex h-6 shrink-0 items-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak px-2 text-[11px] font-semibold text-ops-accent transition-colors hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse",
+        "inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak px-2 text-[12px] font-semibold text-ops-accent transition-colors hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse",
         className,
       )}
     >
@@ -483,11 +486,12 @@ export function RowAction({
 /** A small arrow in a tinted disc, set beside a figure. Direction is the glyph; the tint reinforces it. */
 export function ArrowGlyph({ dir, good, className }: { dir: "up" | "down" | "flat"; good?: boolean; className?: string }) {
   if (dir === "flat") return null;
-  const tone: StatusTone = good ? "ok" : "risk";
+  void good;
+  const tone: StatusTone = dir === "up" ? "ok" : "risk";
   return (
     <span
       className={cn(
-        "inline-grid size-4 shrink-0 place-items-center rounded-full text-[10px] font-semibold leading-none",
+        "inline-grid size-4 shrink-0 place-items-center rounded-full text-[11px] font-semibold leading-none",
         TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""),
         className,
       )}
@@ -545,8 +549,8 @@ export function Gauge({
         )}
       </svg>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-        <span className="ops-figure text-[24px] font-medium leading-none text-ops-text">{label}</span>
-        {sublabel && <span className="mt-1 text-[11px] text-ops-text-secondary">{sublabel}</span>}
+        <span className="ops-figure text-[28px] font-medium leading-none text-ops-text">{label}</span>
+        {sublabel && <span className="mt-1 text-[12px] text-ops-text-secondary">{sublabel}</span>}
       </div>
     </div>
   );
@@ -605,6 +609,218 @@ export function CompositionBar({
             title={`${s.label} · ${Math.round((s.value / total) * 100)}%`}
           />
         ))}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Line chart — two series, the reference's "Sales & Returns"                  */
+/* -------------------------------------------------------------------------- */
+
+/** Monotone cubic through the points: smooth, and it never overshoots a value. */
+function smoothPath(pts: Array<[number, number]>): string {
+  if (pts.length < 2) return "";
+  const n = pts.length;
+  const d: number[] = [];
+  for (let i = 0; i < n - 1; i++) d.push((pts[i + 1][1] - pts[i][1]) / (pts[i + 1][0] - pts[i][0]));
+  const m: number[] = [d[0]];
+  for (let i = 1; i < n - 1; i++) m.push(d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2);
+  m.push(d[n - 2]);
+  let path = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < n - 1; i++) {
+    const [x0, y0] = pts[i];
+    const [x1, y1] = pts[i + 1];
+    const dx = (x1 - x0) / 3;
+    path += ` C${x0 + dx},${y0 + m[i] * dx} ${x1 - dx},${y1 - m[i + 1] * dx} ${x1},${y1}`;
+  }
+  return path;
+}
+
+export interface LineSeries {
+  id: string;
+  label: string;
+  color: string;
+  values: number[];
+  /** The series the chart is about; it gets the area wash and the end dot. */
+  emphasis?: boolean;
+}
+
+/**
+ * Two lines over a shared x, the emphasised one with a wash under it, dashed
+ * hairline gridlines, a crosshair and a tooltip on hover. The current period
+ * label sits in a pill. Ticks are clean numbers; values live in the tooltip
+ * and in whatever table the caller renders beside it.
+ */
+export function LineChart({
+  labels,
+  series,
+  currentIndex,
+  /** Index from which the data is still accumulating; that tail is drawn faint and dashed. */
+  faintFrom,
+  format,
+  ticks,
+  className,
+}: {
+  labels: string[];
+  series: LineSeries[];
+  currentIndex?: number;
+  faintFrom?: number;
+  format: (v: number) => string;
+  ticks: number[];
+  className?: string;
+}) {
+  const [hover, setHover] = React.useState<number | null>(null);
+  const W = 400;
+  const H = 160;
+  const PAD = { l: 0, r: 0, t: 8, b: 6 };
+  const top = ticks[ticks.length - 1];
+  const n = labels.length;
+  const x = (i: number) => PAD.l + 12 + (i * (W - PAD.l - PAD.r - 24)) / Math.max(1, n - 1);
+  const y = (v: number) => H - PAD.b - (v / top) * (H - PAD.b - PAD.t);
+  const id = React.useId();
+
+  const onMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width) * W;
+    let best = 0;
+    for (let i = 1; i < n; i++) if (Math.abs(x(i) - px) < Math.abs(x(best) - px)) best = i;
+    setHover(best);
+  };
+
+  return (
+    <div className={cn("relative flex flex-1 flex-col", className)}>
+      <div className="flex flex-1 gap-3">
+        <div className="ops-num flex w-11 shrink-0 flex-col justify-between pb-2 pt-2 text-right text-[11px] leading-none text-ops-text-tertiary">
+          {[...ticks].reverse().map((t) => (
+            <span key={t}>{format(t)}</span>
+          ))}
+        </div>
+        <div className="relative min-w-0 flex-1">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            preserveAspectRatio="none"
+            className="h-full min-h-[180px] w-full"
+            role="img"
+            aria-label={series.map((s) => s.label).join(" and ")}
+            onMouseMove={onMove}
+            onMouseLeave={() => setHover(null)}
+          >
+            <defs>
+              {series.filter((s) => s.emphasis).map((s) => (
+                <linearGradient key={s.id} id={`${id}-${s.id}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={s.color} stopOpacity="0.16" />
+                  <stop offset="100%" stopColor={s.color} stopOpacity="0" />
+                </linearGradient>
+              ))}
+            </defs>
+            {ticks.map((t) => (
+              <line key={t} x1="0" x2={W} y1={y(t)} y2={y(t)} stroke="var(--ops-line)" strokeWidth="1" strokeDasharray="3 4" vectorEffect="non-scaling-stroke" />
+            ))}
+            {series.map((s) => {
+              const pts: Array<[number, number]> = s.values.map((v, i) => [x(i), y(v)]);
+              const cut = faintFrom ?? n; // points at index >= cut are still accumulating
+              const solid = smoothPath(pts.slice(0, cut));
+              const faint = cut < n ? smoothPath(pts.slice(Math.max(0, cut - 1))) : "";
+              const last = Math.max(0, Math.min(cut, n) - 1);
+              return (
+                <g key={s.id}>
+                  {s.emphasis && <path d={`${solid} L${x(last)},${y(0)} L${x(0)},${y(0)} Z`} fill={`url(#${id}-${s.id})`} />}
+                  <path d={solid} fill="none" stroke={s.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                  {faint && (
+                    <path d={faint} fill="none" stroke={s.color} strokeWidth="2" strokeOpacity="0.45" strokeDasharray="4 5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                  )}
+                </g>
+              );
+            })}
+            {hover !== null && (
+              <line x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={y(0)} stroke="var(--ops-line-strong)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            )}
+            {series.map((s) => {
+              const i = hover ?? n - 1;
+              return (
+                <circle key={s.id} cx={x(i)} cy={y(s.values[i])} r="4" fill={s.color} stroke="var(--ops-surface)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+              );
+            })}
+          </svg>
+          {hover !== null && (
+            <div
+              className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-[12px] shadow-ops-pop"
+              style={{ left: `${(x(hover) / W) * 100}%`, transform: hover > n / 2 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
+            >
+              <div className="text-ops-text-tertiary">{labels[hover]}</div>
+              {series.map((s) => (
+                <div key={s.id} className="mt-1 flex items-center gap-2 whitespace-nowrap">
+                  <span className="size-2 rounded-full" style={{ background: s.color }} aria-hidden />
+                  <span className="text-ops-text-secondary">{s.label}</span>
+                  <span className="ops-num ml-auto pl-3 font-medium text-ops-text">{format(s.values[hover])}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mt-2 flex pl-12 text-[12px] text-ops-text-secondary">
+        {labels.map((l, i) => (
+          <span key={l} className={cn("flex-1", i === 0 ? "text-left" : i === n - 1 ? "text-right" : "text-center")}>
+            <span className={cn("inline-block rounded-[6px] px-2 py-1", i === currentIndex && "bg-ops-active text-ops-text")}>{l}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Funnel — the reference's "Sales conversion"                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Stages as runs of thin pills. Each stage's height steps down with its
+ * completion, the lit pills are the done share, and the percentage sits over
+ * the stage. Name and count go under it, in text tokens.
+ */
+export function Funnel({
+  stages,
+  segments = 8,
+  className,
+}: {
+  stages: Array<{ id: string; label: string; done: number; total: number }>;
+  segments?: number;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-1 flex-col", className)}>
+      <div className="flex flex-1 items-end gap-3">
+        {stages.map((st, i) => {
+          const pct = st.total > 0 ? st.done / st.total : 0;
+          const lit = Math.round(pct * segments);
+          const height = 100 - i * (55 / Math.max(1, stages.length - 1)); // 100% → 45%
+          return (
+            <div key={st.id} className="flex min-w-0 flex-1 flex-col justify-end">
+              <span className="ops-num mb-2 text-[13px] font-medium text-ops-text">{Math.round(pct * 100)}%</span>
+              <div className="flex h-[120px] items-end gap-1" aria-hidden>
+                {Array.from({ length: segments }, (_, k) => (
+                  <span
+                    key={k}
+                    className={cn("w-full min-w-1 rounded-full", k < lit ? "bg-ops-ok-dot" : "bg-ops-active")}
+                    style={{ height: `${height}%` }}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 flex gap-3">
+        {stages.map((st) => (
+          <div key={st.id} className="min-w-0 flex-1">
+            <div className="text-[12px] leading-4 text-ops-text-secondary">{st.label}</div>
+            <div className="ops-num text-[13px] font-medium text-ops-text">
+              {st.done} of {st.total}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

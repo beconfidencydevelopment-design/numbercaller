@@ -13,10 +13,11 @@ import {
   CompositionBar,
   DashedRule,
   DeltaChip,
+  Funnel,
   Gauge,
+  LineChart,
   Money,
   RowAction,
-  SegmentedMeter,
   ShareBar,
   StatusPill,
   TONE_DOT,
@@ -32,7 +33,6 @@ import {
   COMPANIES_WITH_ACTIVITY,
   DAILY_AVERAGE,
   DAY_OF_PERIOD,
-  DRAFT_REVENUE,
   DRAFT_REVENUE_TOTAL,
   DRIVERS,
   DRIVERS_SETTLED,
@@ -41,6 +41,7 @@ import {
   DRIVER_OUTSTANDING_TOTAL,
   EXPENSES,
   EXPENSE_TOTAL,
+  FINALIZED_REVENUE,
   GLOBAL_COMPANY,
   HEADLINE_DELTA,
   NOW,
@@ -51,8 +52,10 @@ import {
   PERIOD,
   PERIODS,
   PERIOD_DAYS,
+  REVENUE,
   REVENUE_TOTAL,
   SINCE_LAST_VISIT,
+  UNPAID_BILLS,
   driversFor,
   expensesByCompany,
   expensesFor,
@@ -82,24 +85,24 @@ function ChartHead({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 px-4 pt-4">
+    <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-4 px-5 pt-5">
       <div className="min-w-0">
         <div className="flex items-center gap-3">
-          <h2 className="text-[13px] font-medium text-ops-text-secondary">{title}</h2>
+          <h2 className="text-[14px] font-medium text-ops-text-secondary">{title}</h2>
           {action}
         </div>
-        <p className="mt-2 text-[13px] text-ops-text">{subtitle}</p>
+        <p className="mt-3 text-[14px] text-ops-text">{subtitle}</p>
       </div>
       {figures && (
         <div className="flex flex-wrap items-start gap-6">
           {figures.map((f) => (
             <div key={f.key} className="min-w-0">
-              <div className="flex items-center gap-2 text-[12px] text-ops-text-secondary">
+              <div className="flex items-center gap-2 text-[13px] text-ops-text-secondary">
                 {f.swatch && <span className="size-2 rounded-full" style={{ background: f.swatch }} aria-hidden />}
                 {f.label}
               </div>
               <div className="mt-1 flex items-center gap-2">
-                <span className="ops-figure text-[24px] font-medium leading-none text-ops-text">{f.value}</span>
+                <span className="ops-figure text-[28px] font-medium leading-none text-ops-text">{f.value}</span>
                 {f.delta}
               </div>
             </div>
@@ -137,18 +140,18 @@ function Figure({
   href: string;
 }) {
   return (
-    <Link href={href} className="ops-card flex min-w-0 flex-col p-4 transition-colors hover:border-ops-line-strong">
+    <Link href={href} className="ops-card flex min-w-0 flex-col p-5 transition-colors hover:border-ops-line-strong">
       <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-[13px] text-ops-text-secondary">{label}</span>
+        <span className="truncate text-[14px] text-ops-text-secondary">{label}</span>
         <DeltaChip pct={delta.pct} dir={delta.dir} good={good} caption="" />
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <span className={cn("ops-figure text-[24px] font-medium leading-none", tone === "risk" ? "text-ops-risk-fg" : "text-ops-text")}>
+      <div className="mt-5 flex items-center gap-3">
+        <span className={cn("ops-figure text-[28px] font-medium leading-none", tone === "risk" ? "text-ops-risk-fg" : "text-ops-text")}>
           {money(value)}
         </span>
         <ArrowGlyph dir={delta.dir} good={good} />
       </div>
-      <p className="mt-3 truncate text-[12px] text-ops-text-secondary">{caption}</p>
+      <p className="mt-4 truncate text-[13px] text-ops-text-secondary">{caption}</p>
     </Link>
   );
 }
@@ -159,32 +162,24 @@ function Figure({
 
 function PendingActions() {
   return (
-    <Card className="overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Actions pending"
         subtitle={`${PENDING_ACTIONS.length} items, largest first, before ${PERIOD.label} can close.`}
       />
-      <ul className="mt-3 divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
+      <ul className="mt-5 flex flex-1 flex-col divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
         {PENDING_ACTIONS.map((a) => (
-          <li key={a.id} className="flex h-12 items-center gap-3 px-4">
+          <li key={a.id} className="flex min-h-14 flex-1 items-center gap-4 px-5">
             <span className={cn("size-2 shrink-0 rounded-full", TONE_DOT[a.tone])} aria-hidden />
-            <span className="min-w-0 flex-1 truncate text-[13px] text-ops-text">{a.label}</span>
-            {/* The stage's progress in the reference's own funnel language: a
-                run of pills, the done ones lit. "1 of 18" reads as a count. */}
-            <span className="hidden items-center gap-2 lg:flex">
-              <SegmentedMeter value={a.progress.done} max={a.progress.total} segments={10} tone="ok" />
-              <span className="ops-num w-14 text-[11px] text-ops-text-tertiary">
-                {a.progress.done} of {a.progress.total}
-              </span>
-            </span>
+            <span className="min-w-0 flex-1 truncate text-[14px] text-ops-text">{a.label}</span>
             {a.amount !== null ? (
-              <Money value={a.amount} tone={false} className="w-20 shrink-0 text-right text-[13px] font-medium text-ops-text" />
+              <Money value={a.amount} tone={false} className="w-20 shrink-0 text-right text-[14px] font-medium text-ops-text" />
             ) : (
               <span className="w-20 shrink-0" aria-hidden />
             )}
             <Link
               href={a.href}
-              className="inline-flex h-7 w-[74px] shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-[11px] font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
+              className="inline-flex h-8 w-[84px] shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-[12px] font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
             >
               {a.action}
               <ArrowRight className="size-3" />
@@ -202,35 +197,35 @@ function PendingActions() {
 
 function PartnerSplit() {
   return (
-    <Card className="overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Partner split"
         subtitle={`${money(CASH_NET)} distributed on a cash basis, ${Math.round(PARTNERS[0].share * 100)} / ${Math.round(PARTNERS[1].share * 100)}.`}
         action={
-          <Link href="/ops/financials?tab=withdrawals" className="text-[12px] font-medium text-ops-accent hover:underline">
+          <Link href="/ops/financials?tab=withdrawals" className="text-[13px] font-medium text-ops-accent hover:underline">
             Withdrawals →
           </Link>
         }
       />
-      <table className="mt-3 w-full text-[13px]">
+      <table className="mt-3 w-full text-[14px]">
         <thead>
           <tr className="border-t border-dashed border-ops-line text-left">
-            <th className="ops-eyebrow px-4 py-2 font-medium">Partner</th>
+            <th className="ops-eyebrow px-5 py-2 font-medium">Partner</th>
             <th className="ops-eyebrow px-3 py-2 text-right font-medium">Share</th>
-            <th className="ops-eyebrow px-4 py-2 text-right font-medium">Distributed</th>
+            <th className="ops-eyebrow px-5 py-2 text-right font-medium">Distributed</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
           {PARTNERS.map((p) => (
-            <tr key={p.id} className="h-10">
-              <td className="px-4">
+            <tr key={p.id} className="h-12">
+              <td className="px-5">
                 <span className="flex items-center gap-2">
                   <Avatar initials={initialsOf(p.name)} className="size-5 text-[9px]" />
                   <span className="text-ops-text">{p.name}</span>
                 </span>
               </td>
               <td className="ops-num px-3 text-right text-ops-text-secondary">{Math.round(p.share * 100)}%</td>
-              <td className="px-4 text-right">
+              <td className="px-5 text-right">
                 <Money value={shareOf(p, CASH_NET)} className="font-medium" />
               </td>
             </tr>
@@ -239,20 +234,20 @@ function PartnerSplit() {
             { label: "Received", value: CASH_RECEIVED },
             { label: "Paid out", value: -CASH_PAID_OUT },
           ].map((r) => (
-            <tr key={r.label} className="h-9 text-[12px]">
-              <td className="px-4 text-ops-text-secondary" colSpan={2}>
+            <tr key={r.label} className="h-11 text-[13px]">
+              <td className="px-5 text-ops-text-secondary" colSpan={2}>
                 {r.label}
               </td>
-              <td className="px-4 text-right">
+              <td className="px-5 text-right">
                 <Money value={r.value} className="font-medium" />
               </td>
             </tr>
           ))}
           <tr className="h-10 bg-ops-sunken">
-            <td className="px-4 font-medium text-ops-text" colSpan={2}>
+            <td className="px-5 font-medium text-ops-text" colSpan={2}>
               Net
             </td>
-            <td className="px-4 text-right">
+            <td className="px-5 text-right">
               <Money value={CASH_NET} className="font-medium" />
             </td>
           </tr>
@@ -263,88 +258,15 @@ function PartnerSplit() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Monthly comparison — revenue against expenses                               */
+/* Revenue against expenses — the reference's "Sales & Returns"                */
 /* -------------------------------------------------------------------------- */
 
-function PeriodBars() {
-  const W = 200;
-  const H = 40;
-  const PAD_B = 6;
-  const top = 150_000;
-  const ticks = [0, 50_000, 100_000, 150_000];
-  const y = (v: number) => H - PAD_B - (v / top) * (H - PAD_B - 2);
-  const slot = W / PERIODS.length;
-  const bw = 5.5;
-  const gap = 1;
-  const cap = 1;
-  const column = (x: number, v: number) => {
-    const y0 = y(0);
-    const y1 = y(v);
-    const h = Math.max(0, y0 - y1);
-    if (h === 0) return "";
-    const r = Math.min(cap, h / 2);
-    return `M${x},${y0} V${y1 + r} Q${x},${y1} ${x + r},${y1} H${x + bw - r} Q${x + bw},${y1} ${x + bw},${y1 + r} V${y0} Z`;
-  };
-
-  return (
-    <div className="px-4 pb-3 pt-4">
-      <div className="flex gap-2">
-        <div className="ops-num flex w-10 shrink-0 flex-col justify-between pb-2 text-right text-[10px] leading-none text-ops-text-tertiary">
-          {[...ticks].reverse().map((t) => (
-            <span key={t}>{t === 0 ? "$0" : `$${t / 1000}k`}</span>
-          ))}
-        </div>
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-[200px] w-full" role="img" aria-label="Revenue and expenses by period">
-          {ticks.map((t) => (
-            <line
-              key={t}
-              x1="0"
-              x2={W}
-              y1={y(t)}
-              y2={y(t)}
-              stroke="var(--ops-line)"
-              strokeWidth="1"
-              strokeDasharray="3 4"
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
-          {PERIODS.map((p, i) => {
-            const x0 = i * slot + slot / 2 - bw - gap / 2;
-            const faint = !p.locked;
-            return (
-              <g key={p.key} opacity={faint ? 0.45 : 1}>
-                <path d={column(x0, p.revenue)} fill="var(--ops-series-a)">
-                  <title>{`${p.label} · Revenue ${money(p.revenue)}`}</title>
-                </path>
-                <path d={column(x0 + bw + gap, p.expenses)} fill="var(--ops-idle-dot)">
-                  <title>{`${p.label} · Expenses ${money(p.expenses)}`}</title>
-                </path>
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-      <div className="mt-2 flex pl-12 text-center text-[11px] text-ops-text-secondary">
-        {PERIODS.map((p) => (
-          <span key={p.key} className="flex-1">
-            <span className={cn("rounded-[6px] px-2 py-1", !p.locked && "bg-ops-active text-ops-text")}>
-              {p.label.split(" ")[0]}
-            </span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function MonthByMonth() {
+function RevenueExpenses() {
   const overspent = CLOSED_PERIODS.filter((p) => p.expenses > p.revenue).length;
-  const augGap = CLOSED_PERIODS[1].revenue - CLOSED_PERIODS[1].expenses - CLOSED_PERIODS[1].distributed;
-
   return (
-    <Card className="overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
-        title="Monthly comparison"
+        title="Revenue & expenses"
         subtitle={`Expenses outran revenue in ${overspent} of ${CLOSED_PERIODS.length} closed periods. ${OPEN_PERIOD.label} is day ${DAY_OF_PERIOD} of ${PERIOD_DAYS}.`}
         figures={[
           {
@@ -352,42 +274,89 @@ function MonthByMonth() {
             label: "Revenue",
             swatch: "var(--ops-series-a)",
             value: money(REVENUE_TOTAL),
-            delta: <DeltaChip pct={HEADLINE_DELTA.revenue.pct} dir={HEADLINE_DELTA.revenue.dir} good caption="" />,
+            delta: <DeltaChip pct={HEADLINE_DELTA.revenue.pct} dir={HEADLINE_DELTA.revenue.dir} caption="" />,
           },
           {
             key: "exp",
             label: "Expenses",
             swatch: "var(--ops-idle-dot)",
             value: money(EXPENSE_TOTAL),
-            delta: <DeltaChip pct={HEADLINE_DELTA.expenses.pct} dir={HEADLINE_DELTA.expenses.dir} good={false} caption="" />,
+            delta: <DeltaChip pct={HEADLINE_DELTA.expenses.pct} dir={HEADLINE_DELTA.expenses.dir} caption="" />,
           },
         ]}
       />
-      <PeriodBars />
-      <DashedRule />
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] text-[13px]">
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-5">
+        <LineChart
+          labels={PERIODS.map((p) => p.label.split(" ")[0])}
+          currentIndex={PERIODS.length - 1}
+          faintFrom={PERIODS.findIndex((p) => !p.locked)}
+          ticks={[0, 50_000, 100_000, 150_000]}
+          format={(v) => (v === 0 ? "$0" : `$${Math.round(v / 1000)}k`)}
+          series={[
+            { id: "revenue", label: "Revenue", color: "var(--ops-series-a)", values: PERIODS.map((p) => p.revenue), emphasis: true },
+            { id: "expenses", label: "Expenses", color: "var(--ops-idle-dot)", values: PERIODS.map((p) => p.expenses) },
+          ]}
+        />
+      </div>
+    </Card>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Period close — the reference's "Sales conversion" funnel                    */
+/* -------------------------------------------------------------------------- */
+
+function PeriodClose() {
+  const stages = [
+    { id: "logged", label: "Expenses", done: COMPANIES_WITH_ACTIVITY, total: COMPANIES.length },
+    { id: "revenue", label: "Revenue", done: FINALIZED_REVENUE.length, total: REVENUE.length },
+    { id: "drivers", label: "Drivers", done: DRIVERS_SETTLED, total: DRIVERS.length },
+    { id: "bills", label: "Bills", done: 0, total: UNPAID_BILLS.length },
+    { id: "closed", label: "Closed", done: 0, total: 1 },
+  ];
+  const complete = stages.filter((st) => st.total > 0 && st.done === st.total).length;
+  return (
+    <Card className="flex h-full flex-col overflow-hidden">
+      <ChartHead
+        title="Period close"
+        subtitle={`Expenses logged, revenue finalized, drivers settled, bills paid — then ${PERIOD.label} can close.`}
+        figures={[{ key: "steps", label: "Steps complete", value: `${complete} of ${stages.length}` }]}
+      />
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-6">
+        <Funnel stages={stages} />
+      </div>
+    </Card>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Monthly comparison — the client's table                                     */
+/* -------------------------------------------------------------------------- */
+
+function MonthByMonth() {
+  const augGap = CLOSED_PERIODS[1].revenue - CLOSED_PERIODS[1].expenses - CLOSED_PERIODS[1].distributed;
+  return (
+    <Card className="overflow-hidden">
+      <ChartHead title="Monthly comparison" subtitle="Revenue, expenses and what the partners split, for the last three periods." />
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-[640px] text-[14px]">
           <thead>
-            <tr className="text-left">
-              <th className="ops-eyebrow px-4 py-2 font-medium">Period</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Revenue</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Expenses</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Distributed</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Syed 35%</th>
-              <th className="ops-eyebrow px-4 py-2 text-right font-medium">Kiani 65%</th>
+            <tr className="border-t border-dashed border-ops-line text-left">
+              <th className="ops-eyebrow px-5 py-3 font-medium">Period</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Revenue</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Expenses</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Distributed</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Syed 35%</th>
+              <th className="ops-eyebrow px-5 py-3 text-right font-medium">Kiani 65%</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
             {PERIODS.map((p) => (
-              <tr key={p.key} className="h-10">
-                <td className="px-4">
+              <tr key={p.key} className="h-12">
+                <td className="px-5">
                   <span className="flex items-center gap-2">
                     <span className="text-ops-text">{p.label}</span>
-                    {p.locked ? (
-                      <StatusPill tone="idle" dot={false}>Closed</StatusPill>
-                    ) : (
-                      <StatusPill tone="warn">Open</StatusPill>
-                    )}
+                    {p.locked ? <StatusPill tone="idle" dot={false}>Closed</StatusPill> : <StatusPill tone="warn">Open</StatusPill>}
                   </span>
                 </td>
                 <td className="px-3 text-right"><Money value={p.revenue} tone={false} className="text-ops-text-secondary" /></td>
@@ -395,21 +364,19 @@ function MonthByMonth() {
                 <td className="px-3 text-right">
                   <span className="inline-flex items-baseline gap-2">
                     <Money value={p.distributed} className="font-medium" />
-                    <span className="text-[10px] text-ops-text-tertiary" title={p.basis === "cash" ? "Cash basis: what actually left the bank." : "Accrual basis: revenue less expenses incurred."}>
-                      {p.basis}
-                    </span>
+                    <span className="text-[11px] text-ops-text-tertiary" title={p.basis === "cash" ? "Cash basis: what actually left the bank." : "Accrual basis: revenue less expenses incurred."}>{p.basis}</span>
                   </span>
                 </td>
                 <td className="px-3 text-right"><Money value={shareOf(PARTNERS[0], p.distributed)} /></td>
-                <td className="px-4 text-right"><Money value={shareOf(PARTNERS[1], p.distributed)} /></td>
+                <td className="px-5 text-right"><Money value={shareOf(PARTNERS[1], p.distributed)} /></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="border-t border-dashed border-ops-line px-4 py-3 text-[11px] leading-[1.5] text-ops-text-tertiary">
-        Distributed is what the partners split. For a period that closed with bills unpaid it is not revenue less
-        expenses — {CLOSED_PERIODS[1].label} carried {money(augGap)} of expense into September.
+      <p className="border-t border-dashed border-ops-line px-5 py-4 text-[12px] leading-[1.5] text-ops-text-tertiary">
+        Distributed is what the partners split. For a period that closed with bills unpaid it is not revenue less expenses —{" "}
+        {CLOSED_PERIODS[1].label} carried {money(augGap)} of expense into September.
       </p>
     </Card>
   );
@@ -422,29 +389,29 @@ function MonthByMonth() {
 function DriverSettlement() {
   const lastSettled = ACTIVITY.find((a) => a.tone === "ok");
   return (
-    <Card className="overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Driver settlement"
         subtitle={`${DRIVERS_UNSETTLED} of ${DRIVERS.length} drivers are still owed for ${PERIOD.label}.`}
         action={
-          <Link href="/ops/drivers" className="text-[12px] font-medium text-ops-accent hover:underline">
+          <Link href="/ops/drivers" className="text-[13px] font-medium text-ops-accent hover:underline">
             Settle →
           </Link>
         }
       />
-      <div className="px-4 pb-2 pt-6">
+      <div className="flex flex-1 flex-col justify-center px-5 pb-3 pt-6">
         <Gauge value={DRIVERS_SETTLED} max={DRIVERS.length} tone="ok" label={`${DRIVERS_SETTLED} of ${DRIVERS.length}`} sublabel="drivers settled" />
       </div>
-      <dl className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line text-[12px]">
+      <dl className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line text-[13px]">
         {[
           { label: "Outstanding", value: money(DRIVER_OUTSTANDING_TOTAL), strong: true },
           { label: "Logged this period", value: money(DRIVER_OUTSTANDING_TOTAL - DRIVER_CARRIED_TOTAL) },
           { label: "Carried from August", value: money(DRIVER_CARRIED_TOTAL) },
           { label: "Last settled", value: lastSettled ? `${formatDate(lastSettled.at)} · ${money(lastSettled.amount ?? 0)}` : "—", quiet: true },
         ].map((r) => (
-          <div key={r.label} className="flex h-9 items-center justify-between gap-3 px-4">
+          <div key={r.label} className="flex h-10 items-center justify-between gap-3 px-5">
             <dt className={cn(r.strong ? "font-medium text-ops-text" : "text-ops-text-secondary")}>{r.label}</dt>
-            <dd className={cn("ops-num", r.strong ? "text-[13px] font-medium text-ops-text" : r.quiet ? "text-ops-text-tertiary" : "font-medium text-ops-text")}>
+            <dd className={cn("ops-num", r.strong ? "text-[14px] font-medium text-ops-text" : r.quiet ? "text-ops-text-tertiary" : "font-medium text-ops-text")}>
               {r.value}
             </dd>
           </div>
@@ -485,31 +452,31 @@ function Companies() {
         title="Companies"
         subtitle={`${COMPANIES.length} clients · ${COMPANIES_WITH_ACTIVITY} active · ${money(EXPENSE_TOTAL)} total spend · ${neverPaid} never paid`}
         action={
-          <Link href="/ops/clients" className="text-[12px] font-medium text-ops-accent hover:underline">
+          <Link href="/ops/clients" className="text-[13px] font-medium text-ops-accent hover:underline">
             All clients →
           </Link>
         }
       />
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-[13px]">
+        <table className="w-full min-w-[720px] text-[14px]">
           <thead>
             <tr className="border-t border-dashed border-ops-line text-left">
-              <th className="ops-eyebrow px-4 py-2 font-medium">Company</th>
+              <th className="ops-eyebrow px-5 py-2 font-medium">Company</th>
               <th className="ops-eyebrow px-3 py-2 font-medium">Last paid</th>
               <th className="ops-eyebrow px-3 py-2 text-right font-medium">Drivers</th>
               <th className="ops-eyebrow px-3 py-2 text-right font-medium">This period</th>
-              <th className="ops-eyebrow px-4 py-2 text-right font-medium">Status</th>
+              <th className="ops-eyebrow px-5 py-2 text-right font-medium">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
             {rows.map(({ company, total, drivers, status }) => (
-              <tr key={company.id} className="h-11 hover:bg-ops-hover">
-                <td className="px-4">
+              <tr key={company.id} className="h-12 hover:bg-ops-hover">
+                <td className="px-5">
                   <Link href={`/ops/clients?company=${company.id}`} className="text-ops-text hover:text-ops-accent">
                     {company.name}
                   </Link>
                 </td>
-                <td className="px-3 text-[12px] text-ops-text-secondary">
+                <td className="px-3 text-[13px] text-ops-text-secondary">
                   {company.lastPaymentAt ? (
                     <>
                       {formatDate(company.lastPaymentAt)}
@@ -532,7 +499,7 @@ function Companies() {
                     )}
                   </span>
                 </td>
-                <td className="px-4 text-right">
+                <td className="px-5 text-right">
                   <span className="inline-flex items-center gap-2">
                     <StatusPill tone={status.tone} dot={status.tone !== "idle"}>{status.label}</StatusPill>
                     {status.tone === "risk" && <RowAction>Record</RowAction>}
@@ -542,11 +509,11 @@ function Companies() {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-ops-line bg-ops-sunken text-[13px] font-medium">
-              <td colSpan={2} className="px-4 py-3 text-ops-text">{COMPANIES.length} companies</td>
+            <tr className="border-t border-ops-line bg-ops-sunken text-[14px] font-medium">
+              <td colSpan={2} className="px-5 py-3 text-ops-text">{COMPANIES.length} companies</td>
               <td className="ops-num px-3 py-3 text-right text-ops-text">{DRIVERS.length}</td>
               <td className="px-3 py-3 text-right"><Money value={EXPENSE_TOTAL} tone={false} className="text-ops-text" /></td>
-              <td className="px-4" />
+              <td className="px-5" />
             </tr>
           </tfoot>
         </table>
@@ -581,43 +548,42 @@ function LoggedThisPeriod() {
   ];
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Logged this period"
-        subtitle={`${EXPENSES.length} entries through ${formatDate(NOW)}, split by who the cost was for.`}
+        subtitle={`${EXPENSES.length} entries through ${formatDate(NOW)}, by who the cost was for.`}
         action={
-          <Link href="/ops/expenses" className="text-[12px] font-medium text-ops-accent hover:underline">
+          <Link href="/ops/expenses" className="text-[13px] font-medium text-ops-accent hover:underline">
             Ledger →
           </Link>
         }
       />
-      <div className="mt-4 grid gap-6 border-t border-dashed border-ops-line px-4 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-4">
-          {[
-            { label: "Entries", value: String(EXPENSES.length) },
-            { label: "Value", value: money(EXPENSE_TOTAL) },
-            { label: "Drivers with entries", value: String(drivers) },
-            { label: "Companies trading", value: `${COMPANIES_WITH_ACTIVITY} of ${COMPANIES.length}` },
-          ].map((s) => (
-            <div key={s.label}>
-              <dt className="truncate text-[12px] text-ops-text-secondary">{s.label}</dt>
-              <dd className="ops-num mt-1 text-[16px] font-medium text-ops-text">{s.value}</dd>
-            </div>
-          ))}
-        </dl>
-        <div className="lg:border-l lg:border-dashed lg:border-ops-line lg:pl-6">
-          <CompositionBar segments={segments} />
-          <ul className="mt-3 grid grid-cols-2 gap-x-6 text-[12px] sm:grid-cols-3">
-            {segments.map((s) => (
-              <li key={s.id} className="flex h-7 items-center gap-2">
-                <span className="size-2 shrink-0 rounded-full" style={{ background: s.color, opacity: s.value > 0 ? 1 : 0.35 }} aria-hidden />
-                <span className={cn("flex-1 truncate", s.value > 0 ? "text-ops-text-secondary" : "text-ops-text-tertiary")}>{s.label}</span>
-                <span className={cn("ops-num", s.value > 0 ? "font-medium text-ops-text" : "text-ops-text-tertiary")}>{money(s.value)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 px-5 sm:grid-cols-4">
+        {[
+          { label: "Entries", value: String(EXPENSES.length) },
+          { label: "Value", value: money(EXPENSE_TOTAL) },
+          { label: "Drivers", value: String(drivers) },
+          { label: "Companies", value: `${COMPANIES_WITH_ACTIVITY} of ${COMPANIES.length}` },
+        ].map((s) => (
+          <div key={s.label}>
+            <dt className="truncate text-[12px] text-ops-text-secondary">{s.label}</dt>
+            <dd className="ops-num mt-1 text-[15px] font-medium text-ops-text">{s.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <DashedRule className="mx-5 mt-5" />
+      <div className="px-5 pt-5">
+        <CompositionBar segments={segments} />
       </div>
+      <ul className="grid flex-1 grid-cols-2 gap-x-5 px-5 pb-5 pt-3 text-[13px]">
+        {segments.map((s) => (
+          <li key={s.id} className="flex h-8 items-center gap-2">
+            <span className="size-2 shrink-0 rounded-full" style={{ background: s.color, opacity: s.value > 0 ? 1 : 0.35 }} aria-hidden />
+            <span className={cn("flex-1 truncate", s.value > 0 ? "text-ops-text-secondary" : "text-ops-text-tertiary")}>{s.label}</span>
+            <span className={cn("ops-num", s.value > 0 ? "font-medium text-ops-text" : "text-ops-text-tertiary")}>{money(s.value)}</span>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 }
@@ -630,17 +596,17 @@ function RecentActivity() {
   return (
     <Card className="overflow-hidden">
       <ChartHead title="Recent activity" subtitle={`${ACTIVITY.length} events since ${formatDate(SINCE_LAST_VISIT.since)}.`} />
-      <ol className="mt-3 divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
+      <ol className="mt-5 flex flex-1 flex-col divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
         {ACTIVITY.map((ev) => (
-          <li key={ev.id} className="flex h-12 items-center gap-3 px-4">
+          <li key={ev.id} className="flex min-h-14 flex-1 items-center gap-3 px-5">
             <span className={cn("size-2 shrink-0 rounded-full", TONE_DOT[ev.tone])} aria-hidden />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[13px] text-ops-text">
+              <span className="block truncate text-[14px] text-ops-text">
                 <span className="font-medium">{ev.actor}</span> {ev.summary}
               </span>
-              <span className="block text-[11px] text-ops-text-tertiary">{relativeTime(ev.at)}</span>
+              <span className="block text-[12px] text-ops-text-tertiary">{relativeTime(ev.at)}</span>
             </span>
-            {ev.amount !== null && <Money value={ev.amount} tone={false} className="shrink-0 text-[13px] font-medium text-ops-text" />}
+            {ev.amount !== null && <Money value={ev.amount} tone={false} className="shrink-0 text-[14px] font-medium text-ops-text" />}
           </li>
         ))}
       </ol>
@@ -672,15 +638,15 @@ export function HomeView() {
         }
       />
 
-      <PageBody className="flex flex-col gap-4">
+      <PageBody className="flex flex-col gap-5">
         {banner && (
-          <div className="flex items-center gap-3 rounded-[var(--ops-r-card)] border border-ops-move-line bg-ops-move-bg px-4 py-2">
+          <div className="flex items-center gap-3 rounded-[var(--ops-r-card)] border border-ops-move-line bg-ops-move-bg px-5 py-2">
             <span className="size-2 shrink-0 rounded-full bg-ops-move-dot" aria-hidden />
-            <p className="min-w-0 flex-1 truncate text-[12px] text-ops-move-fg">
+            <p className="min-w-0 flex-1 truncate text-[13px] text-ops-move-fg">
               <span className="font-medium">{SINCE_LAST_VISIT.entries} new entries</span> since {formatDate(SINCE_LAST_VISIT.since)},{" "}
               {formatTime(SINCE_LAST_VISIT.since)} · {money(SINCE_LAST_VISIT.amount)} total
             </p>
-            <Link href="/ops/expenses" className="shrink-0 text-[12px] font-medium text-ops-move-fg hover:underline">
+            <Link href="/ops/expenses" className="shrink-0 text-[13px] font-medium text-ops-move-fg hover:underline">
               View
             </Link>
             <button type="button" onClick={() => setBanner(false)} aria-label="Dismiss" className="grid size-5 shrink-0 place-items-center rounded text-ops-move-fg/70 hover:bg-ops-move-line hover:text-ops-move-fg">
@@ -690,35 +656,37 @@ export function HomeView() {
         )}
 
         {/* Row 1 — the four headline figures */}
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <Figure label="Cash position" value={CASH_NET} delta={HEADLINE_DELTA.cash} good={HEADLINE_DELTA.cash.dir === "up"} tone="risk" href="/ops/financials" caption={`${money(DRAFT_REVENUE_TOTAL)} still in ${DRAFT_REVENUE.length} drafts, not in the bank`} />
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <Figure label="Cash position" value={CASH_NET} delta={HEADLINE_DELTA.cash} good={HEADLINE_DELTA.cash.dir === "up"} tone="risk" href="/ops/financials" caption={`${money(DRAFT_REVENUE_TOTAL)} in drafts, not yet banked`} />
           <Figure label="Revenue" value={REVENUE_TOTAL} delta={HEADLINE_DELTA.revenue} good={HEADLINE_DELTA.revenue.dir === "up"} href="/ops/financials?tab=revenue" caption={`Nothing finalized · ${money(DRAFT_REVENUE_TOTAL)} in draft`} />
           <Figure label="Total expenses" value={EXPENSE_TOTAL} delta={HEADLINE_DELTA.expenses} good={HEADLINE_DELTA.expenses.dir === "down"} href="/ops/expenses" caption={`${money(DAILY_AVERAGE)} a day · on pace for ${money(PACING)}`} />
           <Figure label="Net profit" value={CASH_NET} delta={HEADLINE_DELTA.profit} good={HEADLINE_DELTA.profit.dir === "up"} tone="risk" href="/ops/financials" caption={`Only ${money(CASH_PAID_OUT)} has actually left the bank`} />
         </div>
 
-        {/*
-          Rows are paired by height, not by theme. The five-row list and the
-          gauge card come out within 50px of each other; the tall chart card
-          pairs with two stacked cards; the composition card takes the full
-          width, where its stats, bar and legend sit side by side.
-        */}
-        <div className="grid items-start gap-4 wide:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-          <PendingActions />
+        {/* Row 2 — the two-series line and the funnel, as the reference lays them */}
+        <div className="grid gap-5 wide:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          <RevenueExpenses />
+          <PeriodClose />
+        </div>
+
+        {/* Row 3 — gauge, composition bar, mini table */}
+        <div className="grid gap-5 md:grid-cols-2 wide:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.3fr)]">
           <DriverSettlement />
+          <LoggedThisPeriod />
+          <PartnerSplit />
         </div>
 
-        <div className="grid items-start gap-4 wide:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-          <MonthByMonth />
-          <div className="flex flex-col gap-4">
-            <RecentActivity />
-            <PartnerSplit />
-          </div>
-        </div>
-
+        {/* Row 4 — the ledger */}
         <Companies />
 
-        <LoggedThisPeriod />
+        {/* Row 5 — the work, and the feed */}
+        <div className="grid gap-5 wide:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+          <PendingActions />
+          <RecentActivity />
+        </div>
+
+        {/* Row 6 — the client's month-by-month table */}
+        <MonthByMonth />
       </PageBody>
     </>
   );
