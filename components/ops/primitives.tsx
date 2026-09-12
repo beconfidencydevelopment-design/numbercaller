@@ -833,7 +833,7 @@ export function Funnel({
 }
 
 /* -------------------------------------------------------------------------- */
-/* Segmented gauge — a health ramp in five chunks                              */
+/* Segmented gauge — one ratio, drawn as chunks of a ring                     */
 /* -------------------------------------------------------------------------- */
 
 const polar = (cx: number, cy: number, r: number, deg: number): [number, number] => {
@@ -843,12 +843,15 @@ const polar = (cx: number, cy: number, r: number, deg: number): [number, number]
 
 
 /**
- * A semicircle in `segments` chunks with gaps between them. The fill runs
- * continuously from the left and stops wherever the ratio lands — mid-chunk
- * if that is where it falls — so the picture says "this far" rather than
- * rounding to a whole chunk. The stroke is a ramp from the warning tone to
- * the good tone, left to right; the lit part carries a faint hatch so the
- * fill survives greyscale.
+ * A horseshoe in `segments` chunks. The fill runs from the left and stops
+ * where the ratio lands — mid-chunk if that is where it falls — so the
+ * picture says "this far" rather than rounding to a whole chunk.
+ *
+ * Flat primary fill on the active grey track. An earlier version ramped
+ * warning-gold to settled-green across the arc, which made the colour say
+ * something the ratio did not: a low value came out gold, as though it were
+ * a warning, when it is just a low value. The figure in the middle carries
+ * the reading; the chunks only carry how far along it is.
  */
 export function SegmentedGauge({
   value,
@@ -865,7 +868,6 @@ export function SegmentedGauge({
   sublabel?: React.ReactNode;
   className?: string;
 }) {
-  const id = React.useId();
   const pct = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
 
   /* Measured off the reference: the stroke is about 0.5 of the centreline
@@ -910,23 +912,6 @@ export function SegmentedGauge({
   return (
     <div className={cn("relative mx-auto w-full", className)}>
       <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full" aria-hidden>
-        <defs>
-          {/* One ramp across the whole gauge in user space, so a chunk takes
-              its colour from where it sits on the arc — gold at the start,
-              settled green by the top — not from its own bounding box. */}
-          <linearGradient
-            id={`${id}-ramp`}
-            gradientUnits="userSpaceOnUse"
-            x1={cx - rMid}
-            y1="0"
-            x2={cx + rMid}
-            y2="0"
-          >
-            <stop offset="0%" stopColor="var(--ops-warn-dot)" />
-            <stop offset="60%" stopColor="var(--ops-ok-dot)" />
-            <stop offset="100%" stopColor="var(--ops-ok-dot)" />
-          </linearGradient>
-        </defs>
 
         {chunks.map((c, i) => (
           <path
@@ -950,8 +935,8 @@ export function SegmentedGauge({
               <path
                 key={`f${i}`}
                 d={sector(c.a0, end)}
-                fill={`url(#${id}-ramp)`}
-                stroke={`url(#${id}-ramp)`}
+                fill="var(--ops-series-a)"
+                stroke="var(--ops-series-a)"
                 strokeWidth={cr * 2}
                 strokeLinejoin="round"
               />
