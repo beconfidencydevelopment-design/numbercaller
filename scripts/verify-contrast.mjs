@@ -58,6 +58,10 @@ const PAIRS = [
   ["--ops-text-inverse", "--ops-accent-hover", AA, "primary button label, hover"],
   ["--ops-accent", "--ops-accent-weak", AA, "accent on its own tint"],
 
+  // The destructive button is filled, so its label is checked the same way
+  ["--ops-text-inverse", "--ops-risk-fg", AA, "destructive button label"],
+  ["--ops-text-inverse", "--ops-risk-solid-hover", AA, "destructive button label, hover"],
+
   // Status pills: label on tint, and on every bare surface
   ...["ok", "move", "warn", "risk", "idle"].flatMap((t) => [
     [`--ops-${t}-fg`, `--ops-${t}-bg`, AA, `${t} pill label`],

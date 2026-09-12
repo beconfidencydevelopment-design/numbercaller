@@ -3,8 +3,9 @@
 import * as React from "react";
 import { IconCheck, IconPlus } from "@/components/icons";
 import { Avatar, Button, CompanyTag, StatusPill } from "./primitives";
-import { Effect, Field, FieldRow, Modal, ModalFooter, MoneyField, ScopeToggle } from "./modal";
+import { Acknowledge, Effect, Field, FieldRow, Modal, ModalFooter, MoneyField, ScopeToggle } from "./modal";
 import {
+  CARRIED_FORWARD,
   CASH_NET,
   CASH_RECEIVED,
   CATEGORY_LABEL,
@@ -22,6 +23,7 @@ import {
   NOW,
   PARTNERS,
   PERIOD,
+  PERIODS,
   REVENUE_TOTAL,
   companyHistory,
   companyName,
@@ -31,7 +33,7 @@ import {
   shareOf,
 } from "@/lib/ops/data";
 import type { ExpenseCategory, PaymentMethod } from "@/lib/ops/types";
-import { formatMonth, fromDateInput, initialsOf, money, toDateInput } from "@/lib/ops/format";
+import { formatDateFull, formatMonth, fromDateInput, initialsOf, money, toDateInput } from "@/lib/ops/format";
 
 /* -------------------------------------------------------------------------- */
 /* What a modal is, and how anything opens one                                 */
@@ -42,7 +44,8 @@ export type ModalRequest =
   | { kind: "record-payment"; companyId?: string }
   | { kind: "settle-driver"; driverId?: string; all?: boolean }
   | { kind: "record-withdrawal"; partnerId?: string }
-  | { kind: "finalize-revenue"; revenueId?: string; all?: boolean };
+  | { kind: "finalize-revenue"; revenueId?: string; all?: boolean }
+  | { kind: "reopen-period"; periodKey: string };
 
 const ModalContext = React.createContext<(r: ModalRequest) => void>(() => {});
 
@@ -64,6 +67,7 @@ export function OpsModals({ children }: { children: React.ReactNode }) {
       {request?.kind === "settle-driver" && <SettleDriver request={request} onClose={close} />}
       {request?.kind === "record-withdrawal" && <RecordWithdrawal request={request} onClose={close} />}
       {request?.kind === "finalize-revenue" && <FinalizeRevenue request={request} onClose={close} />}
+      {request?.kind === "reopen-period" && <ReopenPeriod request={request} onClose={close} />}
     </ModalContext.Provider>
   );
 }
@@ -834,6 +838,141 @@ function FinalizeRevenue({
             submitLabel={all ? `Finalize ${money(DRAFT_REVENUE_TOTAL)}` : "Finalize entry"}
             form="finalize-revenue"
           />
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* 6. Reopen a closed period                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The only action on this console that unpicks a closed book.
+ *
+ * A closed period is not a row, it is a foundation. Its distributed figure is
+ * inside the balance carried into the open period and inside both partners'
+ * cumulative share, and if a later period was closed after it, that period was
+ * closed on top of these numbers. Reopening July does not edit July; it makes
+ * August provisional.
+ *
+ * So the friction is proportional to the actual damage: reopening the most
+ * recent closed period is a plain confirmation, and reopening one with a
+ * closed period downstream of it needs the box ticked. "Are you sure?" is
+ * answered by muscle memory; a sentence you have to tick is read.
+ */
+function ReopenPeriod({
+  request,
+  onClose,
+}: {
+  request: Extract<ModalRequest, { kind: "reopen-period" }>;
+  onClose: () => void;
+}) {
+  const [done, setDone] = React.useState(false);
+  const [acknowledged, setAcknowledged] = React.useState(false);
+
+  const period = PERIODS.find((p) => p.key === request.periodKey) ?? CLOSED_PERIODS[0];
+  const downstream = CLOSED_PERIODS.filter((p) => p.key > period.key);
+  const needsAcknowledgement = downstream.length > 0;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (needsAcknowledgement && !acknowledged) return;
+    setDone(true);
+  };
+
+  return (
+    <Modal
+      title={`Reopen ${period.label}`}
+      detail={done ? undefined : "Unlocks a closed period so its entries can be edited again."}
+      onClose={onClose}
+      width="lg"
+    >
+      {done ? (
+        <Recorded
+          title={`${period.label} is open again.`}
+          rows={[
+            { label: "Status", value: "Locked → Open" },
+            { label: "Distributed, now editable", value: money(period.distributed), strong: true },
+            ...(needsAcknowledgement
+              ? [{ label: "Now provisional", value: downstream.map((p) => p.label).join(", ") }]
+              : []),
+          ]}
+          onClose={onClose}
+        />
+      ) : (
+        <form id="reopen-period" onSubmit={submit} className="flex flex-col gap-4">
+          <Effect
+            rows={[
+              { label: "Closed on", value: period.closedAt ? formatDateFull(period.closedAt) : "Open" },
+              { label: "Revenue", value: money(period.revenue) },
+              { label: "Expenses", value: money(period.expenses) },
+              { label: "Distributed", value: money(period.distributed), strong: true },
+            ]}
+          />
+
+          {/* Not a general warning. The specific figures on other screens that
+              stop being final the moment this one does. */}
+          <div className="flex flex-col gap-2">
+            <p className="text-body font-medium text-ops-text">What stops being final</p>
+            <ul className="flex list-none flex-col gap-2 text-body text-ops-text-secondary">
+              <li className="flex gap-2">
+                <span className="text-ops-text-tertiary" aria-hidden>
+                  ·
+                </span>
+                <span>
+                  The {money(CARRIED_FORWARD)} carried into {PERIOD.label}, which is the sum of every
+                  closed period including this one.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-ops-text-tertiary" aria-hidden>
+                  ·
+                </span>
+                <span>
+                  Both partner balances.{" "}
+                  {PARTNERS.map((x) => `${x.name} ${money(shareOf(x, period.distributed))}`).join(" and ")}{" "}
+                  of what they are carrying comes from this period.
+                </span>
+              </li>
+              {needsAcknowledgement && (
+                <li className="flex gap-2">
+                  <span className="text-ops-risk-fg" aria-hidden>
+                    ·
+                  </span>
+                  <span className="text-ops-risk-fg">
+                    {downstream.map((p) => p.label).join(" and ")} was closed after this one, on top
+                    of these figures.
+                  </span>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {needsAcknowledgement && (
+            <Acknowledge checked={acknowledged} onChange={setAcknowledged}>
+              I understand that {downstream.map((p) => p.label).join(" and ")} was closed on these
+              figures and will no longer rest on a final period.
+            </Acknowledge>
+          )}
+        </form>
+      )}
+
+      {!done && (
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="default" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            type="submit"
+            form="reopen-period"
+            disabled={needsAcknowledgement && !acknowledged}
+          >
+            Reopen {period.label}
+          </Button>
         </div>
       )}
     </Modal>

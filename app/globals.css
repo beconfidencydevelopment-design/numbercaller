@@ -131,6 +131,10 @@ body {
   --ops-warn-dot: #9f8304;
 
   --ops-risk-fg: #c82816;
+  /* The solid destructive button. One step darker than the status red, so a
+     filled button and a status pill are never mistaken for each other, and
+     the label colour is the same --ops-text-inverse the primary uses. */
+  --ops-risk-solid-hover: #a81f10;
   --ops-risk-bg: #fbe9e7;
   --ops-risk-line: #f0cfcc;
   --ops-risk-dot: #ea4f3e;
@@ -251,6 +255,9 @@ body {
   --ops-warn-dot: #e6b619;
 
   --ops-risk-fg: #f97a6c;
+  /* Lighter, not darker: in dark theme the inverse label is ink, so hover has
+     to move away from it rather than toward it. */
+  --ops-risk-solid-hover: #fb9184;
   --ops-risk-bg: #2c1614;
   --ops-risk-line: #522d28;
   --ops-risk-dot: #ef4b39;
@@ -320,6 +327,7 @@ body {
   --color-ops-warn-line: var(--ops-warn-line);
   --color-ops-warn-dot: var(--ops-warn-dot);
   --color-ops-risk-fg: var(--ops-risk-fg);
+  --color-ops-risk-solid-hover: var(--ops-risk-solid-hover);
   --color-ops-risk-bg: var(--ops-risk-bg);
   --color-ops-risk-line: var(--ops-risk-line);
   --color-ops-risk-dot: var(--ops-risk-dot);

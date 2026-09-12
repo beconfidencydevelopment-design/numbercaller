@@ -292,6 +292,36 @@ export function FieldRow({ children }: { children: React.ReactNode }) {
 }
 
 /**
+ * The acknowledgement.
+ *
+ * Reserved for the one action here that unpicks a closed book. A dialog that
+ * only asks "are you sure?" is answered by muscle memory; a box you have to
+ * tick is answered by reading the sentence attached to it, which is the whole
+ * point of putting it there.
+ */
+export function Acknowledge({
+  checked,
+  onChange,
+  children,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-[var(--ops-r-inner)] border border-ops-risk-line bg-ops-risk-bg px-4 py-3">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-1 size-4 shrink-0 accent-[var(--ops-risk-fg)]"
+      />
+      <span className="text-body text-ops-risk-fg">{children}</span>
+    </label>
+  );
+}
+
+/**
  * What the form is about to do, in the ledger's own words.
  *
  * Every one of these forms changes a figure the owner is looking at somewhere

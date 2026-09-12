@@ -466,10 +466,14 @@ export function Meter({
 /* Controls                                                                    */
 /* -------------------------------------------------------------------------- */
 
-type ButtonVariant = "primary" | "default" | "ghost" | "quiet";
+type ButtonVariant = "primary" | "danger" | "default" | "ghost" | "quiet";
 
 const BUTTON: Record<ButtonVariant, string> = {
   primary: "bg-ops-accent text-ops-text-inverse hover:bg-ops-accent-hover border-transparent",
+  /* Filled, not outlined. An outlined destructive button reads as the
+     secondary option next to a filled Cancel, which is the wrong way round
+     for the one action on this console that unpicks a closed book. */
+  danger: "bg-ops-risk-fg text-ops-text-inverse hover:bg-ops-risk-solid-hover border-transparent",
   default: "bg-ops-surface text-ops-text border-ops-line hover:bg-ops-hover",
   ghost: "bg-transparent text-ops-text-secondary border-transparent hover:bg-ops-hover hover:text-ops-text",
   quiet: "bg-ops-sunken text-ops-text-secondary border-ops-line hover:bg-ops-hover hover:text-ops-text",

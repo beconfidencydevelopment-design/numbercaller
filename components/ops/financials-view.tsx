@@ -648,6 +648,7 @@ function ClosePeriod() {
 /* -------------------------------------------------------------------------- */
 
 function History() {
+  const openModal = useOpsModal();
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -702,7 +703,12 @@ function History() {
                 <td className="px-4 text-right">
                   <span className="inline-flex items-center gap-2">
                     <RowAction tone="quiet">Details</RowAction>
-                    <RowAction tone="quiet">Reopen</RowAction>
+                    <RowAction
+                      tone="quiet"
+                      onClick={() => openModal({ kind: "reopen-period", periodKey: p.key })}
+                    >
+                      Reopen
+                    </RowAction>
                   </span>
                 </td>
               </tr>

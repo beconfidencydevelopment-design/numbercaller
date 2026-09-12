@@ -147,6 +147,59 @@ ok("an invalid submit does not close the dialog", invalid.stillOpen);
 ok("every invalid field is marked", invalid.count > 0, `${invalid.count} fields`);
 ok("every invalid field states its reason in words", invalid.described);
 
+/* The destructive path. Reopening a period that a later period was closed on
+   top of must not be one careless Enter away, and the period with nothing
+   downstream must not be made tedious for the sake of symmetry. */
+await page.keyboard.press("Escape");
+await settle();
+await page.goto(`${BASE}/ops/financials`, { waitUntil: "networkidle0", timeout: 45000 });
+await page.evaluate(() =>
+  [...document.querySelectorAll("[role=tab]")].find((n) => n.textContent.trim().startsWith("History"))?.click(),
+);
+await settle();
+
+const reopen = async (nth) => {
+  await page.evaluate((n) => {
+    [...document.querySelectorAll("button")].filter((b) => b.textContent.trim().startsWith("Reopen"))[n]?.click();
+  }, nth);
+  await settle();
+  return page.evaluate(() => {
+    const submit = [...document.querySelectorAll('[role="dialog"] button')].find((b) =>
+      b.textContent.trim().startsWith("Reopen"),
+    );
+    return {
+      title: document.querySelector('[role="dialog"] h2')?.textContent?.trim() ?? "",
+      disabled: submit?.disabled ?? null,
+      hasCheckbox: Boolean(document.querySelector('[role="dialog"] input[type="checkbox"]')),
+      focusSafe: document.activeElement.textContent?.trim() === "Cancel",
+    };
+  });
+};
+
+const upstream = await reopen(0);
+ok("reopening a period with one closed after it asks first", upstream.hasCheckbox, upstream.title);
+ok("and its destructive button starts disabled", upstream.disabled === true);
+await page.evaluate(() => {
+  const box = document.querySelector('[role="dialog"] input[type="checkbox"]');
+  box.click();
+});
+await settle();
+ok(
+  "acknowledging enables it",
+  await page.evaluate(
+    () =>
+      ![...document.querySelectorAll('[role="dialog"] button')].find((b) => b.textContent.trim().startsWith("Reopen"))
+        ?.disabled,
+  ),
+);
+
+await page.keyboard.press("Escape");
+await settle();
+const latest = await reopen(1);
+ok("the most recent closed period is a plain confirmation", !latest.hasCheckbox, latest.title);
+ok("its destructive button is live", latest.disabled === false);
+ok("and focus rests on Cancel, not on the destructive action", latest.focusSafe);
+
 console.log(`\nDIALOGS — ${fails.length === 0 ? "every behaviour check passes" : `${fails.length} failure(s)`}`);
 await browser.close();
 process.exit(fails.length ? 1 : 0);
