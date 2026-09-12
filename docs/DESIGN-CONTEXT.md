@@ -120,6 +120,19 @@ period strip → one wide card with two narrow beside it, all three built to the
 same height → the full-width Companies table → Monthly comparison with Recent
 activity beside it.
 
+**Spacing is one scale**, declared as `--space-1` … `--space-20` (4, 8, 12,
+16, 20, 24, 32, 40, 48, 64, 80) and wired into Tailwind so `p-4` *is*
+`--space-4`. Half-steps and arbitrary pixel values are off the scale;
+`scripts/verify-spacing.mjs` fails on them.
+
+**Desktop breakpoints.** The three-column rows are tuned for 1440 and switch
+on at the custom `wide` breakpoint (87.5rem / 1400px) — Tailwind's `xl` is
+1280, which truncated labels and wrapped titles on a 13-inch laptop. The rail
+appears at `lg` (1024). Custom breakpoints must be in rem: v4 cannot sort a
+`px` breakpoint against its rem defaults and emits it early, so the smaller
+breakpoint's rule wins. Verified widths: 1024, 1280, 1440, 1680, 1920 — none
+scroll horizontally.
+
 Tokens live in `app/globals.css`. Do not hard-code colour in a component —
 `scripts/verify-contrast.mjs` fails the build if you do.
 

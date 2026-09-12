@@ -25,9 +25,9 @@ export function PageHeader({
       <div className="mx-auto flex max-w-[1480px] flex-wrap items-center gap-x-4 gap-y-2 px-5 pb-3 pt-4">
         <div className="min-w-0">
           <h1 className="text-[19px] font-semibold tracking-[-0.02em] text-ops-text">{title}</h1>
-          {detail && <p className="mt-0.5 text-[12px] text-ops-text-secondary">{detail}</p>}
+          {detail && <p className="mt-1 text-[12px] text-ops-text-secondary">{detail}</p>}
         </div>
-        {actions && <div className="ml-auto flex shrink-0 flex-wrap items-center gap-1.5">{actions}</div>}
+        {actions && <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
       </div>
       {tabs && <div className="mx-auto max-w-[1480px] px-5">{tabs}</div>}
     </div>
@@ -45,7 +45,7 @@ export function Tabs({
   onChange: (id: string) => void;
 }) {
   return (
-    <div role="tablist" className="-mb-px flex items-center gap-1 overflow-x-auto">
+    <div role="tablist" className="-mb-1 flex items-center gap-1 overflow-x-auto">
       {items.map((t) => {
         const on = t.id === active;
         return (
@@ -56,7 +56,7 @@ export function Tabs({
             aria-selected={on}
             onClick={() => onChange(t.id)}
             className={cn(
-              "relative flex h-9 shrink-0 items-center gap-1.5 border-b-2 px-3 text-[13px] font-medium transition-colors",
+              "relative flex h-9 shrink-0 items-center gap-2 border-b-2 px-3 text-[13px] font-medium transition-colors",
               on
                 ? "border-ops-accent text-ops-text"
                 : "border-transparent text-ops-text-secondary hover:text-ops-text",
@@ -64,7 +64,7 @@ export function Tabs({
           >
             {t.label}
             {t.count !== undefined && t.count > 0 && (
-              <span className="ops-num rounded-full bg-ops-active px-1.5 text-[11px] font-semibold text-ops-text-tertiary">
+              <span className="ops-num rounded-full bg-ops-active px-2 text-[11px] font-semibold text-ops-text-tertiary">
                 {t.count}
               </span>
             )}

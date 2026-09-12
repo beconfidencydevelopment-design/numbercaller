@@ -72,7 +72,7 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
   return (
     <div
       className={cn(
-        "flex flex-col rounded-[var(--ops-r-card)] border bg-ops-surface p-3.5",
+        "flex flex-col rounded-[var(--ops-r-card)] border bg-ops-surface p-4",
         settled ? "border-ops-line" : "border-ops-line hover:border-ops-line-strong",
       )}
     >
@@ -92,9 +92,9 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
         {settled ? `Paid ${driver.lastEntryAt ? formatDate(driver.lastEntryAt) : "this period"}` : "outstanding"}
       </div>
 
-      {!settled && <ShareBar value={outstanding} max={max} className="mt-2.5" />}
+      {!settled && <ShareBar value={outstanding} max={max} className="mt-3" />}
 
-      <dl className="mt-3 space-y-1 border-t border-ops-line pt-2.5 text-[11px]">
+      <dl className="mt-3 space-y-1 border-t border-ops-line pt-3 text-[11px]">
         <div className="flex justify-between gap-2">
           <dt className="text-ops-text-tertiary">Logged this period</dt>
           <dd>
@@ -165,10 +165,10 @@ export function DriversView() {
         {/* ------------------------------------------------------------- */}
         {/* Payroll summary                                                */}
         {/* ------------------------------------------------------------- */}
-        <Card className="flex flex-wrap items-center gap-x-8 gap-y-4 px-4 py-3.5">
+        <Card className="flex flex-wrap items-center gap-x-8 gap-y-4 px-4 py-4">
           <div>
             <div className="text-[12px] font-medium text-ops-text-secondary">Total outstanding</div>
-            <div className="ops-figure mt-1.5 text-[30px] font-semibold leading-none text-ops-text">
+            <div className="ops-figure mt-2 text-[30px] font-semibold leading-none text-ops-text">
               {money(DRIVER_OUTSTANDING_TOTAL)}
             </div>
           </div>
@@ -180,7 +180,7 @@ export function DriversView() {
             ].map((r) => (
               <div key={r.label}>
                 <dt className="text-[11px] text-ops-text-tertiary">{r.label}</dt>
-                <dd className="mt-0.5">
+                <dd className="mt-1">
                   <Money value={r.value} tone={false} className="text-[15px] font-semibold text-ops-text" />
                 </dd>
               </div>
@@ -194,7 +194,7 @@ export function DriversView() {
                 {DRIVERS_SETTLED} of {DRIVERS.length}
               </span>
             </div>
-            <div className="mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-ops-active">
+            <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-ops-active">
               <div className="bg-ops-ok-dot" style={{ width: `${(DRIVERS_SETTLED / DRIVERS.length) * 100}%` }} />
             </div>
           </div>
@@ -204,7 +204,7 @@ export function DriversView() {
         {/* Controls                                                       */}
         {/* ------------------------------------------------------------- */}
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-1.5 text-[12px] text-ops-text-secondary">
+          <label className="flex items-center gap-2 text-[12px] text-ops-text-secondary">
             Sort by
             <select
               value={sort}
@@ -219,7 +219,7 @@ export function DriversView() {
             </select>
           </label>
 
-          <div role="radiogroup" aria-label="View" className="ml-auto flex h-8 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-0.5">
+          <div role="radiogroup" aria-label="View" className="ml-auto flex h-8 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1">
             {([
               ["cards", "Cards", LayoutGrid],
               ["table", "Table", List],
@@ -231,7 +231,7 @@ export function DriversView() {
                 aria-checked={view === id}
                 onClick={() => setView(id)}
                 className={cn(
-                  "flex h-7 items-center gap-1.5 rounded-[6px] px-2.5 text-[12px] font-medium transition-colors",
+                  "flex h-7 items-center gap-2 rounded-[6px] px-3 text-[12px] font-medium transition-colors",
                   view === id ? "bg-ops-active text-ops-text" : "text-ops-text-secondary hover:text-ops-text",
                 )}
               >
@@ -332,19 +332,19 @@ export function DriversView() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
-                    <td colSpan={3} className="px-4 py-2.5 text-ops-text">
+                    <td colSpan={3} className="px-4 py-3 text-ops-text">
                       {DRIVERS.length} drivers
                     </td>
-                    <td className="px-3 py-2.5 text-right">
+                    <td className="px-3 py-3 text-right">
                       <Money value={DRIVERS.reduce((n, d) => n + d.logged, 0)} tone={false} className="text-ops-text" />
                     </td>
-                    <td className="px-3 py-2.5 text-right">
+                    <td className="px-3 py-3 text-right">
                       <Money value={DRIVER_CARRIED_TOTAL} tone={false} className="text-ops-text" />
                     </td>
-                    <td className="px-3 py-2.5 text-right">
+                    <td className="px-3 py-3 text-right">
                       <Money value={DRIVERS.reduce((n, d) => n + d.settled, 0)} tone={false} className="text-ops-text" />
                     </td>
-                    <td className="px-3 py-2.5 text-right">
+                    <td className="px-3 py-3 text-right">
                       <Money value={DRIVER_OUTSTANDING_TOTAL} tone={false} className="text-ops-text" />
                     </td>
                     <td className="px-4" />

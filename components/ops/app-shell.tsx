@@ -59,7 +59,7 @@ function NavLink({ item, compact }: { item: NavItem; compact?: boolean }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex h-9 items-center gap-2.5 rounded-[var(--ops-r-control)] px-2.5 text-[13px] transition-colors",
+        "relative flex h-9 items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-[13px] transition-colors",
         active
           ? "bg-ops-active font-medium text-ops-text"
           : "text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text",
@@ -84,7 +84,7 @@ function NavLink({ item, compact }: { item: NavItem; compact?: boolean }) {
  */
 function PeriodSwitcher() {
   return (
-    <div className="flex h-8 items-center gap-0.5 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-1">
+    <div className="flex h-8 items-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-1">
       <button
         type="button"
         aria-label="Previous period"
@@ -92,7 +92,7 @@ function PeriodSwitcher() {
       >
         <ChevronLeft className="size-3.5" />
       </button>
-      <span className="ops-num flex items-center gap-1.5 whitespace-nowrap px-1.5 text-[12px] font-medium text-ops-text">
+      <span className="ops-num flex items-center gap-2 whitespace-nowrap px-2 text-[12px] font-medium text-ops-text">
         <span className="size-1.5 rounded-full bg-ops-warn-dot" aria-hidden />
         {PERIOD.label}
         <span className="font-normal text-ops-text-tertiary">open</span>
@@ -124,14 +124,14 @@ export function AppShell({
         {/* ------------------------------------------------------------- */}
         {/* Rail                                                           */}
         {/* ------------------------------------------------------------- */}
-        <aside className="hidden w-[216px] shrink-0 flex-col border-r border-ops-line bg-ops-surface md:flex">
-          <div className="flex h-14 items-center gap-2.5 border-b border-ops-line px-4">
+        <aside className="hidden w-[216px] shrink-0 flex-col border-r border-ops-line bg-ops-surface lg:flex">
+          <div className="flex h-14 items-center gap-3 border-b border-ops-line px-4">
             <Link href="/ops" aria-label="SNK Courier — Home">
               <BrandMark />
             </Link>
           </div>
 
-          <nav aria-label="Main" className="flex flex-col gap-0.5 px-2 pt-3">
+          <nav aria-label="Main" className="flex flex-col gap-1 px-2 pt-3">
             {NAV.map((item) => (
               <NavLink key={item.href} item={item} />
             ))}
@@ -140,14 +140,14 @@ export function AppShell({
           <div className="mt-auto px-2 pb-2">
             <button
               type="button"
-              className="flex h-9 w-full items-center gap-2.5 rounded-[var(--ops-r-control)] px-2.5 text-[13px] text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text"
+              className="flex h-9 w-full items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-[13px] text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text"
             >
               <LogOut className="size-4 shrink-0 text-ops-text-tertiary" />
               Log out
             </button>
           </div>
 
-          <div className="flex items-center gap-2.5 border-t border-ops-line px-4 py-3">
+          <div className="flex items-center gap-3 border-t border-ops-line px-4 py-3">
             <Avatar initials="SH" tone="accent" className="size-7 text-[10px]" />
             <div className="min-w-0">
               <div className="truncate text-[12.5px] font-medium leading-4 text-ops-text">Syed Hyder</div>
@@ -161,14 +161,14 @@ export function AppShell({
         {/* ------------------------------------------------------------- */}
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-14 shrink-0 items-center gap-2 border-b border-ops-line bg-ops-surface px-4">
-            <Link href="/ops" className="md:hidden" aria-label="SNK Courier — Home">
+            <Link href="/ops" className="lg:hidden" aria-label="SNK Courier — Home">
               <BrandMark />
             </Link>
 
             <button
               type="button"
               onClick={onOpenPalette}
-              className="flex h-8 w-full max-w-[380px] items-center gap-2 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-sunken px-2.5 text-left text-ops-text-tertiary transition-colors hover:border-ops-line-strong hover:bg-ops-surface"
+              className="flex h-8 w-full max-w-[380px] items-center gap-2 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-sunken px-3 text-left text-ops-text-tertiary transition-colors hover:border-ops-line-strong hover:bg-ops-surface"
             >
               <Search className="size-3.5 shrink-0" />
               <span className="truncate text-[12px]">Search entries, drivers, companies</span>
@@ -177,7 +177,7 @@ export function AppShell({
               </span>
             </button>
 
-            <div className="ml-auto flex items-center gap-1.5">
+            <div className="ml-auto flex items-center gap-2">
               <PeriodSwitcher />
               <button
                 type="button"
@@ -193,13 +193,13 @@ export function AppShell({
                 className="relative grid size-8 place-items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-ops-text-tertiary hover:bg-ops-hover hover:text-ops-text"
               >
                 <Bell className="size-4" />
-                <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-ops-accent ring-2 ring-ops-surface" />
+                <span className="absolute right-2 top-2 size-1.5 rounded-full bg-ops-accent ring-2 ring-ops-surface" />
               </button>
             </div>
           </header>
 
           {/* Mobile nav — same destinations, one scrollable row. */}
-          <nav aria-label="Main" className="flex items-center gap-1 overflow-x-auto border-b border-ops-line bg-ops-surface px-3 py-2 md:hidden">
+          <nav aria-label="Main" className="flex items-center gap-1 overflow-x-auto border-b border-ops-line bg-ops-surface px-3 py-2 lg:hidden">
             {NAV.map((item) => (
               <NavLink key={item.href} item={item} compact />
             ))}

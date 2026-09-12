@@ -107,7 +107,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
   }));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[12vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16">
       <button
         type="button"
         aria-label="Close search"
@@ -133,7 +133,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
           <Kbd>Esc</Kbd>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-1.5">
+        <div className="min-h-0 flex-1 overflow-y-auto p-2">
           {results.length === 0 && (
             <p className="px-3 py-8 text-center text-[12px] text-ops-text-secondary">
               Nothing matches “{query}”.
@@ -143,13 +143,13 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
             const Icon = row.icon;
             return (
               <React.Fragment key={row.id}>
-                {header && <div className="ops-eyebrow px-2.5 pb-1 pt-2">{header}</div>}
+                {header && <div className="ops-eyebrow px-3 pb-1 pt-2">{header}</div>}
                 <button
                   type="button"
                   onMouseEnter={() => setCursor(i)}
                   onClick={() => go(row)}
                   className={cn(
-                    "flex w-full items-center gap-2.5 rounded-[var(--ops-r-control)] px-2.5 py-2 text-left",
+                    "flex w-full items-center gap-3 rounded-[var(--ops-r-control)] px-3 py-2 text-left",
                     i === safeCursor ? "bg-ops-active" : "hover:bg-ops-hover",
                   )}
                 >

@@ -98,7 +98,7 @@ function Overview() {
           { label: "Kiani 65%", basis: "of distributed", value: shareOf(PARTNERS[1], CASH_NET), tone: "risk" as const },
         ].map((s) => (
           <div key={s.label} className="rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface p-4">
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-2">
               <span className="text-[12px] font-medium text-ops-text-secondary">{s.label}</span>
               <span className="text-[11px] text-ops-text-tertiary">{s.basis}</span>
             </div>
@@ -121,7 +121,7 @@ function Overview() {
           { label: "Paid out", value: -CASH_PAID_OUT },
           { label: "Net", value: CASH_NET },
         ].map((r) => (
-          <span key={r.label} className="flex items-baseline gap-1.5 text-[12px]">
+          <span key={r.label} className="flex items-baseline gap-2 text-[12px]">
             <span className="text-ops-text-secondary">{r.label}</span>
             <Money value={r.value} className="text-[14px] font-semibold" />
           </span>
@@ -145,7 +145,7 @@ function Overview() {
           </CardHeader>
           <ul className="divide-y divide-ops-line">
             {OBLIGATIONS.map((o) => (
-              <li key={o.id} className="flex items-center gap-3 px-4 py-2.5">
+              <li key={o.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
                     <span className="truncate text-[13px] font-medium text-ops-text">{o.label}</span>
@@ -166,7 +166,7 @@ function Overview() {
               </li>
             ))}
           </ul>
-          <div className="flex items-center justify-between border-t-2 border-ops-line-strong bg-ops-sunken px-4 py-2.5">
+          <div className="flex items-center justify-between border-t-2 border-ops-line-strong bg-ops-sunken px-4 py-3">
             <span className="text-[12px] font-semibold text-ops-text">Total outstanding</span>
             <Money value={OBLIGATION_TOTAL} tone={false} className="text-[14px] font-semibold text-ops-text" />
           </div>
@@ -228,12 +228,12 @@ function Overview() {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
-                  <td className="px-4 py-2.5 text-ops-text">Total</td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="px-4 py-3 text-ops-text">Total</td>
+                  <td className="px-3 py-3 text-right">
                     <Money value={EXPENSE_TOTAL} tone={false} className="text-ops-text" />
                   </td>
-                  <td className="px-3 py-2.5 text-right text-ops-text-tertiary">{money(0)}</td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="px-3 py-3 text-right text-ops-text-tertiary">{money(0)}</td>
+                  <td className="px-3 py-3 text-right">
                     <Money value={-EXPENSE_TOTAL} />
                   </td>
                   <td className="px-4" />
@@ -280,7 +280,7 @@ function Overview() {
                     {formatDate(r.nextAt)} · monthly
                   </td>
                   <td className="px-4 text-right">
-                    <span className="inline-flex items-center gap-1.5">
+                    <span className="inline-flex items-center gap-2">
                       <RowAction>Pause</RowAction>
                       <RowAction>Edit</RowAction>
                     </span>
@@ -342,7 +342,7 @@ function Revenue() {
                   <Money value={r.amount} tone={false} className="text-[14px] font-semibold text-ops-text" />
                 </td>
                 <td className="px-4 text-right">
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-2">
                     <RowAction>Finalize</RowAction>
                     <RowAction>Edit</RowAction>
                   </span>
@@ -352,10 +352,10 @@ function Revenue() {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
-              <td colSpan={3} className="px-4 py-2.5 text-ops-text">
+              <td colSpan={3} className="px-4 py-3 text-ops-text">
                 Would take the period to
               </td>
-              <td className="px-3 py-2.5 text-right">
+              <td className="px-3 py-3 text-right">
                 <Money value={DRAFT_REVENUE_TOTAL} tone={false} className="text-ops-text" />
               </td>
               <td className="px-4" />
@@ -418,7 +418,7 @@ function Withdrawals() {
                 ))}
               </dl>
 
-              <p className="mt-3 border-t border-ops-line pt-2.5 text-[11px] text-ops-text-tertiary">
+              <p className="mt-3 border-t border-ops-line pt-3 text-[11px] text-ops-text-tertiary">
                 {balance < 0
                   ? `A negative balance is ${p.name}'s share of accumulated losses, not money owed to ${p.name}.`
                   : `${p.name} can withdraw up to this balance.`}
@@ -520,7 +520,7 @@ function ClosePeriod() {
             { label: `${PARTNERS[0].name} 35%`, value: shareOf(PARTNERS[0], CASH_NET) },
             { label: `${PARTNERS[1].name} 65%`, value: shareOf(PARTNERS[1], CASH_NET) },
           ].map((r) => (
-            <div key={r.label} className="flex items-baseline gap-3 px-4 py-2.5">
+            <div key={r.label} className="flex items-baseline gap-3 px-4 py-3">
               <dt className="min-w-0 flex-1">
                 <span className="block text-[13px] text-ops-text">{r.label}</span>
                 {r.note && <span className="block text-[11px] text-ops-text-tertiary">{r.note}</span>}
@@ -531,7 +531,7 @@ function ClosePeriod() {
             </div>
           ))}
         </dl>
-        <p className="border-t border-ops-line bg-ops-sunken px-4 py-2.5 text-[11px] text-ops-text-tertiary">
+        <p className="border-t border-ops-line bg-ops-sunken px-4 py-3 text-[11px] text-ops-text-tertiary">
           {money(OBLIGATION_TOTAL)} of obligations would carry into October, the same way{" "}
           {money(Math.abs(CARRIED_FORWARD))} carried in.
         </p>
@@ -595,7 +595,7 @@ function History() {
                   {p.closedAt ? formatDateFull(p.closedAt) : "—"}
                 </td>
                 <td className="px-4 text-right">
-                  <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-2">
                     <RowAction>Details</RowAction>
                     <RowAction>Reopen</RowAction>
                   </span>
@@ -605,20 +605,20 @@ function History() {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
-              <td className="px-4 py-2.5 text-ops-text">Carried into {PERIOD.label}</td>
-              <td className="px-3 py-2.5 text-right">
+              <td className="px-4 py-3 text-ops-text">Carried into {PERIOD.label}</td>
+              <td className="px-3 py-3 text-right">
                 <Money value={CLOSED_PERIODS.reduce((n, p) => n + p.revenue, 0)} tone={false} className="text-ops-text" />
               </td>
-              <td className="px-3 py-2.5 text-right">
+              <td className="px-3 py-3 text-right">
                 <Money value={CLOSED_PERIODS.reduce((n, p) => n + p.expenses, 0)} tone={false} className="text-ops-text" />
               </td>
-              <td className="px-3 py-2.5 text-right">
+              <td className="px-3 py-3 text-right">
                 <Money value={CARRIED_FORWARD} />
               </td>
-              <td className="px-3 py-2.5 text-right">
+              <td className="px-3 py-3 text-right">
                 <Money value={shareOf(PARTNERS[0], CARRIED_FORWARD)} />
               </td>
-              <td className="px-3 py-2.5 text-right">
+              <td className="px-3 py-3 text-right">
                 <Money value={shareOf(PARTNERS[1], CARRIED_FORWARD)} />
               </td>
               <td colSpan={2} className="px-4" />

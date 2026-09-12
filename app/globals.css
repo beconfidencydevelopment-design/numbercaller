@@ -151,6 +151,23 @@ body {
   --ops-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
     Consolas, monospace;
 
+  /* ---- Spacing --------------------------------------------------------
+     One scale for every padding, margin and gap. Tailwind's spacing utilities
+     resolve to these below, so `p-4` *is* `--space-4`; a value like 10px or
+     14px cannot be expressed without an arbitrary class, and
+     scripts/verify-spacing.mjs fails the build on one. */
+  --space-1: 4px;   /* tiny icon/text gaps */
+  --space-2: 8px;   /* icon to label, compact elements */
+  --space-3: 12px;  /* tight component spacing */
+  --space-4: 16px;  /* standard component padding */
+  --space-5: 20px;  /* comfortable component spacing */
+  --space-6: 24px;  /* card padding, section internals */
+  --space-8: 32px;  /* between related groups */
+  --space-10: 40px; /* major component separation */
+  --space-12: 48px; /* section spacing */
+  --space-16: 64px; /* major page sections */
+  --space-20: 80px; /* large visual separation */
+
   /* Shape */
   --ops-r-card: 14px;
   --ops-r-inner: 10px;
@@ -288,6 +305,27 @@ body {
   --color-ops-focal-fg: var(--ops-focal-fg);
   --color-ops-focal-muted: var(--ops-focal-muted);
   --color-ops-focal-line: var(--ops-focal-line);
+
+  /* The three-column rows are tuned for 1440. Tailwind's `xl` is 1280, which
+     is 160px too early for them — labels truncated and titles wrapped on a
+     13-inch laptop. `wide` is the breakpoint they actually need.
+
+     In rem, deliberately: Tailwind v4 sorts breakpoints only when they share
+     a unit, and an unsortable `1400px` was emitted *before* `md:`, so the
+     two-column rule kept winning at 1440. 87.5rem is 1400px. */
+  --breakpoint-wide: 87.5rem;
+
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-5: var(--space-5);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
 
   --radius-card: var(--ops-r-card);
   --radius-inner: var(--ops-r-inner);

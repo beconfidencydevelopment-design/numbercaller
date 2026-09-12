@@ -55,7 +55,7 @@ export function StatusPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2 py-[3px] text-[11px] font-medium whitespace-nowrap ring-1 ring-inset",
+        "inline-flex items-center gap-2 rounded-full px-2 py-1 text-[11px] font-medium whitespace-nowrap ring-1 ring-inset",
         TONE_PILL[tone],
         className,
       )}
@@ -70,7 +70,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-ops-line bg-ops-sunken px-1.5 py-[2px] text-[11px] font-medium whitespace-nowrap text-ops-text-secondary",
+        "inline-flex items-center gap-1 rounded-md border border-ops-line bg-ops-sunken px-2 py-1 text-[11px] font-medium whitespace-nowrap text-ops-text-secondary",
         className,
       )}
     >
@@ -106,7 +106,7 @@ export function Avatar({
 
 export function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="rounded border border-ops-line bg-ops-sunken px-1 py-px font-mono text-[10px] leading-4 text-ops-text-tertiary">
+    <kbd className="rounded border border-ops-line bg-ops-sunken px-1 py-1 font-mono text-[10px] leading-4 text-ops-text-tertiary">
       {children}
     </kbd>
   );
@@ -177,9 +177,9 @@ export function DeltaChip({
   // Flat reads "— 0%", as the client's cards print it; a bare "—0%" looks like a negative.
   const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "— ";
   return (
-    <span className={cn("inline-flex items-baseline gap-1.5 text-[11px]", className)}>
+    <span className={cn("inline-flex items-baseline gap-2 text-[11px]", className)}>
       {/* Tint only, no ring — the pill should sit on the card, not on top of it. */}
-      <span className={cn("ops-num rounded-[5px] px-1.5 py-[2px] text-[10.5px] font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
+      <span className={cn("ops-num rounded-[5px] px-2 py-1 text-[10.5px] font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
         {glyph}{pct}%
       </span>
       {caption && <span className="ops-num text-ops-text-tertiary">{caption}</span>}
@@ -210,7 +210,7 @@ export function DottedMeter({
   const filled = max > 0 ? Math.round((value / max) * segments) : 0;
   const on = tone === "accent" ? "bg-ops-accent" : TONE_DOT[tone];
   return (
-    <div className={cn("flex h-2 w-full gap-[3px]", className)} aria-hidden>
+    <div className={cn("flex h-2 w-full gap-1", className)} aria-hidden>
       {Array.from({ length: segments }, (_, i) => (
         <span key={i} className={cn("h-full min-w-0 flex-1 rounded-[2px]", i < filled ? on : "bg-ops-active")} />
       ))}
@@ -245,9 +245,9 @@ export function SectionTitle({
           <Icon className="size-3.5" />
         </span>
       )}
-      <h2 className="text-[13.5px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
+      <h2 className="whitespace-nowrap text-[13px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
       {count !== undefined && (
-        <span className="ops-num rounded-md bg-ops-active px-1.5 py-px text-[11px] font-semibold text-ops-text-secondary">
+        <span className="ops-num rounded-md bg-ops-active px-2 py-1 text-[11px] font-semibold text-ops-text-secondary">
           {count}
         </span>
       )}
@@ -277,7 +277,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-2 border-b border-ops-line px-4 py-2.5", className)}>
+    <div className={cn("flex items-center gap-2 border-b border-ops-line px-4 py-3", className)}>
       {children}
     </div>
   );
@@ -300,7 +300,7 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center px-6 py-14 text-center", className)}>
+    <div className={cn("flex flex-col items-center justify-center px-6 py-12 text-center", className)}>
       <div className="text-[13px] font-medium text-ops-text">{title}</div>
       {detail && <p className="mt-1 max-w-[42ch] text-[12px] text-ops-text-secondary">{detail}</p>}
       {action && <div className="mt-3">{action}</div>}
@@ -440,9 +440,9 @@ export const Button = React.forwardRef<
            accent leaves a washed orange that still reads as the primary
            action, and puts white text on a ground it no longer contrasts
            with. */
-        "inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[var(--ops-r-control)] border font-medium transition-colors",
+        "inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--ops-r-control)] border font-medium transition-colors",
         "disabled:pointer-events-none disabled:border-ops-line disabled:bg-ops-active disabled:text-ops-text-tertiary",
-        size === "sm" ? "h-7 px-2.5 text-[12px]" : "h-8 px-3 text-[13px]",
+        size === "sm" ? "h-7 px-3 text-[12px]" : "h-8 px-3 text-[13px]",
         BUTTON[variant],
         className,
       )}

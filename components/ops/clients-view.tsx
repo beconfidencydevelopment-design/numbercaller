@@ -77,7 +77,7 @@ function CompanyTab({
       aria-selected={active}
       onClick={onSelect}
       className={cn(
-        "relative flex h-9 shrink-0 items-center gap-1.5 border-b-2 px-3 text-[13px] font-medium transition-colors",
+        "relative flex h-9 shrink-0 items-center gap-2 border-b-2 px-3 text-[13px] font-medium transition-colors",
         active ? "border-ops-accent text-ops-text" : "border-transparent text-ops-text-secondary hover:text-ops-text",
       )}
     >
@@ -127,7 +127,7 @@ export function ClientsView() {
           </Button>
         }
         tabs={
-          <div role="tablist" aria-label="Client companies" className="-mb-px flex items-center gap-1 overflow-x-auto">
+          <div role="tablist" aria-label="Client companies" className="-mb-1 flex items-center gap-1 overflow-x-auto">
             {COMPANIES.map((c) => (
               <CompanyTab key={c.id} company={c} active={c.id === active.id} onSelect={() => select(c.id)} />
             ))}
@@ -204,18 +204,18 @@ export function ClientsView() {
         {/* ------------------------------------------------------------- */}
         {/* Payment status                                                 */}
         {/* ------------------------------------------------------------- */}
-        <Card className="flex flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3.5">
+        <Card className="flex flex-wrap items-center gap-x-6 gap-y-3 px-4 py-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <span className="ops-eyebrow">Payment status</span>
               <StatusPill tone={paymentStatus.tone}>{paymentStatus.label}</StatusPill>
             </div>
-            <p className="mt-1.5 text-[14px] font-semibold text-ops-text">
+            <p className="mt-2 text-[14px] font-semibold text-ops-text">
               {active.lastPaymentAt === null
                 ? `No payment on record · onboarded ${formatMonth(active.onboardedAt)}`
                 : `Last paid ${daysAgo(active.lastPaymentAt)} · ${formatDate(active.lastPaymentAt)}`}
             </p>
-            <p className="mt-0.5 text-[12px] text-ops-text-secondary">{active.expectation}</p>
+            <p className="mt-1 text-[12px] text-ops-text-secondary">{active.expectation}</p>
           </div>
           <dl className="flex items-center gap-6">
             <div>
@@ -258,12 +258,12 @@ export function ClientsView() {
                   const total = r.jul + r.aug + r.sep;
                   return (
                     <tr key={r.category} className="hover:bg-ops-hover">
-                      <td className="px-4 py-2.5">
+                      <td className="px-4 py-3">
                         <div className="font-medium text-ops-text">{CATEGORY_LABEL[r.category]}</div>
-                        <ShareBar value={total} max={maxRow} className="mt-1.5 max-w-[150px]" />
+                        <ShareBar value={total} max={maxRow} className="mt-2 max-w-[150px]" />
                       </td>
                       {[r.jul, r.aug, r.sep].map((v, i) => (
-                        <td key={i} className="px-3 py-2.5 text-right">
+                        <td key={i} className="px-3 py-3 text-right">
                           <Money
                             value={v}
                             tone={false}
@@ -271,7 +271,7 @@ export function ClientsView() {
                           />
                         </td>
                       ))}
-                      <td className="px-4 py-2.5 text-right">
+                      <td className="px-4 py-3 text-right">
                         <Money value={total} tone={false} className="font-semibold text-ops-text" />
                       </td>
                     </tr>
@@ -280,17 +280,17 @@ export function ClientsView() {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
-                  <td className="px-4 py-2.5 text-ops-text">Total</td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="px-4 py-3 text-ops-text">Total</td>
+                  <td className="px-3 py-3 text-right">
                     <Money value={e.jul} tone={false} className="text-ops-text" />
                   </td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="px-3 py-3 text-right">
                     <Money value={e.aug} tone={false} className="text-ops-text" />
                   </td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="px-3 py-3 text-right">
                     <Money value={e.sep} tone={false} className="text-ops-text" />
                   </td>
-                  <td className="px-4 py-2.5 text-right">
+                  <td className="px-4 py-3 text-right">
                     <Money value={e.incurred} tone={false} className="text-ops-text" />
                   </td>
                 </tr>
