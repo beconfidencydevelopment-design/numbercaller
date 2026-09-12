@@ -301,6 +301,7 @@ function RevenueExpenses() {
           labels={PERIODS.map((p) => p.label.split(" ")[0])}
           currentIndex={PERIODS.length - 1}
           faintFrom={PERIODS.findIndex((p) => !p.locked)}
+          defaultIndex={Math.max(0, PERIODS.findIndex((p) => !p.locked) - 1)}
           ticks={[0, 50_000, 100_000, 150_000]}
           format={(v) => (v === 0 ? "$0" : `$${Math.round(v / 1000)}k`)}
           series={[

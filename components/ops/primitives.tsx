@@ -656,6 +656,8 @@ export function LineChart({
   labels,
   series,
   currentIndex,
+  /** Point the crosshair and tooltip rest on when nothing is hovered. */
+  defaultIndex,
   /** Index from which the data is still accumulating; that tail is drawn faint and dashed. */
   faintFrom,
   format,
@@ -665,12 +667,16 @@ export function LineChart({
   labels: string[];
   series: LineSeries[];
   currentIndex?: number;
+  defaultIndex?: number;
   faintFrom?: number;
   format: (v: number) => string;
   ticks: number[];
   className?: string;
 }) {
   const [hover, setHover] = React.useState<number | null>(null);
+  /* The reference's chart always has one point called out; hovering moves it
+     rather than summoning it, so the card never reads as empty at rest. */
+  const active = hover ?? defaultIndex ?? null;
   const W = 400;
   const H = 160;
   const PAD = { l: 0, r: 0, t: 8, b: 6 };
@@ -733,27 +739,27 @@ export function LineChart({
                 </g>
               );
             })}
-            {hover !== null && (
-              <line x1={x(hover)} x2={x(hover)} y1={PAD.t} y2={y(0)} stroke="var(--ops-line-strong)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            {active !== null && (
+              <line x1={x(active)} x2={x(active)} y1={PAD.t} y2={y(0)} stroke="var(--ops-line-strong)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
             )}
             {series.map((s) => {
-              const i = hover ?? n - 1;
+              const i = active ?? n - 1;
               return (
                 <circle key={s.id} cx={x(i)} cy={y(s.values[i])} r="4" fill={s.color} stroke="var(--ops-surface)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
               );
             })}
           </svg>
-          {hover !== null && (
+          {active !== null && (
             <div
               className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-body shadow-ops-pop"
-              style={{ left: `${(x(hover) / W) * 100}%`, transform: hover > n / 2 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
+              style={{ left: `${(x(active) / W) * 100}%`, transform: active > n / 2 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
             >
-              <div className="text-ops-text-tertiary">{labels[hover]}</div>
+              <div className="text-ops-text-tertiary">{labels[active]}</div>
               {series.map((s) => (
                 <div key={s.id} className="mt-1 flex items-center gap-2 whitespace-nowrap">
                   <span className="size-2 rounded-full" style={{ background: s.color }} aria-hidden />
                   <span className="text-ops-text-secondary">{s.label}</span>
-                  <span className="ops-num ml-auto pl-3 font-medium text-ops-text">{format(s.values[hover])}</span>
+                  <span className="ops-num ml-auto pl-3 font-medium text-ops-text">{format(s.values[active])}</span>
                 </div>
               ))}
             </div>
@@ -791,31 +797,31 @@ export function Funnel({
 }) {
   return (
     <div className={cn("flex flex-1 flex-col", className)}>
-      <div className="flex flex-1 items-end gap-3">
+      {/* The bar area takes whatever height the card has left, so the funnel
+          grows with the card rather than sitting in a fixed 120px well. Each
+          stage column is full height and bottom-aligned; its percentage rides
+          directly above its own bars, which is what makes the step read. */}
+      <div className="flex min-h-40 flex-1 items-end gap-3">
         {stages.map((st, i) => {
           const pct = st.total > 0 ? st.done / st.total : 0;
           const lit = Math.round(pct * segments);
-          const height = 100 - i * (55 / Math.max(1, stages.length - 1)); // 100% → 45%
+          const height = 100 - i * (52 / Math.max(1, stages.length - 1)); // 100% → 48%
           return (
-            <div key={st.id} className="flex min-w-0 flex-1 flex-col justify-end">
+            <div key={st.id} className="flex h-full min-w-0 flex-1 flex-col justify-end">
               <span className="ops-num mb-2 text-body font-medium text-ops-text">{Math.round(pct * 100)}%</span>
-              <div className="flex h-[120px] items-end gap-1" aria-hidden>
+              <div className="flex items-end gap-1" style={{ height: `${height}%` }} aria-hidden>
                 {Array.from({ length: segments }, (_, k) => (
-                  <span
-                    key={k}
-                    className={cn("w-full min-w-1 rounded-full", k < lit ? "bg-ops-ok-dot" : "bg-ops-active")}
-                    style={{ height: `${height}%` }}
-                  />
+                  <span key={k} className={cn("h-full w-full min-w-1 rounded-full", k < lit ? "bg-ops-ok-dot" : "bg-ops-active")} />
                 ))}
               </div>
             </div>
           );
         })}
       </div>
-      <div className="mt-3 flex gap-3">
+      <div className="mt-4 flex gap-3">
         {stages.map((st) => (
           <div key={st.id} className="min-w-0 flex-1">
-            <div className="text-body leading-4 text-ops-text-secondary">{st.label}</div>
+            <div className="text-body leading-5 text-ops-text-secondary">{st.label}</div>
             <div className="ops-num text-body font-medium text-ops-text">
               {st.done} of {st.total}
             </div>
