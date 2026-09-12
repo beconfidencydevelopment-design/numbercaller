@@ -292,6 +292,22 @@ export function Card({
   return <Tag className={cn("ops-card", className)}>{children}</Tag>;
 }
 
+/**
+ * The slack-absorbing row.
+ *
+ * A card that fills a taller neighbour needs somewhere to put the extra
+ * height. Sent through an invisible final row, the total line stays welded to
+ * the card's bottom edge and every column keeps its alignment; distributed
+ * across the data rows instead, the ledger would just get loose.
+ */
+export function FillRow({ span }: { span: number }) {
+  return (
+    <tr aria-hidden className="h-full">
+      <td colSpan={span} />
+    </tr>
+  );
+}
+
 export function CardHeader({
   children,
   className,

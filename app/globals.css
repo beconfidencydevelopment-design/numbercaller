@@ -429,6 +429,25 @@ body {
     background: var(--ops-surface);
     border: 1px solid var(--ops-line);
     border-radius: var(--ops-r-card);
+    /* Every card fills its grid row. Two cards side by side at different
+       heights is the fastest way to make a considered layout look assembled
+       rather than designed, so the rule lives on the card itself and not on
+       each call site, where it is one `items-start` away from being lost. */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  /* A table inside a filling card: the slack goes to one invisible row so the
+     total line stays welded to the bottom edge and the columns stay aligned.
+     Stretching the data rows instead would put air inside the ledger. */
+  .ops-card-table {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .ops-card-table > table {
+    height: 100%;
   }
 }
 

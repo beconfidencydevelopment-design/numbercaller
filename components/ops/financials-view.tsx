@@ -18,6 +18,7 @@ import {
   Card,
   CardHeader,
   EmptyState,
+  FillRow,
   Money,
   RowAction,
   SectionTitle as Title,
@@ -81,7 +82,7 @@ function Overview() {
     })),
     {
       id: GLOBAL_COMPANY.id,
-      name: `${GLOBAL_COMPANY.name} — own costs`,
+      name: `${GLOBAL_COMPANY.name} · own costs`,
       href: null,
       lastPaymentAt: null,
       dormant: true,
@@ -138,7 +139,7 @@ function Overview() {
         </span>
       </div>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {/* --------------------------------------------------------- */}
         {/* Unpaid obligations                                         */}
         {/* --------------------------------------------------------- */}
@@ -149,7 +150,7 @@ function Overview() {
               hint={`${money(OBLIGATION_TOTAL)} total`}
             />
           </CardHeader>
-          <ul className="divide-y divide-ops-line">
+          <ul className="flex-1 divide-y divide-ops-line">
             {OBLIGATIONS.map((o) => (
               <li key={o.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1">
@@ -185,7 +186,7 @@ function Overview() {
           <CardHeader>
             <Title title="By company" hint={`${PERIOD.label} · no revenue finalized`} />
           </CardHeader>
-          <div className="overflow-x-auto">
+          <div className="ops-card-table overflow-x-auto">
             <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-ops-line text-left">
@@ -231,6 +232,7 @@ function Overview() {
                     </td>
                   </tr>
                 ))}
+                <FillRow span={5} />
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-body font-medium">
@@ -314,7 +316,7 @@ function Revenue() {
           <p className="min-w-0 flex-1 text-body text-ops-warn-fg">
             <strong className="font-medium">{money(DRAFT_REVENUE_TOTAL)}</strong> across{" "}
             {DRAFT_REVENUE.length} draft payments. Nothing counts toward revenue, cash position or the
-            partner split until it is finalized — which is why the period reads {money(REVENUE_TOTAL)}.
+            partner split until it is finalized, which is why the period reads {money(REVENUE_TOTAL)}.
           </p>
         </div>
       )}
@@ -372,7 +374,7 @@ function Revenue() {
 
       <Card>
         <CardHeader>
-          <Title title={`Finalized revenue — ${PERIOD.long}`} />
+          <Title title={`Finalized revenue · ${PERIOD.long}`} />
         </CardHeader>
         {FINALIZED_REVENUE.length === 0 ? (
           <EmptyState
@@ -463,7 +465,7 @@ function ClosePeriod() {
   const remaining = CHECKLIST.filter((c) => !c.done).length;
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <Card className="overflow-hidden">
         <CardHeader>
           <Title
@@ -598,7 +600,7 @@ function History() {
                   <Money value={shareOf(PARTNERS[1], p.distributed)} />
                 </td>
                 <td className="px-3 text-body text-ops-text-secondary">
-                  {p.closedAt ? formatDateFull(p.closedAt) : "—"}
+                  {p.closedAt ? formatDateFull(p.closedAt) : "Open"}
                 </td>
                 <td className="px-4 text-right">
                   <span className="inline-flex items-center gap-2">
