@@ -841,12 +841,6 @@ const polar = (cx: number, cy: number, r: number, deg: number): [number, number]
   return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
 };
 
-/** An arc from `a0` to `a1` degrees along the top semicircle (0 = left, 180 = right). */
-const arc = (cx: number, cy: number, r: number, a0: number, a1: number) => {
-  const [x0, y0] = polar(cx, cy, r, a0);
-  const [x1, y1] = polar(cx, cy, r, a1);
-  return `M${x0},${y0} A${r},${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1},${y1}`;
-};
 
 /**
  * A semicircle in `segments` chunks with gaps between them. The fill runs
@@ -873,46 +867,102 @@ export function SegmentedGauge({
 }) {
   const id = React.useId();
   const pct = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
+
+  /* Measured off the reference: the stroke is about 0.5 of the centreline
+     radius — a fat horseshoe — and it sweeps past horizontal at both ends.
+     Each chunk is a filled annular sector with rounded corners, NOT a thick
+     stroked arc: at this thickness a round line-cap has a radius comparable
+     to the chunk's own arc length, so stroking collapsed every chunk into a
+     blob. The corners are rounded by stroking the sector with its own fill
+     at 2 x the corner radius and insetting the geometry to match. */
+  const rMid = 62;
+  const w = 36;       // ≈0.58 of the centreline radius, as the reference runs
+  const cr = 4;       // corner radius — small, or the sectors read as floating blobs
+  const SWEEP = 200;
+  const START = -(SWEEP - 180) / 2;
   const cx = 100;
-  const cy = 96;
-  const r = 78;
-  const gapDeg = 3.5;
-  const span = (180 - gapDeg * (segments - 1)) / segments;
+  const cy = 88;
+  const VB_W = 200;
+  const VB_H = 126;
+
+  const rOuter = rMid + w / 2 - cr;
+  const rInner = rMid - w / 2 + cr;
+  const insetDeg = cr * (180 / (Math.PI * rMid));
+  const gapDeg = 3;
+  const span = (SWEEP - gapDeg * (segments - 1)) / segments;
+
+  /** A ring sector between two radii, swept a0 → a1. */
+  const sector = (a0: number, a1: number) => {
+    const [x0, y0] = polar(cx, cy, rOuter, a0);
+    const [x1, y1] = polar(cx, cy, rOuter, a1);
+    const [x2, y2] = polar(cx, cy, rInner, a1);
+    const [x3, y3] = polar(cx, cy, rInner, a0);
+    const large = a1 - a0 > 180 ? 1 : 0;
+    return `M${x0},${y0} A${rOuter},${rOuter} 0 ${large} 1 ${x1},${y1} L${x2},${y2} A${rInner},${rInner} 0 ${large} 0 ${x3},${y3} Z`;
+  };
+
   const chunks = Array.from({ length: segments }, (_, i) => {
-    const a0 = i * (span + gapDeg);
-    const a1 = a0 + span;
-    const litTo = Math.max(0, Math.min(1, pct * segments - i));
-    return { a0, a1, litTo };
+    const a0 = START + i * (span + gapDeg) + insetDeg;
+    const a1 = a0 + span - insetDeg * 2;
+    return { a0, a1, litTo: Math.max(0, Math.min(1, pct * segments - i)) };
   });
 
   return (
-    <div className={cn("relative mx-auto w-full max-w-[260px]", className)}>
-      <svg viewBox="0 0 200 104" className="w-full" aria-hidden>
+    <div className={cn("relative mx-auto w-full", className)}>
+      <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full" aria-hidden>
         <defs>
-          <linearGradient id={`${id}-ramp`} x1="0" y1="0" x2="1" y2="0">
+          {/* One ramp across the whole gauge in user space, so a chunk takes
+              its colour from where it sits on the arc — gold at the start,
+              settled green by the top — not from its own bounding box. */}
+          <linearGradient
+            id={`${id}-ramp`}
+            gradientUnits="userSpaceOnUse"
+            x1={cx - rMid}
+            y1="0"
+            x2={cx + rMid}
+            y2="0"
+          >
             <stop offset="0%" stopColor="var(--ops-warn-dot)" />
+            <stop offset="60%" stopColor="var(--ops-ok-dot)" />
             <stop offset="100%" stopColor="var(--ops-ok-dot)" />
           </linearGradient>
-          <pattern id={`${id}-hatch`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="6" stroke="var(--ops-surface)" strokeWidth="1.5" strokeOpacity="0.35" />
-          </pattern>
         </defs>
+
         {chunks.map((c, i) => (
-          <path key={`t${i}`} d={arc(cx, cy, r, c.a0, c.a1)} fill="none" stroke="var(--ops-active)" strokeWidth="18" strokeLinecap="butt" />
+          <path
+            key={`t${i}`}
+            d={sector(c.a0, c.a1)}
+            fill="var(--ops-active)"
+            stroke="var(--ops-active)"
+            strokeWidth={cr * 2}
+            strokeLinejoin="round"
+          />
         ))}
+
         {chunks
           .filter((c) => c.litTo > 0)
           .map((c, i) => {
-            const end = c.a0 + (c.a1 - c.a0) * c.litTo;
+            /* A part-lit chunk keeps a minimum sweep so 6% still reads as a
+               chunk rather than a sliver, and never exceeds its own span. */
+            const full = c.a1 - c.a0;
+            const end = c.a0 + Math.max(Math.min(full, 4), full * c.litTo);
             return (
-              <g key={`f${i}`}>
-                <path d={arc(cx, cy, r, c.a0, end)} fill="none" stroke={`url(#${id}-ramp)`} strokeWidth="18" strokeLinecap="butt" />
-                <path d={arc(cx, cy, r, c.a0, end)} fill="none" stroke={`url(#${id}-hatch)`} strokeWidth="18" strokeLinecap="butt" />
-              </g>
+              <path
+                key={`f${i}`}
+                d={sector(c.a0, end)}
+                fill={`url(#${id}-ramp)`}
+                stroke={`url(#${id}-ramp)`}
+                strokeWidth={cr * 2}
+                strokeLinejoin="round"
+              />
             );
           })}
       </svg>
-      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
+
+      <div
+        className="absolute inset-x-0 flex flex-col items-center"
+        style={{ top: `${(cy / VB_H) * 100}%`, transform: "translateY(-50%)" }}
+      >
         <span className="ops-figure text-display font-medium leading-none text-ops-text">{label}</span>
         {sublabel && <span className="mt-2 text-body text-ops-text-secondary">{sublabel}</span>}
       </div>

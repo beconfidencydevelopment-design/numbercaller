@@ -209,61 +209,64 @@ function PendingActions() {
 /* -------------------------------------------------------------------------- */
 
 function PartnerSplit() {
+  /* Two shares of one pot, so the honest form is a part-to-whole bar — not a
+     two-slice pie, and not a table of two rows that leaves the card half
+     empty. Widths use the absolute shares because the split is 35/65 whether
+     the period made money or lost it; the labels keep the sign. */
+  const segments = PARTNERS.map((p, i) => ({
+    id: p.id,
+    label: p.name,
+    value: Math.abs(shareOf(p, CASH_NET)),
+    color: `var(--ops-cat-${i + 1})`,
+  }));
+  const anyValue = segments.some((x) => x.value > 0);
+
   return (
     <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Partner split"
         subtitle={`${money(CASH_NET)} distributed on a cash basis, ${Math.round(PARTNERS[0].share * 100)} / ${Math.round(PARTNERS[1].share * 100)}.`}
-        action={
-          <HeadAction href="/ops/financials?tab=withdrawals">Withdrawals</HeadAction>
-        }
+        action={<HeadAction href="/ops/financials?tab=withdrawals">Withdrawals</HeadAction>}
       />
-      <table className="mt-3 w-full text-body">
-        <thead>
-          <tr className="border-t border-dashed border-ops-line text-left">
-            <th className="ops-eyebrow px-5 py-2 font-medium">Partner</th>
-            <th className="ops-eyebrow px-3 py-2 text-right font-medium">Share</th>
-            <th className="ops-eyebrow px-5 py-2 text-right font-medium">Distributed</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
-          {PARTNERS.map((p) => (
-            <tr key={p.id} className="h-12">
-              <td className="px-5">
-                <span className="flex items-center gap-2">
-                  <Avatar initials={initialsOf(p.name)} className="size-6 text-micro" />
-                  <span className="text-ops-text">{p.name}</span>
+
+      <div className="flex flex-1 flex-col justify-center gap-5 px-5 py-5">
+        {anyValue ? (
+          <CompositionBar segments={segments} />
+        ) : (
+          <div className="h-2 w-full rounded-full bg-ops-active" aria-hidden />
+        )}
+
+        <ul className="flex flex-col gap-4">
+          {PARTNERS.map((p, i) => (
+            <li key={p.id} className="flex items-center gap-3">
+              <span className="size-2 shrink-0 rounded-full" style={{ background: `var(--ops-cat-${i + 1})` }} aria-hidden />
+              <Avatar initials={initialsOf(p.name)} />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-body text-ops-text">{p.name}</span>
+                <span className="ops-num block text-body text-ops-text-tertiary">
+                  {Math.round(p.share * 100)}% share
                 </span>
-              </td>
-              <td className="ops-num px-3 text-right text-ops-text-secondary">{Math.round(p.share * 100)}%</td>
-              <td className="px-5 text-right">
-                <Money value={shareOf(p, CASH_NET)} className="font-medium" />
-              </td>
-            </tr>
+              </span>
+              <Money value={shareOf(p, CASH_NET)} className="text-figure font-medium" />
+            </li>
           ))}
-          {[
-            { label: "Received", value: CASH_RECEIVED },
-            { label: "Paid out", value: -CASH_PAID_OUT },
-          ].map((r) => (
-            <tr key={r.label} className="h-11 text-body">
-              <td className="px-5 text-ops-text-secondary" colSpan={2}>
-                {r.label}
-              </td>
-              <td className="px-5 text-right">
-                <Money value={r.value} className="font-medium" />
-              </td>
-            </tr>
-          ))}
-          <tr className="h-10 bg-ops-sunken">
-            <td className="px-5 font-medium text-ops-text" colSpan={2}>
-              Net
-            </td>
-            <td className="px-5 text-right">
-              <Money value={CASH_NET} className="font-medium" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        </ul>
+      </div>
+
+      <dl className="grid grid-cols-3 divide-x divide-dashed divide-ops-line border-t border-dashed border-ops-line">
+        {[
+          { label: "Received", value: CASH_RECEIVED },
+          { label: "Paid out", value: -CASH_PAID_OUT },
+          { label: "Net", value: CASH_NET },
+        ].map((r) => (
+          <div key={r.label} className="px-5 py-4">
+            <dt className="text-body text-ops-text-secondary">{r.label}</dt>
+            <dd className="mt-1">
+              <Money value={r.value} className="text-body font-medium" />
+            </dd>
+          </div>
+        ))}
+      </dl>
     </Card>
   );
 }
