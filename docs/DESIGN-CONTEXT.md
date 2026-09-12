@@ -159,6 +159,17 @@ confirmation.**
     Neither opens a modal yet: the modals are open thread 2 below, and the
     bulk one must actually settle all seventeen when it is built.
 
+11. **Home's cash-position caption** read "Last: $45,156 from Intelcom · Sep 1"
+    above a revenue figure of $0 — it cites a payment that is still sitting in
+    *draft* on the Revenue tab as though the cash had arrived. The caption now
+    says what the draft is and that it has not reached the bank.
+12. **"Pay 2 bills · $918"** counts two bills against a single $918 insurance
+    entry. The amount is kept; the count is derived, so it reads "Pay 1 bill".
+13. **"18 days ago" / "28 days ago" / "21 days ago"** on the company list are
+    measured from about Sep 8, while the build's own clock is Sep 4. All
+    elapsed times are now derived from the period clock, so Intelcom reads 14
+    days rather than 18.
+
 Two things were **left exactly as they are** and need a decision:
 
 - **Cash position and Net profit are the same −$459** on the Home headline row.
@@ -170,6 +181,31 @@ Two things were **left exactly as they are** and need a decision:
   unpaid, which is consistent with the carried-forward vehicle rent — but it is
   a guess. The console labels the column "Distributed (cash basis)" and
   footnotes the gap rather than changing the number.
+
+## Home layout
+
+The page is **one main column and one rail, each a continuous stack** — not a
+series of two-column rows. That distinction is the whole reason the page went
+from 1675px to 1405px:
+
+Three independent `grid-cols-[1.35fr_1fr]` rows pad the shorter card in each
+row out to the height of the taller one. On this content that left roughly
+480px of empty surface down the right-hand side, in three separate holes. With
+each column flowing on its own, a card sits directly under the card above it
+and the two columns run out together. If you add a card, add it to a stack —
+do not start a new two-column row.
+
+Density rules that came out of the same pass:
+
+- **No sparkline on the headline figures.** The period is four days old; any
+  trend line is four points wide and two of them are flat. The space goes to a
+  sentence explaining the figure, which is what Wave, Xero and QuickBooks all
+  do with it.
+- **Companies is a table, not a stack of cards with progress bars.** Six rows
+  at 36px is a block you take in at once; the same six as cards was 440px of
+  mostly air.
+- Reference screens for this page: Wave's Payable & Owing, Xero's financial
+  position, QuickBooks' Business at a glance, Monarch's cash-flow report.
 
 ## Conventions
 
