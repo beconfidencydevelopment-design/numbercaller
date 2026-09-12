@@ -1,11 +1,7 @@
-import { PageHeader } from "@/components/ops/page-header";
-import { Placeholder } from "@/components/ops/placeholder";
+import { RoutesView } from "@/components/ops/routes-view";
 
-export default function Page() {
-  return (
-    <div className="flex h-full flex-col">
-      <PageHeader title="Routes" />
-      <Placeholder area="Routes" />
-    </div>
-  );
+export const metadata = { title: "Routes · SNK Operations" };
+
+export default function RoutesPage() {
+  return <RoutesView />;
 }

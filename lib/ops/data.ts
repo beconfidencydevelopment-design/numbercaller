@@ -1,11 +1,14 @@
 import type {
+  DeliveryRoute,
   Driver,
   ExceptionReason,
   RankedShipment,
   ServiceLevel,
   Shipment,
+  RouteStop,
   ShipmentStatus,
   SlaState,
+  StopState,
   StatusTone,
   TimelineEvent,
 } from "./types";
@@ -390,3 +393,60 @@ export const KPI_SERIES: Record<"breached" | "atRisk" | "exceptions" | "unassign
       outForDelivery: shape(196, 22, 9, 0.15),
     };
   })();
+
+/* -------------------------------------------------------------------------- */
+/* Rounds                                                                      */
+/* -------------------------------------------------------------------------- */
+
+const STOP_STREETS = ["Ashby Row","Kestrel Way","Moor Lane","Pemberton Rise","Halden Street","Verity Close","Oriel Gardens","Calder Walk","Fairfax Terrace","Northgate Hill","Bright Avenue","Linden Croft"];
+
+/**
+ * One round per driver, sequenced.
+ *
+ * Stop order is the round as loaded, not as completed — which is the point of
+ * the screen: a dispatcher reads down the sequence to see where the driver is
+ * and what is still ahead of them.
+ */
+export const ROUTES: DeliveryRoute[] = DRIVERS.map((driver, di) => {
+  const rand = seeded(5200 + di * 91);
+  const planned = 18 + Math.floor(rand() * 14);
+  const done = driver.state === "at_depot" ? planned : Math.min(planned - 1, driver.completed % planned);
+  const startedAt = NOW - (5 * 60 + Math.floor(rand() * 90)) * MIN;
+  const stops: RouteStop[] = [];
+
+  for (let i = 0; i < planned; i++) {
+    const settled = i < done;
+    // Roughly one stop in twelve fails on a real round.
+    const failed = settled && rand() < 0.085;
+    const state: StopState = failed ? "failed" : settled ? "done" : i === done ? "current" : "pending";
+    // Settled stops carry the time they happened; everything still ahead of
+    // the driver is projected forward from now. Deriving both from the round's
+    // start put tonight's deliveries several hours in the past.
+    const at = settled
+      ? startedAt + i * (13 + Math.floor(rand() * 7)) * MIN
+      : NOW + (i - done) * (13 + Math.floor(rand() * 7)) * MIN;
+    const hour = 8 + Math.floor((i / planned) * 9);
+    stops.push({
+      id: `${driver.id}-s${i}`,
+      seq: i + 1,
+      tracking: `SNK-${24100 + di * 37 + i * 3}`,
+      recipient: `${FIRST[Math.floor(rand() * FIRST.length)]} ${LAST[Math.floor(rand() * LAST.length)]}`,
+      postcode: `${PLACES[Math.floor(rand() * PLACES.length)][1]}`,
+      window: `${String(hour).padStart(2, "0")}:00–${String(hour + 3).padStart(2, "0")}:00`,
+      state,
+      at,
+      note: failed ? EXCEPTION_LABEL[EXCEPTIONS[Math.floor(rand() * EXCEPTIONS.length)]] : undefined,
+    });
+  }
+
+  return {
+    id: `r${di}`,
+    code: `R-${driver.zone.slice(0, 1)}${String(di + 1).padStart(2, "0")}`,
+    zone: driver.zone,
+    driverId: driver.id,
+    startedAt,
+    etaFinish: startedAt + planned * 15 * MIN,
+    loadPct: 54 + Math.floor(rand() * 44),
+    stops,
+  };
+});

@@ -1,11 +1,7 @@
-import { PageHeader } from "@/components/ops/page-header";
-import { Placeholder } from "@/components/ops/placeholder";
+import { SettingsView } from "@/components/ops/settings-view";
 
-export default function Page() {
-  return (
-    <div className="flex h-full flex-col">
-      <PageHeader title="Settings" />
-      <Placeholder area="Settings" />
-    </div>
-  );
+export const metadata = { title: "Settings · SNK Operations" };
+
+export default function SettingsPage() {
+  return <SettingsView />;
 }

@@ -1,11 +1,7 @@
-import { PageHeader } from "@/components/ops/page-header";
-import { Placeholder } from "@/components/ops/placeholder";
+import { ReportsView } from "@/components/ops/reports-view";
 
-export default function Page() {
-  return (
-    <div className="flex h-full flex-col">
-      <PageHeader title="Reports" />
-      <Placeholder area="Reports" />
-    </div>
-  );
+export const metadata = { title: "Reports · SNK Operations" };
+
+export default function ReportsPage() {
+  return <ReportsView />;
 }

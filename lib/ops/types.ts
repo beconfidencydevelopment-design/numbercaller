@@ -90,3 +90,36 @@ export interface RankedShipment extends Shipment {
   /** Higher sorts first. Drives the default "worst first" ordering. */
   urgency: number;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Rounds                                                                      */
+/* -------------------------------------------------------------------------- */
+
+export type StopState = "done" | "failed" | "current" | "pending";
+
+export interface RouteStop {
+  id: string;
+  seq: number;
+  tracking: string;
+  recipient: string;
+  postcode: string;
+  /** Contracted delivery window, e.g. "09:00–12:00". */
+  window: string;
+  state: StopState;
+  /** Completion time for a settled stop, projected arrival otherwise. */
+  at: number;
+  note?: string;
+}
+
+export interface DeliveryRoute {
+  id: string;
+  code: string;
+  zone: string;
+  driverId: string;
+  startedAt: number;
+  /** Projected time the last stop is cleared. */
+  etaFinish: number;
+  /** Vehicle fill at load-out, as a percentage of capacity. */
+  loadPct: number;
+  stops: RouteStop[];
+}
