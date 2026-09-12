@@ -174,13 +174,15 @@ export function DeltaChip({
   className?: string;
 }) {
   const tone: StatusTone = dir === "flat" ? "idle" : good ? "ok" : "risk";
-  const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "—";
+  // Flat reads "— 0%", as the client's cards print it; a bare "—0%" looks like a negative.
+  const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "— ";
   return (
     <span className={cn("inline-flex items-baseline gap-1.5 text-[11px]", className)}>
-      <span className={cn("ops-num rounded-md px-1.5 py-[2px] font-semibold ring-1 ring-inset", TONE_PILL[tone])}>
-        {glyph} {pct}%
+      {/* Tint only, no ring — the pill should sit on the card, not on top of it. */}
+      <span className={cn("ops-num rounded-[5px] px-1.5 py-[2px] text-[10.5px] font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
+        {glyph}{pct}%
       </span>
-      <span className="text-ops-text-tertiary">{caption}</span>
+      {caption && <span className="ops-num text-ops-text-tertiary">{caption}</span>}
     </span>
   );
 }
@@ -239,11 +241,11 @@ export function SectionTitle({
   return (
     <div className={cn("flex min-h-8 w-full items-center gap-2", className)}>
       {Icon && (
-        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ops-active text-ops-text-secondary">
+        <span className="grid size-6 shrink-0 place-items-center rounded-[7px] bg-ops-sunken text-ops-text-secondary ring-1 ring-inset ring-ops-line">
           <Icon className="size-3.5" />
         </span>
       )}
-      <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
+      <h2 className="text-[13.5px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
       {count !== undefined && (
         <span className="ops-num rounded-md bg-ops-active px-1.5 py-px text-[11px] font-semibold text-ops-text-secondary">
           {count}

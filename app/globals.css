@@ -84,23 +84,23 @@ body {
   /* ---- Surfaces --------------------------------------------------------
      Warm neutral ramp, near-zero chroma. Warm rather than cool because the
      brand is orange: a cool grey under an orange accent reads cheap. */
-  --ops-canvas: #eceae6;
+  --ops-canvas: #ededee;
   --ops-surface: #ffffff;
-  --ops-sunken: #faf9f7;
+  --ops-sunken: #f8f8f9;
   --ops-raised: #ffffff;
-  --ops-workspace: #f6f5f2;
-  --ops-hover: #f5f3f0;
-  --ops-active: #ebe8e3;
+  --ops-workspace: #f4f4f5;
+  --ops-hover: #f4f4f5;
+  --ops-active: #ebebed;
 
   /* Hairlines do the structural work that nested cards do elsewhere. */
-  --ops-line: #e7e3dd;
-  --ops-line-strong: #d5d0c8;
+  --ops-line: #e8e8ea;
+  --ops-line-strong: #cfcfd4;
 
   /* Text. Every step clears 4.5:1 on every surface above, including
      --ops-active, so metadata stays readable inside a selected row. */
-  --ops-text: #1a1917;
-  --ops-text-secondary: #585550;
-  --ops-text-tertiary: #6c6861;
+  --ops-text: #18181b;
+  --ops-text-secondary: #55555c;
+  --ops-text-tertiary: #68686f;
   --ops-text-inverse: #ffffff;
 
   /* ---- Accent ----------------------------------------------------------
@@ -135,10 +135,10 @@ body {
   --ops-risk-line: #f0cfcc;
   --ops-risk-dot: #ea4f3e;
 
-  --ops-idle-fg: #6d685f;
-  --ops-idle-bg: #f4f3f1;
-  --ops-idle-line: #e1dfdb;
-  --ops-idle-dot: #8c8475;
+  --ops-idle-fg: #66666d;
+  --ops-idle-bg: #f3f3f4;
+  --ops-idle-line: #dfdfe3;
+  --ops-idle-dot: #86868e;
 
   /* One inverted tile per screen, at most. It takes the brand's charcoal
      rather than a neutral black so the dark panel reads as SNK's. */
@@ -147,8 +147,9 @@ body {
   --ops-focal-muted: #a8a9ae;
   --ops-focal-line: #43444a;
 
-  --ops-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace;
+  --ops-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --ops-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
 
   /* Shape */
   --ops-r-card: 14px;
@@ -160,7 +161,7 @@ body {
   --ops-series-a: #b0480a;
   --ops-series-b: #195fe2;
   --ops-series-neg: #c82816;
-  --ops-grid: #e9e6e1;
+  --ops-grid: #ebebed;
 
   --ops-shadow-pop: 0 1px 2px rgba(26, 25, 23, 0.06),
     0 8px 24px -6px rgba(26, 25, 23, 0.12);
@@ -173,20 +174,20 @@ body {
 }
 
 .dark {
-  --ops-canvas: #0a0908;
-  --ops-surface: #171614;
-  --ops-sunken: #131211;
-  --ops-raised: #1d1b19;
-  --ops-workspace: #131211;
-  --ops-hover: #201e1b;
-  --ops-active: #2a2724;
+  --ops-canvas: #09090b;
+  --ops-surface: #151517;
+  --ops-sunken: #111113;
+  --ops-raised: #1b1b1e;
+  --ops-workspace: #111113;
+  --ops-hover: #1d1d20;
+  --ops-active: #27272b;
 
-  --ops-line: #2a2724;
-  --ops-line-strong: #3d3934;
+  --ops-line: #27272b;
+  --ops-line-strong: #3a3a40;
 
-  --ops-text: #e8e7e4;
-  --ops-text-secondary: #a9a59d;
-  --ops-text-tertiary: #928d84;
+  --ops-text: #e7e7ea;
+  --ops-text-secondary: #a7a7ae;
+  --ops-text-tertiary: #909097;
 
   --ops-text-inverse: #1a1917;
 
@@ -215,22 +216,22 @@ body {
   --ops-risk-line: #522d28;
   --ops-risk-dot: #ef4b39;
 
-  --ops-idle-fg: #aeaaa2;
-  --ops-idle-bg: #252422;
-  --ops-idle-line: #413e3a;
-  --ops-idle-dot: #888277;
+  --ops-idle-fg: #acacb3;
+  --ops-idle-bg: #232326;
+  --ops-idle-line: #3e3e44;
+  --ops-idle-dot: #85858d;
 
   /* Light inverts to charcoal; dark cannot invert again, so the focal tile
      lifts instead — a warmer, lighter panel with a stronger edge. */
-  --ops-focal-bg: #2b2825;
-  --ops-focal-fg: #f6f4f1;
-  --ops-focal-muted: #b5b0a7;
-  --ops-focal-line: #47423b;
+  --ops-focal-bg: #2a2a2e;
+  --ops-focal-fg: #f5f5f7;
+  --ops-focal-muted: #b3b3ba;
+  --ops-focal-line: #45454c;
 
   --ops-series-a: #fa8138;
   --ops-series-b: #79a5f6;
   --ops-series-neg: #f97a6c;
-  --ops-grid: #262320;
+  --ops-grid: #232327;
 
   --ops-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4),
     0 8px 24px -6px rgba(0, 0, 0, 0.55);
@@ -292,6 +293,7 @@ body {
   --radius-inner: var(--ops-r-inner);
   --radius-control: var(--ops-r-control);
 
+  --font-sans-ops: var(--ops-sans);
   --font-mono: var(--ops-mono);
   --shadow-ops-pop: var(--ops-shadow-pop);
   --shadow-ops-drawer: var(--ops-shadow-drawer);
@@ -310,6 +312,7 @@ body {
      checkboxes in the expense ledger render as bright white squares on a
      near-black table, and every select menu opens light. */
   color-scheme: light;
+  font-family: var(--ops-sans);
   font-size: 14px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
@@ -337,11 +340,6 @@ body {
     background: var(--ops-surface);
     border: 1px solid var(--ops-line);
     border-radius: var(--ops-r-card);
-    box-shadow: 0 1px 2px rgba(26, 25, 23, 0.04);
-  }
-
-  .dark .ops-card {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -365,8 +363,8 @@ body {
   .ops-frame > * {
     border: 1px solid var(--ops-line);
     border-radius: 18px;
-    box-shadow: 0 1px 2px rgba(26, 25, 23, 0.05),
-      0 12px 32px -12px rgba(26, 25, 23, 0.16);
+    box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04),
+      0 12px 32px -12px rgba(24, 24, 27, 0.12);
   }
   .dark .ops-frame > * {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
@@ -383,14 +381,16 @@ body {
    `.ops-figure` — proportional, for a large standalone number. Tabular
    digits look loosely spaced at display sizes.
    -------------------------------------------------------------------------- */
+/* Every numeral is set in the mono. Tabular by nature, so columns align
+   without a feature flag, and the register reads as a ledger. */
 .ops-num {
+  font-family: var(--ops-mono);
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
 }
 
 .ops-figure {
-  font-variant-numeric: proportional-nums;
-  letter-spacing: -0.02em;
+  font-family: var(--ops-mono);
+  letter-spacing: -0.03em;
 }
 
 .ops-mono {
@@ -401,9 +401,10 @@ body {
 
 /* Micro label: section headers, column groups, table captions. */
 .ops-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-family: var(--ops-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ops-text-tertiary);
 }

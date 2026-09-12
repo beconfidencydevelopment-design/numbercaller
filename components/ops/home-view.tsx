@@ -5,13 +5,12 @@ import Link from "next/link";
 import {
   Activity,
   ArrowRight,
+  ListChecks,
   Building2,
   CalendarRange,
   Check,
   Download,
-  FileText,
   Plus,
-  Receipt,
   Users,
   Wallet,
   X,
@@ -73,92 +72,52 @@ import { daysAgo, formatDate, formatTime, initialsOf, money, relativeTime } from
 /**
  * A headline figure.
  *
- * Value first, with the month-over-month change beside it; a hairline; then
- * the label and its basis with an icon. The figure is what the eye lands on,
- * so it leads — the label is confirmation, not a heading. This is the shape
- * the current crop of finance products has settled on, and it reads as a
- * ledger rather than a dashboard template.
- *
- * No sparkline. The period is four days old, so any trend line would be four
- * points wide with two of them flat. The space goes to one sentence that
- * explains the number.
+ * Label and change on the first line, the figure on the second, one line of
+ * explanation on the third. Nothing else — no icon, no footer band, no
+ * sparkline. The figure is set in the mono, which is what makes the row read
+ * as a ledger rather than a template: numerals share a rhythm across all
+ * four cards and the eye can compare them without effort.
  */
 function Figure({
   label,
   basis,
-  icon: Icon,
   value,
   delta,
   good,
   note,
   tone = "neutral",
-  focal,
   href,
 }: {
   label: string;
   basis: string;
-  icon: React.ComponentType<{ className?: string }>;
   value: number;
   delta: { pct: number; dir: "up" | "down" | "flat" };
   /** Whether the delta direction is good news for this figure. */
   good: boolean;
   note: React.ReactNode;
   tone?: "neutral" | "risk";
-  focal?: boolean;
   href: string;
 }) {
   return (
     <Link
       href={href}
-      className={cn(
-        "flex min-w-0 flex-col rounded-[var(--ops-r-card)] border transition-colors",
-        focal
-          ? "border-ops-focal-line bg-ops-focal-bg"
-          : "border-ops-line bg-ops-surface hover:border-ops-line-strong",
-      )}
+      className="ops-card flex min-w-0 flex-col px-4 pb-3.5 pt-3 transition-colors hover:border-ops-line-strong"
     >
-      <div className="px-4 pb-3 pt-3.5">
-        <div className="flex items-baseline justify-between gap-3">
-          <span
-            className={cn(
-              "ops-figure text-[28px] font-semibold leading-none tracking-[-0.025em]",
-              focal ? "text-ops-focal-fg" : tone === "risk" ? "text-ops-risk-fg" : "text-ops-text",
-            )}
-          >
-            {money(value)}
-          </span>
-          <DeltaChip pct={delta.pct} dir={delta.dir} good={good} caption="" />
-        </div>
-        <p
-          className={cn(
-            "mt-2 text-[11px] leading-[1.45]",
-            focal ? "text-ops-focal-muted" : "text-ops-text-tertiary",
-          )}
-        >
-          {note}
-        </p>
+      <div className="flex items-center justify-between gap-2">
+        <span className="ops-num truncate text-[11.5px] text-ops-text-secondary">
+          {label} <span className="text-ops-text-tertiary">· {basis}</span>
+        </span>
+        <DeltaChip pct={delta.pct} dir={delta.dir} good={good} caption="" />
       </div>
-
       <div
         className={cn(
-          "flex items-center gap-2 border-t px-4 py-2",
-          focal ? "border-ops-focal-line" : "border-ops-line",
+          "ops-figure mt-2 text-[26px] font-medium leading-none",
+          tone === "risk" ? "text-ops-risk-fg" : "text-ops-text",
         )}
       >
-        <span
-          className={cn(
-            "grid size-5 shrink-0 place-items-center rounded-full",
-            focal ? "bg-white/10 text-ops-focal-fg" : "bg-ops-active text-ops-text-secondary",
-          )}
-        >
-          <Icon className="size-3" />
-        </span>
-        <span className={cn("text-[12px] font-medium", focal ? "text-ops-focal-fg" : "text-ops-text")}>{label}</span>
-        <span className={cn("text-[11px]", focal ? "text-ops-focal-muted" : "text-ops-text-tertiary")}>{basis}</span>
-        <span className={cn("ml-auto text-[11px]", focal ? "text-ops-focal-muted" : "text-ops-text-tertiary")}>
-          vs last month
-        </span>
+        {money(value)}
       </div>
+      <p className="mt-2 text-[11px] leading-[1.45] text-ops-text-tertiary">{note}</p>
     </Link>
   );
 }
@@ -169,29 +128,26 @@ function Figure({
 
 function PendingActions() {
   return (
-    <Card className="overflow-hidden border-ops-focal-line bg-ops-focal-bg">
-      <div className="flex items-center gap-2 border-b border-ops-focal-line px-4 py-2.5">
-        <h2 className="text-[14px] font-semibold text-ops-focal-fg">Actions pending</h2>
-        <span className="ops-num rounded-md bg-white/10 px-1.5 py-px text-[11px] font-semibold text-ops-focal-fg">
-          {PENDING_ACTIONS.length}
-        </span>
-        <span className="ml-auto text-[11px] text-ops-focal-muted">
-          Largest first · before {PERIOD.label} can close
-        </span>
-      </div>
-      <ul className="divide-y divide-ops-focal-line">
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-ops-sunken">
+        <SectionTitle
+          icon={ListChecks}
+          title="Actions pending"
+          count={PENDING_ACTIONS.length}
+          hint={`largest first · before ${PERIOD.label} can close`}
+        />
+      </CardHeader>
+      <ul className="divide-y divide-ops-line">
         {PENDING_ACTIONS.map((a) => (
           <li key={a.id} className="flex h-11 items-center gap-3 px-4">
             <span className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[a.tone])} aria-hidden />
-            <span className="min-w-0 flex-1 truncate text-[13px] text-ops-focal-fg">{a.label}</span>
+            <span className="min-w-0 flex-1 truncate text-[13px] text-ops-text">{a.label}</span>
             {a.amount !== null && (
-              <span className="ops-num shrink-0 text-[13px] font-semibold text-ops-focal-fg">
-                {money(a.amount)}
-              </span>
+              <Money value={a.amount} tone={false} className="shrink-0 text-[13px] font-medium text-ops-text" />
             )}
             <Link
               href={a.href}
-              className="inline-flex h-6 w-[72px] shrink-0 items-center justify-center gap-1 rounded-md border border-white/15 bg-white/5 text-[11px] font-semibold text-ops-focal-fg transition-colors hover:bg-white/15"
+              className="inline-flex h-6 w-[74px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-line bg-ops-surface text-[11px] font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
             >
               {a.action}
               <ArrowRight className="size-3" />
@@ -391,50 +347,38 @@ function LoggedThisPeriod() {
   const rows = expensesByCompany();
   const drivers = new Set(EXPENSES.map((e) => e.driverId).filter(Boolean)).size;
 
+  /* Two deliberate rows: the counts, then coverage. Letting the chips wrap
+     off the end of the first row left a ragged second line that read as an
+     overflow rather than a design. */
   return (
-    <Card className="overflow-hidden">
-      <CardHeader>
-        <SectionTitle
-          icon={Receipt}
-          title="Logged this period"
-          hint={`through ${formatDate(NOW)}`}
-          action={
-            <Link
-              href="/ops/expenses"
-              className="flex items-center gap-1 text-[12px] font-semibold text-ops-accent hover:underline"
-            >
-              Ledger <ArrowRight className="size-3" />
-            </Link>
-          }
-        />
-      </CardHeader>
-
-      <dl className="grid grid-cols-2 divide-x divide-y divide-ops-line">
+    <Card className="divide-y divide-ops-line">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-1.5 px-4 py-2.5">
+        <span className="ops-num text-[11.5px] text-ops-text-secondary">
+          Logged this period <span className="text-ops-text-tertiary">· through {formatDate(NOW)}</span>
+        </span>
         {[
-          { label: "Entries", value: String(EXPENSES.length) },
-          { label: "Value", value: money(EXPENSE_TOTAL) },
-          { label: "Drivers with entries", value: String(drivers) },
-          { label: "Companies trading", value: `${COMPANIES_WITH_ACTIVITY} of ${COMPANIES.length}` },
+          { label: "entries", value: String(EXPENSES.length) },
+          { label: "value", value: money(EXPENSE_TOTAL) },
+          { label: "drivers with entries", value: String(drivers) },
+          { label: "companies trading", value: `${COMPANIES_WITH_ACTIVITY} of ${COMPANIES.length}` },
         ].map((s) => (
-          <div key={s.label} className="px-4 py-2.5">
-            <dt className="truncate text-[11px] text-ops-text-tertiary">{s.label}</dt>
-            <dd className="ops-figure mt-1 text-[17px] font-semibold leading-none text-ops-text">{s.value}</dd>
-          </div>
+          <span key={s.label} className="flex items-baseline gap-1.5">
+            <span className="ops-num text-[14px] font-medium text-ops-text">{s.value}</span>
+            <span className="ops-num text-[11px] text-ops-text-tertiary">{s.label}</span>
+          </span>
         ))}
-      </dl>
-
-      {/* Two companies with no entries is either a quiet month or a missed
-          invoice, and it is the check that stops a period closing short. */}
-      <div className="flex flex-wrap items-center gap-1.5 border-t border-ops-line px-4 py-2.5">
-        <span className="mr-0.5 text-[11px] text-ops-text-tertiary">Coverage</span>
+        <Link href="/ops/expenses" className="ml-auto flex items-center gap-1 text-[12px] font-medium text-ops-accent hover:underline">
+          Ledger <ArrowRight className="size-3" />
+        </Link>
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5 px-4 py-2">
+        <span className="ops-num mr-1 text-[11px] text-ops-text-tertiary">Coverage</span>
         {rows.map(({ company, total }) => (
           <span
             key={company.id}
             className={cn(
-              "inline-flex items-center gap-1 rounded-full px-1.5 py-[2px] text-[11px] font-medium ring-1 ring-inset",
-              total > 0
-                ? "bg-ops-ok-bg text-ops-ok-fg ring-ops-ok-line"
-                : "bg-ops-idle-bg text-ops-idle-fg ring-ops-idle-line",
+              "inline-flex items-center gap-1 rounded-[5px] px-1.5 py-[2px] text-[10.5px] font-medium",
+              total > 0 ? "bg-ops-ok-bg text-ops-ok-fg" : "bg-ops-idle-bg text-ops-idle-fg",
             )}
           >
             {total > 0 ? <Check className="size-3" /> : <X className="size-3" />}
@@ -630,7 +574,7 @@ export function HomeView() {
         }
       />
 
-      <PageBody className="flex flex-col gap-3.5">
+      <PageBody className="flex flex-col gap-3">
         {banner && (
           <div className="flex items-center gap-3 rounded-[var(--ops-r-card)] border border-ops-move-line bg-ops-move-bg px-4 py-2">
             <span className="size-1.5 shrink-0 rounded-full bg-ops-move-dot" aria-hidden />
@@ -653,24 +597,21 @@ export function HomeView() {
           </div>
         )}
 
-        {/* Headline row */}
+        {/* Row 1 — the four headline figures */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Figure
             label="Cash position"
             basis="cash basis"
-            icon={Wallet}
             value={CASH_NET}
             delta={HEADLINE_DELTA.cash}
             good={HEADLINE_DELTA.cash.dir === "up"}
             tone="risk"
-            focal
             href="/ops/financials"
             note={`${money(DRAFT_REVENUE_TOTAL)} sits in ${DRAFT_REVENUE.length} draft payments and has not reached the bank.`}
           />
           <Figure
             label="Revenue"
             basis="finalized"
-            icon={FileText}
             value={REVENUE_TOTAL}
             delta={HEADLINE_DELTA.revenue}
             good={HEADLINE_DELTA.revenue.dir === "up"}
@@ -678,14 +619,13 @@ export function HomeView() {
             note={
               <>
                 Nothing finalized this period ·{" "}
-                <span className="font-semibold text-ops-warn-fg">{money(DRAFT_REVENUE_TOTAL)} in draft</span>.
+                <span className="font-medium text-ops-warn-fg">{money(DRAFT_REVENUE_TOTAL)} in draft</span>.
               </>
             }
           />
           <Figure
             label="Total expenses"
             basis="incurred"
-            icon={Receipt}
             value={EXPENSE_TOTAL}
             delta={HEADLINE_DELTA.expenses}
             good={HEADLINE_DELTA.expenses.dir === "down"}
@@ -695,7 +635,6 @@ export function HomeView() {
           <Figure
             label="Net profit"
             basis="cash basis"
-            icon={Activity}
             value={CASH_NET}
             delta={HEADLINE_DELTA.profit}
             good={HEADLINE_DELTA.profit.dir === "up"}
@@ -705,28 +644,28 @@ export function HomeView() {
           />
         </div>
 
+        {/* Row 1b — a slim strip of what has been booked so far */}
+        <LoggedThisPeriod />
+
         {/*
-          One main column and one rail, each a continuous stack.
-
-          Three separate two-column rows — which is what this was — leaves the
-          shorter card in each row padded out to the height of the taller one.
-          That produced roughly 480px of empty surface down the right-hand side
-          on a 1675px page. Letting each column flow on its own means cards sit
-          directly under the card above them and both columns run out together.
+          Row 2 — one wide card and two narrow ones, the shape of the
+          reference. The three are built to the same height: five action
+          rows, a figure plus three key/value rows, two partners plus three
+          key/value rows. No card is padded out to meet another.
         */}
-        <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,1.42fr)_minmax(0,1fr)]">
-          <div className="flex min-w-0 flex-col gap-3.5">
-            <PendingActions />
-            <Companies />
-            <MonthByMonth />
-          </div>
+        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <PendingActions />
+          <DriverSettlement />
+          <PartnerSplit />
+        </div>
 
-          <div className="flex min-w-0 flex-col gap-3.5">
-            <DriverSettlement />
-            <LoggedThisPeriod />
-            <PartnerSplit />
-            <RecentActivity />
-          </div>
+        {/* Row 3 — the full-width ledger */}
+        <Companies />
+
+        {/* Row 4 */}
+        <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <MonthByMonth />
+          <RecentActivity />
         </div>
       </PageBody>
     </>

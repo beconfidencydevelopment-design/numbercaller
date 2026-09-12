@@ -98,6 +98,28 @@ It is never a status, for the reason above.
 
 ## Design system
 
+**The register is calm.** The two references for this round — Opedia's
+ShipSync for layout flow, the Skymetrics dashboard for look and feel — agree
+on one thing: nothing on the page shouts. That translated into four rules.
+
+- **Neutral greys, not warm.** Canvas `#ededee`, workspace `#f4f4f5`, cards
+  white with an `#e8e8ea` edge and no shadow. Depth comes from hairlines.
+- **Geist Mono for every numeral, label and caption.** `.ops-num`,
+  `.ops-figure`, `.ops-eyebrow` all set the mono; Geist for titles and copy.
+  This is most of what makes the console read as a ledger — figures across
+  four cards share one rhythm and can be compared without effort.
+- **No dark tiles.** The inverted focal card is gone from Home; hierarchy is
+  carried by position and size. `--ops-focal-*` tokens remain for any future
+  overlay but nothing on the five screens uses them.
+- **A left rail.** The client's own build, ShipSync and Skymetrics all use
+  one. Five items, counts in the mono, the active item marked by a tint and a
+  2px accent hairline on its left edge — not a filled pill.
+
+**Home follows the ShipSync flow exactly:** four headline figures → a slim
+period strip → one wide card with two narrow beside it, all three built to the
+same height → the full-width Companies table → Monthly comparison with Recent
+activity beside it.
+
 Tokens live in `app/globals.css`. Do not hard-code colour in a component —
 `scripts/verify-contrast.mjs` fails the build if you do.
 
@@ -120,9 +142,6 @@ Tokens live in `app/globals.css`. Do not hard-code colour in a component —
   would beat `bg-ops-focal-bg` and silently flatten the one inverted tile.
 - **The app sits in a floating frame** (`.ops-frame`), full-bleed below 900px.
   Shared by all three dashboards the client picked as references.
-- **Top pill nav, not a left rail.** Five destinations don't need a permanent
-  200px column, the pages under it are wide ledgers, and it is the shape of all
-  three references (Finexa, Restro, InvestIQ).
 - **A ledger ends in a total.** Every table has a `tfoot` that adds the column
   up. The live build ends its expense table in "Showing 1–23 of 23".
 
