@@ -24,7 +24,7 @@ export function PageHeader({
     <div className={cn("border-b border-ops-line bg-ops-surface", className)}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 pb-3 pt-4">
         <div className="min-w-0">
-          <h1 className="text-[19px] font-semibold tracking-[-0.02em] text-ops-text">{title}</h1>
+          <h1 className="text-[24px] font-medium tracking-[-0.02em] text-ops-text">{title}</h1>
           {detail && <p className="mt-1 text-[12px] text-ops-text-secondary">{detail}</p>}
         </div>
         {actions && <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}

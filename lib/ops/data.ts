@@ -579,6 +579,8 @@ export interface PendingAction {
   label: string;
   /** Money at stake. Null for an action that moves no money by itself. */
   amount: number | null;
+  /** How far along the item is, in the unit the item counts in. */
+  progress: { done: number; total: number };
   action: string;
   href: string;
   tone: StatusTone;
@@ -591,11 +593,11 @@ export interface PendingAction {
  */
 export const PENDING_ACTIONS: PendingAction[] = (
   [
-    { id: "pa1", label: `Finalize ${DRAFT_REVENUE.length} draft payments`, amount: DRAFT_REVENUE_TOTAL, action: "Finalize", href: "/ops/financials?tab=revenue", tone: "warn" },
-    { id: "pa2", label: "Settle driver pay", amount: DRIVER_OUTSTANDING_TOTAL, action: "Settle", href: "/ops/drivers", tone: "risk" },
-    { id: "pa3", label: "Record Precision payment — no revenue logged", amount: PRECISION_AT_RISK, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
-    { id: "pa4", label: `Pay ${UNPAID_BILLS.length} bill`, amount: UNPAID_BILL_TOTAL, action: "Pay", href: "/ops/expenses", tone: "warn" },
-    { id: "pa5", label: `Close ${PERIOD.label} period`, amount: null, action: "Close", href: "/ops/financials?tab=close", tone: "idle" },
+    { id: "pa1", label: `Finalize ${DRAFT_REVENUE.length} draft payments`, amount: DRAFT_REVENUE_TOTAL, progress: { done: FINALIZED_REVENUE.length, total: REVENUE.length }, action: "Finalize", href: "/ops/financials?tab=revenue", tone: "warn" },
+    { id: "pa2", label: "Settle driver pay", amount: DRIVER_OUTSTANDING_TOTAL, progress: { done: DRIVERS_SETTLED, total: DRIVERS.length }, action: "Settle", href: "/ops/drivers", tone: "risk" },
+    { id: "pa3", label: "Record Precision payment — no revenue logged", amount: PRECISION_AT_RISK, progress: { done: 0, total: 1 }, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
+    { id: "pa4", label: `Pay ${UNPAID_BILLS.length} bill`, amount: UNPAID_BILL_TOTAL, progress: { done: 0, total: UNPAID_BILLS.length }, action: "Pay", href: "/ops/expenses", tone: "warn" },
+    { id: "pa5", label: `Close ${PERIOD.label} period`, amount: null, progress: { done: 0, total: 1 }, action: "Close", href: "/ops/financials?tab=close", tone: "idle" },
   ] satisfies PendingAction[]
 ).sort((a, b) => (b.amount ?? -1) - (a.amount ?? -1));
 

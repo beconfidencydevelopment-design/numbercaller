@@ -214,6 +214,39 @@ Two things were **left exactly as they are** and need a decision:
   a guess. The console labels the column "Distributed (cash basis)" and
   footnotes the gap rather than changing the number.
 
+## Home — which form, where, and why
+
+The reference for this round is Zajno's Skymetrics dashboard (Dribbble
+27460154). Its vocabulary is specific and every card on Home now follows it:
+a grey title, one sentence saying what the card shows, the headline figures
+with legend dots on the right, then the chart; dashed hairlines for rules and
+gridlines; **sans for every label, mono for every numeral**. Forms were
+chosen per block by the data's job, not by what looked empty — and three
+blocks deliberately have no chart.
+
+| Block | Data's job | Form | Why not the alternative |
+|---|---|---|---|
+| Four headline figures | one current value + change | **stat tile** (label, pill, mono figure, arrow disc, caption) | A sparkline would be four points, two of them flat |
+| Actions pending | five items with a count each | **list + segmented meter** ("1 of 18" as lit pills) | A bar per amount cost the client's labels their last word at 1440 |
+| Partner split | two fixed shares of one figure | **small table** with dashed rules | The 35/65 split is definitional; a pie would draw a constant |
+| Monthly comparison | two series over three periods | **grouped columns**, open period faint, month in a pill | A line over three points invents a slope; a dual axis is banned |
+| Driver settlement | one ratio against a limit | **semicircle gauge** (1 of 18 settled) + totals below | A 2-slice pie; a bar that would be 94% red |
+| Companies | six rows, mixed attributes | **table** with a magnitude bar in the spend cell | The bar earns its place here: 5,862 against 450 is read at a glance |
+| Logged this period | part-to-whole across five payers | **composition bar** with a legend, own costs in grey as "Other" | A donut for five close-ish values; more than six segments |
+| Recent activity | a feed | **list** | — |
+
+Palette decisions were computed, not eyeballed, with the dataviz validator:
+revenue `#b0480a` / expenses idle-grey is the *emphasis* form (one hue plus
+grey); the four company slots `#b0480a #2563eb #0d9488 #7c3aed` (dark
+`#e26520 #4f8ff7 #14a08f #a56ff0`) pass lightness band, chroma floor,
+adjacent-pair CVD ΔE ≥ 15, normal-vision ΔE ≥ 18 and 3:1 on both surfaces.
+Green was rejected as a category because it is the settled/paid status
+colour. The dark series colour steps down from the accent (`#fa8138` is too
+light for a mark, L 0.73 against a 0.48–0.67 band).
+
+Rows are paired by height: the five-row list beside the gauge, the tall chart
+card beside two stacked cards, the ledger and the composition card full width.
+
 ## Home layout
 
 The page is **one main column and one rail, each a continuous stack** — not a

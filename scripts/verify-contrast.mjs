@@ -74,6 +74,7 @@ const PAIRS = [
   ["--ops-series-a", "--ops-surface", UI, "series A mark"],
   ["--ops-series-b", "--ops-surface", UI, "series B mark"],
   ["--ops-series-neg", "--ops-surface", UI, "negative series mark"],
+  ...[1, 2, 3, 4].map((i) => [`--ops-cat-${i}`, "--ops-surface", UI, `categorical slot ${i}`]),
 
   // Structure: a hairline must be visible against the surfaces it divides
   ["--ops-line", "--ops-surface", 1.18, "hairline on surface"],

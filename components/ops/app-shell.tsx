@@ -66,9 +66,6 @@ function NavLink({ item, compact }: { item: NavItem; compact?: boolean }) {
         compact && "h-8 shrink-0 rounded-full px-3",
       )}
     >
-      {active && !compact && (
-        <span className="absolute inset-y-2 -left-2 w-[2px] rounded-full bg-ops-accent" aria-hidden />
-      )}
       <Icon className={cn("size-4 shrink-0", active ? "text-ops-text" : "text-ops-text-tertiary")} />
       <span className="truncate">{item.label}</span>
       {item.count !== undefined && item.count > 0 && (

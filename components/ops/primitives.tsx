@@ -475,3 +475,136 @@ export function RowAction({
     </button>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Chart pieces — the Skymetrics vocabulary                                    */
+/* -------------------------------------------------------------------------- */
+
+/** A small arrow in a tinted disc, set beside a figure. Direction is the glyph; the tint reinforces it. */
+export function ArrowGlyph({ dir, good, className }: { dir: "up" | "down" | "flat"; good?: boolean; className?: string }) {
+  if (dir === "flat") return null;
+  const tone: StatusTone = good ? "ok" : "risk";
+  return (
+    <span
+      className={cn(
+        "inline-grid size-4 shrink-0 place-items-center rounded-full text-[10px] font-semibold leading-none",
+        TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""),
+        className,
+      )}
+      aria-hidden
+    >
+      {dir === "up" ? "↑" : "↓"}
+    </span>
+  );
+}
+
+/** A dashed hairline between sections inside a card. */
+export function DashedRule({ className }: { className?: string }) {
+  return <div className={cn("border-t border-dashed border-ops-line", className)} aria-hidden />;
+}
+
+/**
+ * A semicircle gauge: one ratio against a limit.
+ *
+ * Thin stroke, round caps, the unfilled track a lighter step of the same
+ * family. The figure sits in the arc; what it is a share *of* goes in the
+ * card footer, not the gauge.
+ */
+export function Gauge({
+  value,
+  max,
+  tone = "ok",
+  label,
+  sublabel,
+  className,
+}: {
+  value: number;
+  max: number;
+  tone?: StatusTone | "accent";
+  label: React.ReactNode;
+  sublabel?: React.ReactNode;
+  className?: string;
+}) {
+  const r = 44;
+  const c = Math.PI * r; // half circumference
+  const pct = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
+  const stroke = tone === "accent" ? "var(--ops-accent)" : `var(--ops-${tone}-dot)`;
+  return (
+    <div className={cn("relative mx-auto w-full max-w-[220px]", className)}>
+      <svg viewBox="0 0 100 56" className="w-full" aria-hidden>
+        <path d="M6,52 A44,44 0 0 1 94,52" fill="none" stroke="var(--ops-active)" strokeWidth="7" strokeLinecap="round" />
+        {pct > 0 && (
+          <path
+            d="M6,52 A44,44 0 0 1 94,52"
+            fill="none"
+            stroke={stroke}
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeDasharray={`${c * pct} ${c}`}
+          />
+        )}
+      </svg>
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
+        <span className="ops-figure text-[24px] font-medium leading-none text-ops-text">{label}</span>
+        {sublabel && <span className="mt-1 text-[11px] text-ops-text-secondary">{sublabel}</span>}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A stage of a funnel: a run of thin pills, the first `filled` lit.
+ * Reads as a count of discrete units, which is what "1 of 18" is.
+ */
+export function SegmentedMeter({
+  value,
+  max,
+  segments = 12,
+  tone = "ok",
+  className,
+}: {
+  value: number;
+  max: number;
+  segments?: number;
+  tone?: StatusTone | "accent";
+  className?: string;
+}) {
+  const lit = max > 0 ? Math.round((value / max) * segments) : 0;
+  const on = tone === "accent" ? "bg-ops-accent" : TONE_DOT[tone];
+  return (
+    <div className={cn("flex h-2 items-stretch gap-1", className)} aria-hidden>
+      {Array.from({ length: segments }, (_, i) => (
+        <span key={i} className={cn("w-1 rounded-full", i < lit ? on : "bg-ops-active")} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Part-to-whole as one bar, 2px surface gaps between segments, rounded ends.
+ * Colour follows the entity: each segment's slot is fixed by the caller, never
+ * by its size or rank. Six or fewer segments; fold the tail into "Other".
+ */
+export function CompositionBar({
+  segments,
+  className,
+}: {
+  segments: Array<{ id: string; value: number; color: string; label: string }>;
+  className?: string;
+}) {
+  const total = segments.reduce((n, s) => n + s.value, 0) || 1;
+  return (
+    <div className={cn("flex h-2 w-full gap-1 overflow-hidden", className)} role="img" aria-label={segments.map((s) => `${s.label} ${Math.round((s.value / total) * 100)}%`).join(", ")}>
+      {segments
+        .filter((s) => s.value > 0)
+        .map((s) => (
+          <span
+            key={s.id}
+            className="h-full min-w-1 rounded-full"
+            style={{ width: `${(s.value / total) * 100}%`, background: s.color }}
+            title={`${s.label} · ${Math.round((s.value / total) * 100)}%`}
+          />
+        ))}
+    </div>
+  );
+}

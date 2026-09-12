@@ -84,7 +84,7 @@ body {
   /* ---- Surfaces --------------------------------------------------------
      Warm neutral ramp, near-zero chroma. Warm rather than cool because the
      brand is orange: a cool grey under an orange accent reads cheap. */
-  --ops-canvas: #ededee;
+  --ops-canvas: #efeff0;
   --ops-surface: #ffffff;
   --ops-sunken: #f8f8f9;
   --ops-raised: #ffffff;
@@ -180,6 +180,15 @@ body {
   --ops-series-neg: #c82816;
   --ops-grid: #ebebed;
 
+  /* Categorical, for part-to-whole by company. Fixed slot order — colour
+     follows the entity, never its size — and validated as a set: lightness
+     band, chroma floor, adjacent-pair CVD ΔE ≥ 15, normal-vision ΔE ≥ 18,
+     3:1 on the surface. Own costs ("Global") take the idle grey as "Other". */
+  --ops-cat-1: #b0480a;
+  --ops-cat-2: #2563eb;
+  --ops-cat-3: #0d9488;
+  --ops-cat-4: #7c3aed;
+
   --ops-shadow-pop: 0 1px 2px rgba(26, 25, 23, 0.06),
     0 8px 24px -6px rgba(26, 25, 23, 0.12);
   --ops-shadow-drawer: -12px 0 40px -12px rgba(26, 25, 23, 0.18);
@@ -245,10 +254,18 @@ body {
   --ops-focal-muted: #b3b3ba;
   --ops-focal-line: #45454c;
 
-  --ops-series-a: #fa8138;
+  /* Chart marks are not buttons: the dark accent (#fa8138) is bright enough
+     for a label but too light for a bar — L 0.73 against a 0.48–0.67 band —
+     so the series steps down to a value the palette validator passes. */
+  --ops-series-a: #e26520;
   --ops-series-b: #79a5f6;
   --ops-series-neg: #f97a6c;
   --ops-grid: #232327;
+
+  --ops-cat-1: #e26520;
+  --ops-cat-2: #4f8ff7;
+  --ops-cat-3: #14a08f;
+  --ops-cat-4: #a56ff0;
 
   --ops-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4),
     0 8px 24px -6px rgba(0, 0, 0, 0.55);
@@ -301,6 +318,10 @@ body {
   --color-ops-series-b: var(--ops-series-b);
   --color-ops-series-neg: var(--ops-series-neg);
   --color-ops-grid: var(--ops-grid);
+  --color-ops-cat-1: var(--ops-cat-1);
+  --color-ops-cat-2: var(--ops-cat-2);
+  --color-ops-cat-3: var(--ops-cat-3);
+  --color-ops-cat-4: var(--ops-cat-4);
   --color-ops-focal-bg: var(--ops-focal-bg);
   --color-ops-focal-fg: var(--ops-focal-fg);
   --color-ops-focal-muted: var(--ops-focal-muted);
@@ -438,12 +459,13 @@ body {
 }
 
 /* Micro label: section headers, column groups, table captions. */
+/* Column headers and micro labels. Sentence case, sans, grey — the reference
+   sets every label in the UI face and reserves the mono for numerals, which
+   is what keeps its figures legible at a glance: the numbers are the only
+   thing in the mono, so the numbers are what you see. */
 .ops-eyebrow {
-  font-family: var(--ops-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--ops-text-tertiary);
 }
 
