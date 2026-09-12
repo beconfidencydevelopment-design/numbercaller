@@ -499,7 +499,7 @@ export function ShipmentsView({ initialView = "attention" }: { initialView?: Vie
       {/* ================= Bulk action bar ================= */}
       {selected.size > 0 && (
         <div className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex justify-center px-3">
-          <div className="pointer-events-auto flex items-center gap-1.5 rounded-lg border border-ops-line bg-ops-raised px-2 py-1.5 shadow-ops-pop">
+          <div className="pointer-events-auto flex items-center gap-1.5 rounded-[var(--ops-r-card)] border border-ops-line bg-ops-raised px-2 py-1.5 shadow-ops-pop">
             <span className="ops-num px-1 text-[12px] font-semibold text-ops-text">{selected.size}</span>
             <span className="text-[12px] text-ops-text-secondary">selected</span>
             <span className="mx-1 h-4 w-px bg-ops-line" />

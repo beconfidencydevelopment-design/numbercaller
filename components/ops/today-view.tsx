@@ -194,7 +194,7 @@ function AttentionGroup({
   const shown = rows.slice(0, 5);
 
   return (
-    <section className="overflow-hidden rounded-lg border border-ops-line bg-ops-surface">
+    <section className="ops-card">
       <div className="flex h-9 items-center gap-2 border-b border-ops-line bg-ops-sunken px-3">
         <SectionTitle title={title} count={rows.length} hint={hint} />
         <Link
@@ -298,7 +298,7 @@ export function TodayView() {
             />
 
             {buckets.breached.length + buckets.atRisk.length + buckets.exceptions.length + buckets.unassigned.length === 0 && (
-              <div className="rounded-lg border border-ops-line bg-ops-surface px-6 py-16 text-center">
+              <div className="ops-card px-6 py-16 text-center">
                 <div className="text-[13px] font-medium text-ops-text">Nothing needs attention</div>
                 <p className="mt-1 text-[12px] text-ops-text-secondary">
                   Every active shipment is on track and assigned.
@@ -309,7 +309,7 @@ export function TodayView() {
 
           {/* Right rail */}
           <div className="flex w-full shrink-0 flex-col gap-3 xl:w-[320px]">
-            <section className="overflow-hidden rounded-lg border border-ops-line bg-ops-surface">
+            <section className="ops-card">
               <div className="flex h-9 items-center border-b border-ops-line bg-ops-sunken px-3">
                 <SectionTitle title="Drivers" count={DRIVERS.length} />
               </div>
@@ -349,7 +349,7 @@ export function TodayView() {
               })}
             </section>
 
-            <section className="overflow-hidden rounded-lg border border-ops-line bg-ops-surface">
+            <section className="ops-card">
               <div className="flex h-9 items-center border-b border-ops-line bg-ops-sunken px-3">
                 <SectionTitle title="Activity" hint="live" />
               </div>

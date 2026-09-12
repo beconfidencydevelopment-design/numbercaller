@@ -7,6 +7,7 @@ import {
   Bell,
   ChartNoAxesColumn,
   CircleAlert,
+  Gauge,
   LayoutDashboard,
   Moon,
   Package,
@@ -41,6 +42,9 @@ type NavItem = {
 };
 
 const PRIMARY: NavItem[] = [
+  // Two audiences, two entry points: Overview is the manager's weekly read,
+  // Today is the dispatcher's shift board and stays the default route.
+  { href: "/ops/overview", label: "Overview", icon: Gauge },
   { href: "/ops", label: "Today", icon: LayoutDashboard, count: attentionCount, alarming: true },
   { href: "/ops/shipments", label: "Shipments", icon: Package, count: activeCount },
   { href: "/ops/exceptions", label: "Exceptions", icon: CircleAlert, count: exceptionCount, alarming: true },

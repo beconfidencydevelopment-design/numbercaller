@@ -84,10 +84,10 @@ body {
   --ops-text-inverse: #ffffff;
 
   /* The single accent. Selection, focus, primary action. Nothing else. */
-  --ops-accent: #2f56e6;
-  --ops-accent-hover: #2848c9;
-  --ops-accent-weak: #eef2fe;
-  --ops-accent-line: #c5d2fb;
+  --ops-accent: #5b3ee6;
+  --ops-accent-hover: #4f32d6;
+  --ops-accent-weak: #f1eeff;
+  --ops-accent-line: #d7ccfb;
 
   /* Status semantics — the only saturated colour in the product */
   --ops-ok-fg: #0d6b45;
@@ -118,6 +118,19 @@ body {
   --ops-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
+  /* Shape. Larger radii and softer edges are most of what reads as
+     "premium" in the references the client picked; density is unaffected. */
+  --ops-r-card: 14px;
+  --ops-r-inner: 10px;
+  --ops-r-control: 8px;
+
+  /* Chart series. Validated as a categorical pair (CVD ΔE 29.7, normal 35.3).
+     Volume rides the brand hue; failures keep the reserved status red so the
+     meaning of red is identical in a chart and in a table row. */
+  --ops-series-volume: #5b3ee6;
+  --ops-series-fail: #d1362a;
+  --ops-grid: #ececf1;
+
   /* Elevation. Restrained: ops surfaces sit flat, only overlays lift. */
   --ops-shadow-pop: 0 1px 2px rgba(16, 19, 25, 0.06),
     0 8px 24px -6px rgba(16, 19, 25, 0.12);
@@ -140,10 +153,10 @@ body {
   --ops-text-tertiary: #6f7686;
   --ops-text-inverse: #0c0e12;
 
-  --ops-accent: #5b7cff;
-  --ops-accent-hover: #7590ff;
-  --ops-accent-weak: #182034;
-  --ops-accent-line: #2c3a5e;
+  --ops-accent: #9b86ff;
+  --ops-accent-hover: #b3a3ff;
+  --ops-accent-weak: #1d1832;
+  --ops-accent-line: #382e63;
 
   --ops-ok-fg: #4dd39a;
   --ops-ok-bg: #10241c;
@@ -169,6 +182,10 @@ body {
   --ops-idle-bg: #1b1f27;
   --ops-idle-line: #2c313b;
   --ops-idle-dot: #6f7686;
+
+  --ops-series-volume: #9b86ff;
+  --ops-series-fail: #e75647;
+  --ops-grid: #23272f;
 
   --ops-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4),
     0 8px 24px -6px rgba(0, 0, 0, 0.55);
@@ -213,6 +230,13 @@ body {
   --color-ops-idle-bg: var(--ops-idle-bg);
   --color-ops-idle-line: var(--ops-idle-line);
   --color-ops-idle-dot: var(--ops-idle-dot);
+  --color-ops-series-volume: var(--ops-series-volume);
+  --color-ops-series-fail: var(--ops-series-fail);
+  --color-ops-grid: var(--ops-grid);
+
+  --radius-card: var(--ops-r-card);
+  --radius-inner: var(--ops-r-inner);
+  --radius-control: var(--ops-r-control);
 
   --font-mono: var(--ops-mono);
   --shadow-ops-pop: var(--ops-shadow-pop);
@@ -242,8 +266,30 @@ body {
   border-radius: 4px;
 }
 
+/* One card treatment for the whole console. Hairline plus a barely-there
+   lift — enough to separate from the canvas without the heavy drop shadows
+   that make a dense screen feel cluttered. */
+.ops-card {
+  background: var(--ops-surface);
+  border: 1px solid var(--ops-line);
+  border-radius: var(--ops-r-card);
+  box-shadow: 0 1px 2px rgba(16, 19, 25, 0.04);
+  overflow: hidden;
+}
+
+.dark .ops-card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 .ops-num {
   font-variant-numeric: tabular-nums;
+}
+
+/* Hero and stat values use proportional figures: tabular digits make a large
+   standalone number look loosely spaced. Tabular stays on aligned columns. */
+.ops-figure {
+  font-variant-numeric: proportional-nums;
+  letter-spacing: -0.02em;
 }
 
 .ops-mono {

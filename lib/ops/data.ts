@@ -278,3 +278,90 @@ export const RANKED: RankedShipment[] = SHIPMENTS.map((s) => rank(s)).sort((a, b
 export function driverById(id: string | null): Driver | undefined {
   return id ? DRIVERS.find((d) => d.id === id) : undefined;
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* Daily series for the manager Overview                                       */
+/* -------------------------------------------------------------------------- */
+
+export interface DayPoint {
+  /** Midnight UTC for the day. */
+  at: number;
+  /** Work arriving. Plotted against `delivered` because the gap between the
+      two is the backlog — the number that predicts tomorrow's problems. */
+  booked: number;
+  delivered: number;
+  failed: number;
+  /** Percentage delivered inside the promise window. */
+  onTime: number;
+}
+
+const DAY = 24 * 60 * MIN;
+
+/** 90 days of deterministic history, oldest first. */
+export const DAILY: DayPoint[] = (() => {
+  const rand = seeded(778812);
+  const out: DayPoint[] = [];
+  for (let i = 89; i >= 0; i--) {
+    const at = NOW - i * DAY;
+    const weekday = new Date(at).getUTCDay();
+    // Saturdays are the peak for a courier; Sundays are quiet.
+    const seasonal = weekday === 6 ? 1.35 : weekday === 0 ? 0.45 : 1;
+    // Gentle growth across the quarter so the trend reads as a business.
+    const growth = 1 + (89 - i) / 240;
+    const delivered = Math.round((180 + rand() * 60) * seasonal * growth);
+    const booked = Math.round(delivered * (0.94 + rand() * 0.22));
+    const failed = Math.round(delivered * (0.03 + rand() * 0.05));
+    out.push({
+      at,
+      booked,
+      delivered,
+      failed,
+      onTime: Math.round((100 - (failed / delivered) * 100 - rand() * 6) * 10) / 10,
+    });
+  }
+  return out;
+})();
+
+const sumDelivered = DAILY.reduce((n, d) => n + d.delivered, 0);
+
+/**
+ * Exception reasons ranked by volume.
+ *
+ * Weighted from real last-mile failure patterns rather than sampled from the
+ * 68-parcel live board — a board that size ranks "damaged in transit" first,
+ * which no courier would recognise. Access and absence dominate in reality.
+ */
+export const EXCEPTION_BREAKDOWN = (() => {
+  const WEIGHTS: Record<ExceptionReason, number> = {
+    customer_absent: 268,
+    no_access: 196,
+    address_not_found: 141,
+    refused: 88,
+    held_at_hub: 74,
+    driver_offline: 43,
+    vehicle_issue: 29,
+    damaged: 21,
+  };
+  const rows = EXCEPTIONS.map((reason) => ({ reason, count: WEIGHTS[reason] })).sort((a, b) => b.count - a.count);
+  const total = rows.reduce((n, r) => n + r.count, 0);
+  return rows.map((r) => ({ ...r, share: Math.round((r.count / total) * 1000) / 10 }));
+})();
+
+/**
+ * On-time rate per service level against the contractual target.
+ *
+ * Derived from the quarter, not from today's board: with only a handful of
+ * completed parcels per service the live figure lands on 50% or 100% and
+ * reads as broken data rather than as performance.
+ */
+export const SERVICE_PERFORMANCE = (["same_day", "next_day", "economy", "freight"] as const).map(
+  (service, i) => {
+    const target = [98, 95, 90, 92][i];
+    const rand = seeded(9100 + i * 37);
+    rand();
+    const actual = Math.round((target - 3.6 + rand() * 7) * 10) / 10;
+    const share = [0.22, 0.41, 0.28, 0.09][i];
+    return { service, target, actual, volume: Math.round(sumDelivered * share) };
+  },
+);
