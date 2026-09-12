@@ -4,19 +4,22 @@ import * as React from "react";
 import {
   IconClose,
   IconDownload,
-  IconDriverPay,
-  IconFuel,
-  IconInsurance,
-  IconMaintenance,
-  IconOther,
   IconPlus,
   IconSearch,
-  IconVehicle,
-  type IconProps,
 } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
-import { Avatar, Button, Card, CompanyTag, EmptyState, Money, RowAction, StatusPill } from "./primitives";
+import {
+  Avatar,
+  Button,
+  Card,
+  CategoryTag,
+  CompanyTag,
+  EmptyState,
+  Money,
+  RowAction,
+  StatusPill,
+} from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
 import {
   CATEGORY_LABEL,
@@ -34,38 +37,6 @@ import { formatWeekday, initialsOf, money } from "@/lib/ops/format";
 type StatusFilter = "all" | "settled" | "outstanding";
 
 const CATEGORIES = Object.keys(CATEGORY_LABEL) as ExpenseCategory[];
-
-/**
- * A glyph per category.
- *
- * Eighteen of the twenty-three rows in the open period are Driver Pay, so the
- * category column was eighteen identical strings — a column that cost width
- * and returned nothing. A mark in front of the label lets the five rows that
- * are *not* driver pay be found by shape in one pass down the table.
- *
- * Shape rather than colour, deliberately. The categorical palette already
- * belongs to the companies on this page; a second hue axis in the same row
- * would mean two different things at once. Outlines also survive greyscale
- * and every form of colour blindness, which tinted chips do not.
- */
-const CATEGORY_ICON: Record<ExpenseCategory, (p: IconProps) => React.ReactElement> = {
-  driver_pay: IconDriverPay,
-  vehicle_rent: IconVehicle,
-  fuel: IconFuel,
-  maintenance: IconMaintenance,
-  insurance: IconInsurance,
-  other: IconOther,
-};
-
-function CategoryTag({ category }: { category: ExpenseCategory }) {
-  const Glyph = CATEGORY_ICON[category];
-  return (
-    <span className="inline-flex items-center gap-2 text-ops-text-secondary">
-      <Glyph className="size-4 shrink-0 text-ops-text-tertiary" size={16} />
-      {CATEGORY_LABEL[category]}
-    </span>
-  );
-}
 
 /**
  * A day header inside the ledger.

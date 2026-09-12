@@ -17,6 +17,8 @@ import {
   Button,
   Card,
   CardHeader,
+  CategoryTag,
+  CompanyTag,
   EmptyState,
   FillRow,
   Money,
@@ -96,15 +98,19 @@ function Overview() {
           right of the divider is cash. The split is stated, because the two
           bases give different answers and the live build shows them side by
           side with no label. */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      {/* Four tiles, not five.
+          Syed 35% and Kiani 65% are two slices of the Distributed tile
+          immediately before them, so the row stated the same money three
+          times — and five tiles orphan at every width below xl: two rows of
+          two and a fifth alone beside a hole. The split is one tile now and
+          the grid divides cleanly at 2 and at 4. */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           { label: "Revenue", basis: "finalized", value: REVENUE_TOTAL, tone: "neutral" as const },
           { label: "Expenses", basis: "incurred", value: EXPENSE_TOTAL, tone: "neutral" as const },
           { label: "Distributed", basis: "cash basis", value: CASH_NET, tone: "risk" as const },
-          { label: "Syed 35%", basis: "of distributed", value: shareOf(PARTNERS[0], CASH_NET), tone: "risk" as const },
-          { label: "Kiani 65%", basis: "of distributed", value: shareOf(PARTNERS[1], CASH_NET), tone: "risk" as const },
         ].map((s) => (
-          <div key={s.label} className="rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface p-4">
+          <Card key={s.label} className="p-4">
             <div className="flex items-baseline gap-2">
               <span className="text-body font-medium text-ops-text-secondary">{s.label}</span>
               <span className="text-micro text-ops-text-tertiary">{s.basis}</span>
@@ -117,8 +123,30 @@ function Overview() {
             >
               {money(s.value)}
             </div>
-          </div>
+          </Card>
         ))}
+
+        <Card className="p-4">
+          <div className="flex items-baseline gap-2">
+            <span className="text-body font-medium text-ops-text-secondary">Partner split</span>
+            <span className="text-micro text-ops-text-tertiary">of distributed</span>
+          </div>
+          <dl className="mt-2 flex items-center gap-4">
+            {PARTNERS.map((p) => (
+              <div key={p.id} className="min-w-0 flex-1">
+                <dd className="ops-figure text-figure font-medium leading-none">
+                  <Money value={shareOf(p, CASH_NET)} className="ops-figure" />
+                </dd>
+                <dt className="mt-2 flex items-center gap-2 text-body text-ops-text-tertiary">
+                  <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} />
+                  <span className="truncate">
+                    {p.name} {Math.round(p.share * 100)}%
+                  </span>
+                </dt>
+              </div>
+            ))}
+          </dl>
+        </Card>
       </div>
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-[var(--ops-r-card)] border border-ops-line bg-ops-sunken px-4 py-3">
@@ -202,11 +230,13 @@ function Overview() {
                   <tr key={r.id} className="h-10 hover:bg-ops-hover">
                     <td className="px-4">
                       {r.href ? (
-                        <Link href={r.href} className="font-medium text-ops-text hover:text-ops-accent">
-                          {r.name}
+                        <Link href={r.href} className="text-ops-text hover:text-ops-accent">
+                          <CompanyTag id={r.id} name={r.name} size={24} />
                         </Link>
                       ) : (
-                        <span className="font-medium text-ops-text-secondary">{r.name}</span>
+                        <span className="text-ops-text-secondary">
+                          <CompanyTag id={r.id} name={r.name} size={24} />
+                        </span>
                       )}
                     </td>
                     <td className="px-3 text-right">
@@ -272,15 +302,21 @@ function Overview() {
                 <th className="ops-eyebrow px-3 py-2 font-medium">Category</th>
                 <th className="ops-eyebrow px-3 py-2 text-right font-medium">Amount</th>
                 <th className="ops-eyebrow px-3 py-2 font-medium">Next</th>
-                <th className="ops-eyebrow px-4 py-2 text-right font-medium">Actions</th>
+                <th className="px-4 py-2">
+                      <span className="sr-only">Actions</span>
+                    </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ops-line">
               {RECURRING.map((r) => (
                 <tr key={r.id} className="h-10 hover:bg-ops-hover">
                   <td className="px-4 font-medium text-ops-text">{r.description}</td>
-                  <td className="px-3 text-body text-ops-text-secondary">{companyName(r.companyId)}</td>
-                  <td className="px-3 text-body text-ops-text-secondary">{CATEGORY_LABEL[r.category]}</td>
+                  <td className="px-3 text-ops-text-secondary">
+                    <CompanyTag id={r.companyId} name={companyName(r.companyId)} size={24} />
+                  </td>
+                  <td className="px-3">
+                    <CategoryTag category={r.category} />
+                  </td>
                   <td className="px-3 text-right">
                     <Money value={r.amount} tone={false} className="font-medium text-ops-text" />
                   </td>
@@ -289,8 +325,8 @@ function Overview() {
                   </td>
                   <td className="px-4 text-right">
                     <span className="inline-flex items-center gap-2">
-                      <RowAction>Pause</RowAction>
-                      <RowAction>Edit</RowAction>
+                      <RowAction tone="quiet">Pause</RowAction>
+                      <RowAction tone="quiet">Edit</RowAction>
                     </span>
                   </td>
                 </tr>
@@ -332,7 +368,9 @@ function Revenue() {
               <th className="ops-eyebrow px-3 py-2 font-medium">Company</th>
               <th className="ops-eyebrow px-3 py-2 font-medium">Covers</th>
               <th className="ops-eyebrow px-3 py-2 text-right font-medium">Amount</th>
-              <th className="ops-eyebrow px-4 py-2 text-right font-medium">Actions</th>
+              <th className="px-4 py-2">
+                      <span className="sr-only">Actions</span>
+                    </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ops-line">
@@ -340,8 +378,8 @@ function Revenue() {
               <tr key={r.id} className="h-11 hover:bg-ops-hover">
                 <td className="px-4 font-medium text-ops-text">{formatDate(r.at)}</td>
                 <td className="px-3">
-                  <span className="flex items-center gap-2">
-                    <span className="font-medium text-ops-text">{companyName(r.companyId)}</span>
+                  <span className="flex items-center gap-2 text-ops-text">
+                    <CompanyTag id={r.companyId} name={companyName(r.companyId)} size={24} />
                     <StatusPill tone="warn">Draft</StatusPill>
                   </span>
                 </td>
@@ -352,7 +390,7 @@ function Revenue() {
                 <td className="px-4 text-right">
                   <span className="inline-flex items-center gap-2">
                     <RowAction>Finalize</RowAction>
-                    <RowAction>Edit</RowAction>
+                    <RowAction tone="quiet">Edit</RowAction>
                   </span>
                 </td>
               </tr>
@@ -372,20 +410,37 @@ function Revenue() {
         </table>
       </Card>
 
+      {/* The banner above already explains that nothing counts until it is
+          finalized. This card was repeating that sentence in 280px of white
+          with a third copy of the Finalize button on it, so it states the one
+          thing the banner does not: what the period earned against what it
+          spent. Once something is finalized it becomes a table and earns the
+          room back. */}
       <Card>
         <CardHeader>
-          <Title title={`Finalized revenue · ${PERIOD.long}`} />
+          <Title
+            title={`Finalized revenue · ${PERIOD.long}`}
+            hint={FINALIZED_REVENUE.length === 0 ? undefined : `${FINALIZED_REVENUE.length} entries`}
+          />
         </CardHeader>
         {FINALIZED_REVENUE.length === 0 ? (
-          <EmptyState
-            title="Nothing finalized this period"
-            detail={`Finalizing a draft moves it into revenue and into the partner split. Until then ${PERIOD.label} shows ${money(0)} earned against ${money(EXPENSE_TOTAL)} spent.`}
-            action={
-              <Button variant="primary" size="sm">
-                Finalize {DRAFT_REVENUE.length} drafts
-              </Button>
-            }
-          />
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-2 px-4 py-4">
+            <span className="text-body text-ops-text-secondary">Nothing finalized this period.</span>
+            <dl className="flex items-center gap-x-8">
+              <div className="flex items-baseline gap-2">
+                <dt className="text-body text-ops-text-tertiary">Earned</dt>
+                <dd>
+                  <Money value={0} tone={false} className="text-body font-medium text-ops-text" />
+                </dd>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <dt className="text-body text-ops-text-tertiary">Spent</dt>
+                <dd>
+                  <Money value={EXPENSE_TOTAL} tone={false} className="text-body font-medium text-ops-text" />
+                </dd>
+              </div>
+            </dl>
+          </div>
         ) : null}
       </Card>
     </div>
@@ -411,30 +466,48 @@ function Withdrawals() {
                 <span className="text-body text-ops-text-tertiary">{Math.round(p.share * 100)}% share</span>
               </div>
 
-              <dl className="mt-4 grid grid-cols-3 gap-3">
+              {/* The operators, as the Partner split card on Home draws them.
+                  Cumulative share and Balance are the same figure today only
+                  because neither partner has withdrawn anything, and three
+                  bare columns made that read as the same number printed twice
+                  rather than as the subtraction it is. */}
+              <dl className="mt-4 flex items-center gap-3">
                 {[
-                  { label: "Cumulative share", value: cumulative },
-                  { label: "Withdrawn", value: p.withdrawn },
+                  { label: "Cumulative share", value: cumulative, op: "−" },
+                  { label: "Withdrawn", value: p.withdrawn, op: "=" },
                   { label: "Balance", value: balance },
                 ].map((r) => (
-                  <div key={r.label}>
-                    <dt className="text-body text-ops-text-tertiary">{r.label}</dt>
-                    <dd className="ops-figure mt-1 text-figure font-medium leading-none">
-                      <Money value={r.value} className="ops-figure" />
-                    </dd>
-                  </div>
+                  <React.Fragment key={r.label}>
+                    <div className="min-w-0 flex-1">
+                      <dt className="truncate text-body text-ops-text-tertiary">{r.label}</dt>
+                      <dd className="ops-figure mt-1 text-figure font-medium leading-none">
+                        <Money value={r.value} className="ops-figure" />
+                      </dd>
+                    </div>
+                    {r.op && <span className="ops-num shrink-0 text-figure text-ops-text-tertiary">{r.op}</span>}
+                  </React.Fragment>
                 ))}
               </dl>
 
-              <p className="mt-3 border-t border-ops-line pt-3 text-body text-ops-text-tertiary">
-                {balance < 0
-                  ? `A negative balance is ${p.name}'s share of accumulated losses, not money owed to ${p.name}.`
-                  : `${p.name} can withdraw up to this balance.`}
-              </p>
+              {balance >= 0 && (
+                <p className="mt-3 border-t border-ops-line pt-3 text-body text-ops-text-tertiary">
+                  {p.name} can withdraw up to this balance.
+                </p>
+              )}
             </Card>
           );
         })}
       </div>
+
+      {/* Said once, under both cards. It had been printed inside each card
+          with only the partner's name changed, so the same sentence about
+          what a negative balance means appeared twice on one screen. */}
+      {PARTNERS.some((p) => shareOf(p, CUMULATIVE_DISTRIBUTED) - p.withdrawn < 0) && (
+        <p className="px-1 text-body text-ops-text-tertiary">
+          A negative balance is a partner's share of accumulated losses, not money the business owes
+          them.
+        </p>
+      )}
 
       <Card>
         <CardHeader>
@@ -449,8 +522,9 @@ function Withdrawals() {
           />
         </CardHeader>
         <EmptyState
+          className="py-10"
           title="No withdrawals recorded"
-          detail="Neither partner has taken money out of the business. Record one here when they do, and it comes off the balance above."
+          detail={`Neither partner has taken money out since ${CLOSED_PERIODS[0].label}.`}
         />
       </Card>
     </div>
@@ -569,7 +643,9 @@ function History() {
               <th className="ops-eyebrow px-3 py-2 text-right font-medium">Syed 35%</th>
               <th className="ops-eyebrow px-3 py-2 text-right font-medium">Kiani 65%</th>
               <th className="ops-eyebrow px-3 py-2 font-medium">Closed</th>
-              <th className="ops-eyebrow px-4 py-2 text-right font-medium">Actions</th>
+              <th className="px-4 py-2">
+                      <span className="sr-only">Actions</span>
+                    </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ops-line">
@@ -604,8 +680,8 @@ function History() {
                 </td>
                 <td className="px-4 text-right">
                   <span className="inline-flex items-center gap-2">
-                    <RowAction>Details</RowAction>
-                    <RowAction>Reopen</RowAction>
+                    <RowAction tone="quiet">Details</RowAction>
+                    <RowAction tone="quiet">Reopen</RowAction>
                   </span>
                 </td>
               </tr>

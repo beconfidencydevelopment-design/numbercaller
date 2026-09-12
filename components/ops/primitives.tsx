@@ -1,9 +1,19 @@
 import * as React from "react";
 import Image from "next/image";
+import {
+  IconDriverPay,
+  IconFuel,
+  IconInsurance,
+  IconMaintenance,
+  IconOther,
+  IconVehicle,
+  type IconProps,
+} from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { portraitFor } from "@/lib/ops/people";
-import type { StatusTone } from "@/lib/ops/types";
+import type { ExpenseCategory, StatusTone } from "@/lib/ops/types";
 import { money, monogramOf } from "@/lib/ops/format";
+import { CATEGORY_LABEL } from "@/lib/ops/data";
 import { COMPANY_COLOR } from "@/lib/ops/data";
 
 /**
@@ -499,19 +509,60 @@ export const Button = React.forwardRef<
 export function RowAction({
   children,
   className,
+  /**
+   * Accent is for the action that advances the work; quiet is for the one
+   * beside it. A row that offers Finalize and Edit in the same orange makes
+   * neither of them the point, and a table of three such rows spends six
+   * accents on a screen whose only real decision is the first one.
+   */
+  tone = "accent",
   ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "accent" | "quiet" }) {
   return (
     <button
       type="button"
       {...props}
       className={cn(
-        "inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak px-2 text-micro font-medium text-ops-accent transition-colors hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse",
+        "inline-flex h-7 shrink-0 items-center gap-1 rounded-md border px-2 text-micro font-medium transition-colors",
+        tone === "accent"
+          ? "border-ops-accent-line bg-ops-accent-weak text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
+          : "border-ops-line bg-ops-sunken text-ops-text-secondary hover:border-ops-line-strong hover:text-ops-text",
         className,
       )}
     >
       {children}
     </button>
+  );
+}
+
+/**
+ * A glyph per category.
+ *
+ * Eighteen of the twenty-three rows in the open period are Driver Pay, so a
+ * category column is mostly one string repeated. A mark in front of the label
+ * lets the rows that are *not* driver pay be found by shape in one pass.
+ *
+ * Shape rather than colour, deliberately. The categorical palette already
+ * belongs to the companies on this page; a second hue axis in the same row
+ * would mean two different things at once. Outlines also survive greyscale
+ * and every form of colour blindness, which tinted chips do not.
+ */
+const CATEGORY_ICON: Record<ExpenseCategory, (p: IconProps) => React.ReactElement> = {
+  driver_pay: IconDriverPay,
+  vehicle_rent: IconVehicle,
+  fuel: IconFuel,
+  maintenance: IconMaintenance,
+  insurance: IconInsurance,
+  other: IconOther,
+};
+
+export function CategoryTag({ category }: { category: ExpenseCategory }) {
+  const Glyph = CATEGORY_ICON[category];
+  return (
+    <span className="inline-flex items-center gap-2 text-ops-text-secondary">
+      <Glyph className="size-4 shrink-0 text-ops-text-tertiary" size={16} />
+      {CATEGORY_LABEL[category]}
+    </span>
   );
 }
 
