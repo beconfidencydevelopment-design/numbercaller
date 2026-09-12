@@ -9,8 +9,24 @@ import { Button } from "./primitives";
 /* The dialog shell                                                            */
 /* -------------------------------------------------------------------------- */
 
-const FOCUSABLE =
-  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+/**
+ * `:not([tabindex="-1"])` on every branch, not just the last one.
+ *
+ * A roving radiogroup marks its unselected options `tabindex="-1"`; without
+ * the guard, `button:not([disabled])` still matched them, so the dialog
+ * opened with focus on an option nobody had chosen and the Tab cycle walked
+ * through options the keyboard is supposed to reach with the arrow keys.
+ */
+const FOCUSABLE = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]",
+]
+  .map((sel) => `${sel}:not([tabindex="-1"])`)
+  .join(",");
 
 /**
  * One dialog for all four forms.
@@ -210,6 +226,63 @@ export function MoneyField({
         </span>
       )}
     </Field>
+  );
+}
+
+/**
+ * The one-or-all switch.
+ *
+ * A radiogroup where every option is tabbable puts focus on an option nobody
+ * chose: open the bulk dialog and the accent ring lands on "One entry" while
+ * "All 2 drafts" is the one that is selected. Only the checked option is
+ * tabbable, and the arrow keys move between them, which is what a radio group
+ * is supposed to do and what a row of plain buttons never does.
+ */
+export function ScopeToggle<T extends string | boolean>({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: Array<{ id: T; label: string }>;
+}) {
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+    if (step === 0) return;
+    e.preventDefault();
+    const i = options.findIndex((o) => o.id === value);
+    const next = options[(i + step + options.length) % options.length];
+    onChange(next.id);
+    (e.currentTarget.querySelectorAll<HTMLElement>("[role=radio]")[options.indexOf(next)])?.focus();
+  };
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={label}
+      onKeyDown={onKeyDown}
+      className="flex h-9 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1"
+    >
+      {options.map((o) => (
+        <button
+          key={String(o.id)}
+          type="button"
+          role="radio"
+          aria-checked={value === o.id}
+          tabIndex={value === o.id ? 0 : -1}
+          onClick={() => onChange(o.id)}
+          className={cn(
+            "h-7 flex-1 rounded-[6px] px-3 text-body font-medium transition-colors",
+            value === o.id ? "bg-ops-active text-ops-text" : "text-ops-text-secondary hover:text-ops-text",
+          )}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

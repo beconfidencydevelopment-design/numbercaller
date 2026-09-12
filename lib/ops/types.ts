@@ -164,4 +164,10 @@ export interface ChecklistItem {
   done: boolean;
   actionLabel: string;
   href: string;
+  /**
+   * Steps whose action is a dialog rather than a destination. Sending someone
+   * to the Revenue tab to press Finalize is two clicks and a lost place in
+   * the checklist; the dialog does it where they are.
+   */
+  modal?: "finalize-revenue" | "settle-driver";
 }

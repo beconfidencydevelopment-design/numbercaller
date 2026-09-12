@@ -344,15 +344,22 @@ function Overview() {
 /* -------------------------------------------------------------------------- */
 
 function Revenue() {
+  const openModal = useOpsModal();
   return (
     <div className="flex flex-col gap-4">
       {DRAFT_REVENUE.length > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-[var(--ops-r-card)] border border-ops-warn-line bg-ops-warn-bg px-4 py-3">
           <span className="size-1.5 shrink-0 rounded-full bg-ops-warn-dot" aria-hidden />
+          {/* It used to say finalizing was what moved the cash position and
+              the partner split. It is not: September distributes on a cash
+              basis, so those move when a client pays. Finalizing moves the
+              revenue figure and nothing else, which is the distinction the
+              whole of this console is built on. */}
           <p className="min-w-0 flex-1 text-body text-ops-warn-fg">
             <strong className="font-medium">{money(DRAFT_REVENUE_TOTAL)}</strong> across{" "}
-            {DRAFT_REVENUE.length} draft payments. Nothing counts toward revenue, cash position or the
-            partner split until it is finalized, which is why the period reads {money(REVENUE_TOTAL)}.
+            {DRAFT_REVENUE.length} draft payments. Nothing counts toward revenue until it is
+            finalized, which is why the period reads {money(REVENUE_TOTAL)}. Cash and the partner
+            split move separately, when the client pays.
           </p>
         </div>
       )}
@@ -389,7 +396,9 @@ function Revenue() {
                 </td>
                 <td className="px-4 text-right">
                   <span className="inline-flex items-center gap-2">
-                    <RowAction>Finalize</RowAction>
+                    <RowAction onClick={() => openModal({ kind: "finalize-revenue", revenueId: r.id })}>
+                      Finalize
+                    </RowAction>
                     <RowAction tone="quiet">Edit</RowAction>
                   </span>
                 </td>
@@ -537,6 +546,7 @@ function Withdrawals() {
 /* -------------------------------------------------------------------------- */
 
 function ClosePeriod() {
+  const openModal = useOpsModal();
   const remaining = CHECKLIST.filter((c) => !c.done).length;
 
   return (
@@ -569,13 +579,23 @@ function ClosePeriod() {
               {item.amount !== undefined && (
                 <Money value={item.amount} tone={false} className="shrink-0 text-body font-medium text-ops-text" />
               )}
-              <Link
-                href={item.href}
-                className="inline-flex h-6 w-[70px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak text-micro font-medium text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
-              >
-                {item.actionLabel}
-                <IconArrowRight className="size-3" />
-              </Link>
+              {item.modal ? (
+                <RowAction
+                  className="h-6 w-[70px] justify-center"
+                  onClick={() => openModal({ kind: item.modal!, all: true })}
+                >
+                  {item.actionLabel}
+                  <IconArrowRight className="size-3" />
+                </RowAction>
+              ) : (
+                <Link
+                  href={item.href}
+                  className="inline-flex h-6 w-[70px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak text-micro font-medium text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
+                >
+                  {item.actionLabel}
+                  <IconArrowRight className="size-3" />
+                </Link>
+              )}
             </li>
           ))}
         </ol>

@@ -556,6 +556,7 @@ export const CHECKLIST: ChecklistItem[] = [
     done: false,
     actionLabel: "Finalize",
     href: "/ops/financials?tab=revenue",
+    modal: "finalize-revenue",
   },
   {
     id: "c3",
@@ -565,6 +566,7 @@ export const CHECKLIST: ChecklistItem[] = [
     done: false,
     actionLabel: "Settle",
     href: "/ops/drivers",
+    modal: "settle-driver",
   },
   {
     id: "c4",

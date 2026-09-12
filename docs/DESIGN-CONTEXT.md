@@ -420,11 +420,19 @@ looking, not by reading code: a "Drivers paid" tile counting drivers nobody had
 paid, two headline cards showing the same figure, a dormant client flagged as a
 bad debt. Data that is technically correct but implausible is still a bug.
 
+**Finalizing revenue does not move cash, and does not move the partner
+split.** September distributes on a *cash* basis (`PERIODS[2].basis`), so both
+change when a client actually pays, which is Record payment on a different
+page. The Revenue tab's banner used to claim finalizing moved all three; it
+was corrected, and the Finalize dialog now states it at the moment the button
+is under the cursor. This is the two-bases rule at its sharpest — get it wrong
+and the owner believes finalizing an invoice is the same as being paid.
+
 ## Open threads
 
 1. **The two decisions above** — the duplicate headline card, and August's
    distributed figure.
-2. **What the modals do on submit.** All four are built, validated and
+2. **What the modals do on submit.** All five are built, validated and
    keyboard-complete (`components/ops/modal.tsx` for the shell,
    `ops-modals.tsx` for the forms). They hand a typed payload to a submit
    handler and then confirm, in the ledger's own figures, exactly where the
@@ -433,10 +441,10 @@ bad debt. Data that is technically correct but implausible is still a bug.
    that one figure reconciles across five screens and a live mutation would
    quietly break that. Wiring them to a real store is one function per form;
    the reconciliation gate has to be re-thought first.
-3. **Other buttons that do not open anything yet:** Finalize and Edit on
-   draft revenue, Pause and Edit on auto-recurring entries, Details and Reopen
-   on closed periods, Pay on the unpaid bill, Export, Add driver, Add company.
-   None were in the four; say whether any of them matter for the next round.
+3. **Other buttons that do not open anything yet:** Edit on draft revenue,
+   Pause and Edit on auto-recurring entries, Details and Reopen on closed
+   periods, Pay on the unpaid bill, Export, Add driver, Add company. Say
+   whether any of them matter for the next round.
 4. **Not yet built:** real data layer, auth, export, the mobile breakpoint
    below 900px (the frame goes full-bleed but the tables have not been designed
    for a phone — do not simply let them scroll).

@@ -3,11 +3,14 @@
 import * as React from "react";
 import { IconCheck, IconPlus } from "@/components/icons";
 import { Avatar, Button, CompanyTag, StatusPill } from "./primitives";
-import { Effect, Field, FieldRow, Modal, ModalFooter, MoneyField } from "./modal";
+import { Effect, Field, FieldRow, Modal, ModalFooter, MoneyField, ScopeToggle } from "./modal";
 import {
+  CASH_NET,
   CASH_RECEIVED,
   CATEGORY_LABEL,
   CLOSED_PERIODS,
+  DRAFT_REVENUE,
+  DRAFT_REVENUE_TOTAL,
   COMPANIES,
   CUMULATIVE_DISTRIBUTED,
   DRIVERS,
@@ -19,6 +22,7 @@ import {
   NOW,
   PARTNERS,
   PERIOD,
+  REVENUE_TOTAL,
   companyHistory,
   companyName,
   driverById,
@@ -37,7 +41,8 @@ export type ModalRequest =
   | { kind: "log-expense"; companyId?: string }
   | { kind: "record-payment"; companyId?: string }
   | { kind: "settle-driver"; driverId?: string; all?: boolean }
-  | { kind: "record-withdrawal"; partnerId?: string };
+  | { kind: "record-withdrawal"; partnerId?: string }
+  | { kind: "finalize-revenue"; revenueId?: string; all?: boolean };
 
 const ModalContext = React.createContext<(r: ModalRequest) => void>(() => {});
 
@@ -58,6 +63,7 @@ export function OpsModals({ children }: { children: React.ReactNode }) {
       {request?.kind === "record-payment" && <RecordPayment request={request} onClose={close} />}
       {request?.kind === "settle-driver" && <SettleDriver request={request} onClose={close} />}
       {request?.kind === "record-withdrawal" && <RecordWithdrawal request={request} onClose={close} />}
+      {request?.kind === "finalize-revenue" && <FinalizeRevenue request={request} onClose={close} />}
     </ModalContext.Provider>
   );
 }
@@ -120,7 +126,7 @@ function Recorded({
         <Effect rows={rows} />
       </div>
       <p className="mt-4 text-body text-ops-text-tertiary">
-        Demo data is fixed so that every figure reconciles across the console, so this entry is not
+        Demo data is fixed so that every figure reconciles across the console, so nothing here is
         written to the ledger.
       </p>
       <div className="mt-5 flex justify-end gap-2">
@@ -517,25 +523,15 @@ function SettleDriver({
           {/* Settling everyone and settling one person are the same act at
               two scales, so they are one form. Two separate dialogs would
               mean two places to keep the payroll arithmetic correct. */}
-          <div role="radiogroup" aria-label="Scope" className="flex h-9 items-center rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface p-1">
-            {([
-              [false, "One driver"],
-              [true, `All ${unsettled.length} unsettled`],
-            ] as const).map(([id, label]) => (
-              <button
-                key={label}
-                type="button"
-                role="radio"
-                aria-checked={all === id}
-                onClick={() => setAll(id)}
-                className={`h-7 flex-1 rounded-[6px] px-3 text-body font-medium transition-colors ${
-                  all === id ? "bg-ops-active text-ops-text" : "text-ops-text-secondary hover:text-ops-text"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <ScopeToggle
+            label="Scope"
+            value={all}
+            onChange={setAll}
+            options={[
+              { id: false, label: "One driver" },
+              { id: true, label: `All ${unsettled.length} unsettled` },
+            ]}
+          />
 
           {all ? (
             <Effect
@@ -712,6 +708,132 @@ function RecordWithdrawal({
       {!done && (
         <div className="mt-5 flex justify-end gap-2">
           <ModalFooter onClose={onClose} submitLabel="Record withdrawal" form="record-withdrawal" />
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* 5. Finalize revenue                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Finalizing is the one action on this console whose name suggests it does
+ * more than it does.
+ *
+ * It moves a draft into revenue. It does not move a dollar. September
+ * distributes on a cash basis, so the partner split and the cash position
+ * only change when a client actually pays, which is a different form on a
+ * different page — and the Revenue tab's own banner used to claim otherwise.
+ * Saying so here, at the moment the button is under the cursor, is the whole
+ * reason this dialog is worth more than a confirm().
+ */
+function FinalizeRevenue({
+  request,
+  onClose,
+}: {
+  request: Extract<ModalRequest, { kind: "finalize-revenue" }>;
+  onClose: () => void;
+}) {
+  const [done, setDone] = React.useState(false);
+  const [all, setAll] = React.useState(request.all ?? !request.revenueId);
+  const [revenueId, setRevenueId] = React.useState(request.revenueId ?? DRAFT_REVENUE[0]?.id ?? "");
+
+  const entry = DRAFT_REVENUE.find((r) => r.id === revenueId) ?? DRAFT_REVENUE[0];
+  const value = all ? DRAFT_REVENUE_TOTAL : (entry?.amount ?? 0);
+  const count = all ? DRAFT_REVENUE.length : 1;
+  const draftAfter = DRAFT_REVENUE_TOTAL - value;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setDone(true);
+  };
+
+  return (
+    <Modal
+      title={all ? `Finalize ${DRAFT_REVENUE.length} drafts` : "Finalize revenue"}
+      detail={
+        done
+          ? undefined
+          : `Moves ${all ? "both entries" : "the entry"} into ${PERIOD.label} revenue. ${all ? "They do" : "It does"} not move cash.`
+      }
+      onClose={onClose}
+      width="lg"
+    >
+      {done ? (
+        <Recorded
+          title={
+            count === 1
+              ? `${money(value)} finalized for ${companyName(entry.companyId)}.`
+              : `${money(value)} finalized across ${count} entries.`
+          }
+          rows={[
+            { label: `${PERIOD.label} revenue`, value: shift(REVENUE_TOTAL, REVENUE_TOTAL + value), strong: true },
+            { label: "Still in draft", value: shift(DRAFT_REVENUE_TOTAL, draftAfter) },
+            { label: "Cash position", value: `${money(CASH_NET)}, unchanged` },
+          ]}
+          onClose={onClose}
+        />
+      ) : (
+        <form id="finalize-revenue" onSubmit={submit} className="flex flex-col gap-4">
+          {DRAFT_REVENUE.length > 1 && (
+            <ScopeToggle
+              label="Scope"
+              value={all}
+              onChange={setAll}
+              options={[
+                { id: false, label: "One entry" },
+                { id: true, label: `All ${DRAFT_REVENUE.length} drafts` },
+              ]}
+            />
+          )}
+
+          {!all && (
+            <Field label="Draft entry">
+              {(p) => (
+                <select {...p} value={revenueId} onChange={(e) => setRevenueId(e.target.value)}>
+                  {DRAFT_REVENUE.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {companyName(r.companyId)} · {r.coversLabel} · {money(r.amount)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+          )}
+
+          <Effect
+            rows={[
+              all
+                ? { label: "Entries", value: `${DRAFT_REVENUE.length} drafts` }
+                : {
+                    label: "Company",
+                    value: <CompanyTag id={entry.companyId} name={companyName(entry.companyId)} size={24} />,
+                  },
+              ...(all ? [] : [{ label: "Covers", value: entry.coversLabel }]),
+              { label: `${PERIOD.label} revenue`, value: shift(REVENUE_TOTAL, REVENUE_TOTAL + value), strong: true },
+              { label: "Still in draft after this", value: shift(DRAFT_REVENUE_TOTAL, draftAfter) },
+            ]}
+          />
+
+          {/* The sentence this dialog exists for. */}
+          <p className="text-body text-ops-text-secondary">
+            The cash position stays at {money(CASH_NET)} and the partner split does not move.{" "}
+            {PERIOD.label} distributes on a cash basis, so both change when {" "}
+            {all ? "these clients pay" : `${companyName(entry.companyId)} pays`}, not when{" "}
+            {all ? "they are" : "it is"} finalized.
+          </p>
+        </form>
+      )}
+
+      {!done && (
+        <div className="mt-5 flex justify-end gap-2">
+          <ModalFooter
+            onClose={onClose}
+            submitLabel={all ? `Finalize ${money(DRAFT_REVENUE_TOTAL)}` : "Finalize entry"}
+            form="finalize-revenue"
+          />
         </div>
       )}
     </Modal>
