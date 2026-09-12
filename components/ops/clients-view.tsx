@@ -478,8 +478,8 @@ export function ClientsView() {
                       ends in one too. The figures are the column sums it
                       already prints; without them the card ran out halfway and
                       left its own footprint of white. */}
-                  <tfoot>
-                    <tr className="border-t-2 border-ops-line-strong bg-ops-sunken font-medium">
+                  <tfoot className="ops-sticky-foot">
+                    <tr className="font-medium">
                       <td className="px-4 py-3 text-ops-text">
                         {drivers.length} {drivers.length === 1 ? "driver" : "drivers"}
                       </td>

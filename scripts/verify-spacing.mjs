@@ -29,4 +29,25 @@ for (const file of readdirSync(dir).filter((f) => f.endsWith(".tsx"))) {
   });
 }
 console.log(`\nSPACING — ${failures === 0 ? "every value on the scale" : `${failures} off-scale value(s)`}`);
-process.exit(failures ? 1 : 0);
+
+/* --- Cards declare their own direction -------------------------------------
+   `.ops-card` is a column so that every card fills its grid row. A card that
+   wants a horizontal strip has to say `flex-row`; without it the utility sets
+   `display:flex` and silently inherits the column, which is how the Drivers
+   payroll summary turned into a centred stack of numbers in a mostly empty
+   card. The compiler cannot see this one and neither can a screenshot of the
+   page you are not looking at. -------------------------------------------- */
+let direction = 0;
+for (const file of readdirSync(dir).filter((f) => f.endsWith(".tsx"))) {
+  const src = readFileSync(new URL(file, dir), "utf8");
+  for (const m of src.matchAll(/Card className="([^"]*)"/g)) {
+    const cls = m[1];
+    if (/(?<![\w-])flex(?![\w-])/.test(cls) && !/flex-(col|row)/.test(cls)) {
+      direction += 1;
+      console.log(`  FAIL  components/ops/${file}  <Card className="${cls}"> — add flex-row or flex-col`);
+    }
+  }
+}
+console.log(`CARD DIRECTION — ${direction === 0 ? "every flex card states it" : `${direction} card(s) inheriting the column`}`);
+
+process.exit(failures + direction ? 1 : 0);

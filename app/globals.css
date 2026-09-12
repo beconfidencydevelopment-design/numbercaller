@@ -530,6 +530,20 @@ body {
   background: var(--ops-sunken);
 }
 
+/* The total, pinned to the foot of a scrolling table.
+   A card whose rows scroll inside it was hiding its own total below the
+   fold: you had to scroll a list of twelve drivers to find out what the
+   twelve of them come to, while the card beside it printed its total on
+   the same line without being asked. The top border travels with it, so
+   the total never looks like the row it is currently covering. */
+.ops-sticky-foot td {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  background: var(--ops-sunken);
+  border-top: 2px solid var(--ops-line-strong);
+}
+
 .ops-root *::-webkit-scrollbar {
   width: 10px;
   height: 10px;

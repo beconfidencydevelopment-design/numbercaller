@@ -14,6 +14,7 @@ import {
   Button,
   Card,
   CardHeader,
+  CompanyTag,
   Money,
   SectionTitle,
   ShareBar,
@@ -125,6 +126,20 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
           </dd>
         </div>
       </dl>
+
+      {/* The action sits on the driver it settles.
+          It had been a "Settle one driver" button in the page header, which
+          means picking a name out of a modal list to act on a card you are
+          already looking at, and it left every card ending in a metadata
+          row. `mt-auto` keeps the buttons on one line across the row. */}
+      {!settled && (
+        <div className="mt-auto pt-3">
+          <Button variant="default" size="sm" className="w-full">
+            <IconCheck className="size-3.5" />
+            Settle {money(outstanding)}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -133,10 +148,11 @@ export function DriversView() {
   const [sort, setSort] = React.useState<Sort>("amount_desc");
   const [view, setView] = React.useState<View>("cards");
 
-  const grouped = COMPANIES.map((c) => ({
-    company: c,
-    drivers: sortDrivers(driversFor(c.id), sort),
-  })).filter((g) => g.drivers.length > 0);
+  const byCompany = COMPANIES.map((c) => {
+    const ds = driversFor(c.id);
+    return { company: c, count: ds.length, total: ds.reduce((n, d) => n + outstandingFor(d), 0) };
+  }).filter((g) => g.count > 0);
+  const maxCompany = Math.max(...byCompany.map((g) => g.total), 1);
 
   const flat = sortDrivers(DRIVERS, sort);
   const max = Math.max(...DRIVERS.map(outstandingFor), 1);
@@ -157,7 +173,6 @@ export function DriversView() {
               <IconPlus className="size-3.5" />
               Add driver
             </Button>
-            <Button variant="default">Settle one driver</Button>
             <Button variant="primary">
               <IconCheck className="size-3.5" />
               Settle all · {money(DRIVER_OUTSTANDING_TOTAL)}
@@ -170,38 +185,87 @@ export function DriversView() {
         {/* ------------------------------------------------------------- */}
         {/* Payroll summary                                                */}
         {/* ------------------------------------------------------------- */}
-        <Card className="flex flex-wrap items-center gap-x-8 gap-y-4 px-4 py-4">
-          <div>
-            <div className="text-body font-medium text-ops-text-secondary">Total outstanding</div>
-            <div className="ops-figure mt-2 text-hero font-medium leading-none text-ops-text">
-              {money(DRIVER_OUTSTANDING_TOTAL)}
+        {/* ------------------------------------------------------------- */}
+        {/* Payroll summary                                                */}
+        {/*                                                                */}
+        {/* The strip used to state three facts and leave the rest of a
+            1130px card empty. The per-company split that the roster below
+            was spending a header row on now lives here instead, where it
+            reads as one comparison rather than four captions, and it is the
+            reason the roster can drop its section headers and stop leaving
+            three empty slots every time a company has one driver.          */}
+        {/* ------------------------------------------------------------- */}
+        <Card className="flex-row flex-wrap items-stretch">
+          <div className="flex flex-1 flex-wrap items-center gap-x-8 gap-y-4 px-4 py-4">
+            <div>
+              <div className="text-body font-medium text-ops-text-secondary">Total outstanding</div>
+              <div className="ops-figure mt-2 text-hero font-medium leading-none text-ops-text">
+                {money(DRIVER_OUTSTANDING_TOTAL)}
+              </div>
+            </div>
+
+            <dl className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              {[
+                { label: "Logged this period", value: DRIVER_OUTSTANDING_TOTAL - DRIVER_CARRIED_TOTAL },
+                { label: "Carried from August", value: DRIVER_CARRIED_TOTAL },
+              ].map((r) => (
+                <div key={r.label}>
+                  <dt className="text-body text-ops-text-tertiary">{r.label}</dt>
+                  <dd className="mt-1">
+                    <Money value={r.value} tone={false} className="text-figure font-medium text-ops-text" />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="min-w-[180px] max-w-[280px] flex-1">
+              <div className="flex items-baseline justify-between text-body text-ops-text-tertiary">
+                <span>Settled</span>
+                <span className="ops-num">
+                  {DRIVERS_SETTLED} of {DRIVERS.length}
+                </span>
+              </div>
+              <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-ops-active">
+                <div
+                  className="bg-ops-ok-dot"
+                  style={{ width: `${(DRIVERS_SETTLED / DRIVERS.length) * 100}%` }}
+                />
+              </div>
             </div>
           </div>
 
-          <dl className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            {[
-              { label: "Logged this period", value: DRIVER_OUTSTANDING_TOTAL - DRIVER_CARRIED_TOTAL },
-              { label: "Carried from August", value: DRIVER_CARRIED_TOTAL },
-            ].map((r) => (
-              <div key={r.label}>
-                <dt className="text-body text-ops-text-tertiary">{r.label}</dt>
-                <dd className="mt-1">
-                  <Money value={r.value} tone={false} className="text-figure font-medium text-ops-text" />
-                </dd>
+          {/* Who the payroll is owed on behalf of. Same four companies, same
+              colours and monogram tiles they carry on every other screen. */}
+          <div className="flex min-w-[300px] flex-1 flex-col justify-center gap-3 border-l border-dashed border-ops-line px-4 py-4">
+            {byCompany.map(({ company, total, count }) => (
+              <div key={company.id} className="flex items-center gap-3">
+                <span className="w-[150px] shrink-0">
+                  <CompanyTag id={company.id} name={company.name} size={24} />
+                </span>
+                <span className="shrink-0 text-body text-ops-text-tertiary">
+                  {count} {count === 1 ? "driver" : "drivers"}
+                </span>
+                {/* A zero-length bar beside a $0 says nothing. A company
+                    whose drivers are all paid has a state, not an amount. */}
+                {total > 0 ? (
+                  <>
+                    {/* Only where there is room for a bar to mean anything. At
+                        1024 the row left it about 12px wide, which reads as a
+                        rendering fault rather than a share. */}
+                    <ShareBar value={total} max={maxCompany} className="hidden h-1 min-w-[80px] flex-1 wide:block" />
+                    <Money
+                      value={total}
+                      tone={false}
+                      className="w-20 shrink-0 text-right text-body font-medium text-ops-text"
+                    />
+                  </>
+                ) : (
+                  <span className="flex flex-1 justify-end">
+                    <StatusPill tone="ok">All settled</StatusPill>
+                  </span>
+                )}
               </div>
             ))}
-          </dl>
-
-          <div className="min-w-[180px] max-w-[280px] flex-1">
-            <div className="flex items-baseline justify-between text-body text-ops-text-tertiary">
-              <span>Settled</span>
-              <span className="ops-num">
-                {DRIVERS_SETTLED} of {DRIVERS.length}
-              </span>
-            </div>
-            <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-ops-active">
-              <div className="bg-ops-ok-dot" style={{ width: `${(DRIVERS_SETTLED / DRIVERS.length) * 100}%` }} />
-            </div>
           </div>
         </Card>
 
@@ -251,29 +315,16 @@ export function DriversView() {
         {/* Roster                                                         */}
         {/* ------------------------------------------------------------- */}
         {view === "cards" ? (
-          <div className="flex flex-col gap-5">
-            {grouped.map(({ company, drivers }) => {
-              const total = drivers.reduce((n, d) => n + outstandingFor(d), 0);
-              return (
-                <section key={company.id}>
-                  <div className="mb-2 flex items-baseline gap-2">
-                    <h2 className="text-body font-medium text-ops-text">{company.name}</h2>
-                    <span className="text-body text-ops-text-tertiary">
-                      {drivers.length} {drivers.length === 1 ? "driver" : "drivers"}
-                    </span>
-                    <span className="ml-auto text-body">
-                      <Money value={total} tone={false} className="font-medium text-ops-text" />
-                      <span className="ml-1 text-ops-text-tertiary">outstanding</span>
-                    </span>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {drivers.map((d) => (
-                      <DriverCard key={d.id} driver={d} max={max} />
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
+          /* One grid, not four.
+             Grouping by company put a full-width header before every section,
+             so a company with a single driver printed one card and three empty
+             slots — twice over, for Rona and Napa, which is a third of the
+             page in white. Every card already names its own company and the
+             split lives in the summary above, so the grid can simply run. */
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {flat.map((d) => (
+              <DriverCard key={d.id} driver={d} max={max} />
+            ))}
           </div>
         ) : (
           <Card className="overflow-hidden">
@@ -293,7 +344,13 @@ export function DriversView() {
                     <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Carried</th>
                     <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Settled</th>
                     <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Outstanding</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-medium">Status</th>
+                    {/* The action, not a status. Seventeen of eighteen rows
+                        said "Unsettled", which the Outstanding column beside it
+                        already says with a number. What differs per row is the
+                        one that is done. */}
+                    <th className="border-b border-ops-line px-4 py-2">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ops-line">
@@ -305,7 +362,9 @@ export function DriversView() {
                           <span className="font-medium text-ops-text">{d.name}</span>
                         </span>
                       </td>
-                      <td className="px-3 text-body text-ops-text-secondary">{companyName(d.companyId)}</td>
+                      <td className="px-3 text-ops-text-secondary">
+                        <CompanyTag id={d.companyId} name={companyName(d.companyId)} size={24} />
+                      </td>
                       <td className="ops-num px-3 text-right text-ops-text-secondary">{d.entries}</td>
                       <td className="px-3 text-right">
                         <Money value={d.logged} tone={false} className="text-ops-text-secondary" />
@@ -328,9 +387,18 @@ export function DriversView() {
                         <Money value={outstandingFor(d)} tone={false} className="font-medium text-ops-text" />
                       </td>
                       <td className="px-4 text-right">
-                        <StatusPill tone={isSettled(d) ? "ok" : "idle"}>
-                          {isSettled(d) ? "Settled" : "Unsettled"}
-                        </StatusPill>
+                        {isSettled(d) ? (
+                          <StatusPill tone="ok">Settled</StatusPill>
+                        ) : (
+                          /* Quiet, not accent. Seventeen orange chips down one
+                             column would make the ledger itself unreadable,
+                             and settling is the routine job here, not the
+                             exception. */
+                          <Button variant="quiet" size="sm">
+                            <IconCheck className="size-3.5" />
+                            Settle
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}
