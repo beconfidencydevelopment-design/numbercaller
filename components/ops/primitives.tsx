@@ -55,7 +55,7 @@ export function StatusPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full px-2 py-1 text-[12px] font-medium whitespace-nowrap ring-1 ring-inset",
+        "inline-flex items-center gap-2 rounded-full px-2 py-1 text-micro font-medium whitespace-nowrap ring-1 ring-inset",
         TONE_PILL[tone],
         className,
       )}
@@ -70,7 +70,7 @@ export function Chip({ children, className }: { children: React.ReactNode; class
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-ops-line bg-ops-sunken px-2 py-1 text-[12px] font-medium whitespace-nowrap text-ops-text-secondary",
+        "inline-flex items-center gap-1 rounded-md border border-ops-line bg-ops-sunken px-2 py-1 text-micro font-medium whitespace-nowrap text-ops-text-secondary",
         className,
       )}
     >
@@ -91,7 +91,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold tracking-wide",
+        "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-body font-medium tracking-wide",
         tone === "accent"
           ? "bg-ops-accent-weak text-ops-accent"
           : "bg-ops-active text-ops-text-secondary",
@@ -106,7 +106,7 @@ export function Avatar({
 
 export function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="rounded border border-ops-line bg-ops-sunken px-1 py-1 font-mono text-[11px] leading-4 text-ops-text-tertiary">
+    <kbd className="rounded border border-ops-line bg-ops-sunken px-1 py-1 font-mono text-micro leading-4 text-ops-text-tertiary">
       {children}
     </kbd>
   );
@@ -181,9 +181,9 @@ export function DeltaChip({
   // Flat reads "— 0%", as the client's cards print it; a bare "—0%" looks like a negative.
   const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "— ";
   return (
-    <span className={cn("inline-flex items-baseline gap-2 text-[12px]", className)}>
+    <span className={cn("inline-flex items-baseline gap-2 text-body", className)}>
       {/* Tint only, no ring — the pill should sit on the card, not on top of it. */}
-      <span className={cn("ops-num rounded-[5px] px-2 py-1 text-[12px] font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
+      <span className={cn("ops-num rounded-[5px] px-2 py-1 text-micro font-medium", TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""))}>
         {glyph}{pct}%
       </span>
       {caption && <span className="ops-num text-ops-text-tertiary">{caption}</span>}
@@ -249,13 +249,13 @@ export function SectionTitle({
           <Icon className="size-3.5" />
         </span>
       )}
-      <h2 className="whitespace-nowrap text-[14px] font-semibold tracking-[-0.01em] text-ops-text">{title}</h2>
+      <h2 className="whitespace-nowrap text-body font-medium tracking-[-0.01em] text-ops-text">{title}</h2>
       {count !== undefined && (
-        <span className="ops-num rounded-md bg-ops-active px-2 py-1 text-[12px] font-semibold text-ops-text-secondary">
+        <span className="ops-num rounded-md bg-ops-active px-2 py-1 text-micro font-medium text-ops-text-secondary">
           {count}
         </span>
       )}
-      {hint && <span className="truncate text-[13px] text-ops-text-tertiary">{hint}</span>}
+      {hint && <span className="truncate text-body text-ops-text-tertiary">{hint}</span>}
       {action && <div className="ml-auto shrink-0">{action}</div>}
     </div>
   );
@@ -305,8 +305,8 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center justify-center px-6 py-12 text-center", className)}>
-      <div className="text-[14px] font-medium text-ops-text">{title}</div>
-      {detail && <p className="mt-1 max-w-[42ch] text-[13px] text-ops-text-secondary">{detail}</p>}
+      <div className="text-body font-medium text-ops-text">{title}</div>
+      {detail && <p className="mt-1 max-w-[42ch] text-body text-ops-text-secondary">{detail}</p>}
       {action && <div className="mt-3">{action}</div>}
     </div>
   );
@@ -446,7 +446,7 @@ export const Button = React.forwardRef<
            with. */
         "inline-flex shrink-0 items-center justify-center gap-2 rounded-[var(--ops-r-control)] border font-medium transition-colors",
         "disabled:pointer-events-none disabled:border-ops-line disabled:bg-ops-active disabled:text-ops-text-tertiary",
-        size === "sm" ? "h-8 px-3 text-[13px]" : "h-10 px-4 text-[14px]",
+        size === "sm" ? "h-8 px-3 text-body" : "h-10 px-4 text-body",
         BUTTON[variant],
         className,
       )}
@@ -471,7 +471,7 @@ export function RowAction({
       type="button"
       {...props}
       className={cn(
-        "inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak px-2 text-[12px] font-semibold text-ops-accent transition-colors hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse",
+        "inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak px-2 text-micro font-medium text-ops-accent transition-colors hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse",
         className,
       )}
     >
@@ -492,7 +492,7 @@ export function ArrowGlyph({ dir, good, className }: { dir: "up" | "down" | "fla
   return (
     <span
       className={cn(
-        "inline-grid size-4 shrink-0 place-items-center rounded-full text-[11px] font-semibold leading-none",
+        "inline-grid size-5 shrink-0 place-items-center rounded-full text-micro font-medium leading-none",
         TONE_PILL[tone].replace(/ ring-[^ ]+/g, ""),
         className,
       )}
@@ -550,8 +550,8 @@ export function Gauge({
         )}
       </svg>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-        <span className="ops-figure text-[28px] font-medium leading-none text-ops-text">{label}</span>
-        {sublabel && <span className="mt-1 text-[12px] text-ops-text-secondary">{sublabel}</span>}
+        <span className="ops-figure text-display font-medium leading-none text-ops-text">{label}</span>
+        {sublabel && <span className="mt-1 text-body text-ops-text-secondary">{sublabel}</span>}
       </div>
     </div>
   );
@@ -691,7 +691,7 @@ export function LineChart({
   return (
     <div className={cn("relative flex flex-1 flex-col", className)}>
       <div className="flex flex-1 gap-3">
-        <div className="ops-num flex w-11 shrink-0 flex-col justify-between pb-2 pt-2 text-right text-[11px] leading-none text-ops-text-tertiary">
+        <div className="ops-num flex w-11 shrink-0 flex-col justify-between pb-2 pt-2 text-right text-micro leading-none text-ops-text-tertiary">
           {[...ticks].reverse().map((t) => (
             <span key={t}>{format(t)}</span>
           ))}
@@ -745,7 +745,7 @@ export function LineChart({
           </svg>
           {hover !== null && (
             <div
-              className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-[12px] shadow-ops-pop"
+              className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-body shadow-ops-pop"
               style={{ left: `${(x(hover) / W) * 100}%`, transform: hover > n / 2 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
             >
               <div className="text-ops-text-tertiary">{labels[hover]}</div>
@@ -760,7 +760,7 @@ export function LineChart({
           )}
         </div>
       </div>
-      <div className="mt-2 flex pl-12 text-[12px] text-ops-text-secondary">
+      <div className="mt-2 flex pl-12 text-micro text-ops-text-secondary">
         {labels.map((l, i) => (
           <span key={l} className={cn("flex-1", i === 0 ? "text-left" : i === n - 1 ? "text-right" : "text-center")}>
             <span className={cn("inline-block rounded-[6px] px-2 py-1", i === currentIndex && "bg-ops-active text-ops-text")}>{l}</span>
@@ -798,7 +798,7 @@ export function Funnel({
           const height = 100 - i * (55 / Math.max(1, stages.length - 1)); // 100% → 45%
           return (
             <div key={st.id} className="flex min-w-0 flex-1 flex-col justify-end">
-              <span className="ops-num mb-2 text-[13px] font-medium text-ops-text">{Math.round(pct * 100)}%</span>
+              <span className="ops-num mb-2 text-body font-medium text-ops-text">{Math.round(pct * 100)}%</span>
               <div className="flex h-[120px] items-end gap-1" aria-hidden>
                 {Array.from({ length: segments }, (_, k) => (
                   <span
@@ -815,8 +815,8 @@ export function Funnel({
       <div className="mt-3 flex gap-3">
         {stages.map((st) => (
           <div key={st.id} className="min-w-0 flex-1">
-            <div className="text-[12px] leading-4 text-ops-text-secondary">{st.label}</div>
-            <div className="ops-num text-[13px] font-medium text-ops-text">
+            <div className="text-body leading-4 text-ops-text-secondary">{st.label}</div>
+            <div className="ops-num text-body font-medium text-ops-text">
               {st.done} of {st.total}
             </div>
           </div>
@@ -907,8 +907,8 @@ export function SegmentedGauge({
           })}
       </svg>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-        <span className="ops-figure text-[28px] font-medium leading-none text-ops-text">{label}</span>
-        {sublabel && <span className="mt-2 text-[13px] text-ops-text-secondary">{sublabel}</span>}
+        <span className="ops-figure text-display font-medium leading-none text-ops-text">{label}</span>
+        {sublabel && <span className="mt-2 text-body text-ops-text-secondary">{sublabel}</span>}
       </div>
     </div>
   );

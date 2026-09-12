@@ -128,14 +128,14 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Search entries, drivers, companies"
-            className="h-full w-full bg-transparent text-[14px] text-ops-text outline-none placeholder:text-ops-text-tertiary"
+            className="h-full w-full bg-transparent text-body text-ops-text outline-none placeholder:text-ops-text-tertiary"
           />
           <Kbd>Esc</Kbd>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-2">
           {results.length === 0 && (
-            <p className="px-3 py-8 text-center text-[12px] text-ops-text-secondary">
+            <p className="px-3 py-8 text-center text-body text-ops-text-secondary">
               Nothing matches “{query}”.
             </p>
           )}
@@ -155,8 +155,8 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
                 >
                   <Icon className="size-4 shrink-0 text-ops-text-tertiary" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-medium text-ops-text">{row.label}</span>
-                    <span className="block truncate text-[11px] text-ops-text-tertiary">{row.detail}</span>
+                    <span className="block truncate text-body font-medium text-ops-text">{row.label}</span>
+                    <span className="block truncate text-body text-ops-text-tertiary">{row.detail}</span>
                   </span>
                   {i === safeCursor && <CornerDownLeft className="size-3.5 shrink-0 text-ops-text-tertiary" />}
                 </button>

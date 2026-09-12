@@ -99,12 +99,12 @@ function Overview() {
         ].map((s) => (
           <div key={s.label} className="rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface p-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-[12px] font-medium text-ops-text-secondary">{s.label}</span>
-              <span className="text-[11px] text-ops-text-tertiary">{s.basis}</span>
+              <span className="text-body font-medium text-ops-text-secondary">{s.label}</span>
+              <span className="text-micro text-ops-text-tertiary">{s.basis}</span>
             </div>
             <div
               className={cn(
-                "ops-figure mt-2 text-[24px] font-semibold leading-none",
+                "ops-figure mt-2 text-display font-medium leading-none",
                 s.tone === "risk" && s.value < 0 ? "text-ops-risk-fg" : "text-ops-text",
               )}
             >
@@ -121,14 +121,14 @@ function Overview() {
           { label: "Paid out", value: -CASH_PAID_OUT },
           { label: "Net", value: CASH_NET },
         ].map((r) => (
-          <span key={r.label} className="flex items-baseline gap-2 text-[12px]">
+          <span key={r.label} className="flex items-baseline gap-2 text-body">
             <span className="text-ops-text-secondary">{r.label}</span>
-            <Money value={r.value} className="text-[14px] font-semibold" />
+            <Money value={r.value} className="text-body font-medium" />
           </span>
         ))}
-        <span className="ml-auto text-[12px] text-ops-text-secondary">
+        <span className="ml-auto text-body text-ops-text-secondary">
           Carried forward from {CLOSED_PERIODS[CLOSED_PERIODS.length - 1].label}:{" "}
-          <Money value={CARRIED_FORWARD} className="font-semibold" />
+          <Money value={CARRIED_FORWARD} className="font-medium" />
         </span>
       </div>
 
@@ -148,7 +148,7 @@ function Overview() {
               <li key={o.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2">
-                    <span className="truncate text-[13px] font-medium text-ops-text">{o.label}</span>
+                    <span className="truncate text-body font-medium text-ops-text">{o.label}</span>
                     {o.overdue && <StatusPill tone="risk">Overdue</StatusPill>}
                     {o.carried && !o.overdue && <StatusPill tone="warn">Carried</StatusPill>}
                   </span>
@@ -159,16 +159,16 @@ function Overview() {
                       tone={o.overdue ? "risk" : "accent"}
                       className="max-w-[160px]"
                     />
-                    <span className="shrink-0 text-[11px] text-ops-text-tertiary">{o.detail}</span>
+                    <span className="shrink-0 text-body text-ops-text-tertiary">{o.detail}</span>
                   </span>
                 </span>
-                <Money value={o.amount} tone={false} className="shrink-0 text-[13px] font-semibold text-ops-text" />
+                <Money value={o.amount} tone={false} className="shrink-0 text-body font-medium text-ops-text" />
               </li>
             ))}
           </ul>
           <div className="flex items-center justify-between border-t-2 border-ops-line-strong bg-ops-sunken px-4 py-3">
-            <span className="text-[12px] font-semibold text-ops-text">Total outstanding</span>
-            <Money value={OBLIGATION_TOTAL} tone={false} className="text-[14px] font-semibold text-ops-text" />
+            <span className="text-body font-medium text-ops-text">Total outstanding</span>
+            <Money value={OBLIGATION_TOTAL} tone={false} className="text-body font-medium text-ops-text" />
           </div>
         </Card>
 
@@ -180,14 +180,14 @@ function Overview() {
             <Title title="By company" hint={`${PERIOD.label} · no revenue finalized`} />
           </CardHeader>
           <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
+            <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-ops-line text-left">
-                  <th className="ops-eyebrow px-4 py-2 font-semibold">Company</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Expenses</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Revenue</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Net</th>
-                  <th className="ops-eyebrow px-4 py-2 text-right font-semibold">Last paid</th>
+                  <th className="ops-eyebrow px-4 py-2 font-medium">Company</th>
+                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Expenses</th>
+                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Revenue</th>
+                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Net</th>
+                  <th className="ops-eyebrow px-4 py-2 text-right font-medium">Last paid</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ops-line">
@@ -211,7 +211,7 @@ function Overview() {
                     </td>
                     <td className="px-4 text-right">
                       {r.lastPaymentAt ? (
-                        <span className="text-[12px] text-ops-text-secondary">{formatDate(r.lastPaymentAt)}</span>
+                        <span className="text-body text-ops-text-secondary">{formatDate(r.lastPaymentAt)}</span>
                       ) : r.dormant ? (
                         /* Nothing was spent, so nothing is owed. A red "Never"
                            here reads as a receivable problem that does not
@@ -227,7 +227,7 @@ function Overview() {
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
+                <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-body font-medium">
                   <td className="px-4 py-3 text-ops-text">Total</td>
                   <td className="px-3 py-3 text-right">
                     <Money value={EXPENSE_TOTAL} tone={false} className="text-ops-text" />
@@ -256,27 +256,27 @@ function Overview() {
           />
         </CardHeader>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-[13px]">
+          <table className="w-full min-w-[720px] text-body">
             <thead>
               <tr className="border-b border-ops-line text-left">
-                <th className="ops-eyebrow px-4 py-2 font-semibold">Description</th>
-                <th className="ops-eyebrow px-3 py-2 font-semibold">Company</th>
-                <th className="ops-eyebrow px-3 py-2 font-semibold">Category</th>
-                <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Amount</th>
-                <th className="ops-eyebrow px-3 py-2 font-semibold">Next</th>
-                <th className="ops-eyebrow px-4 py-2 text-right font-semibold">Actions</th>
+                <th className="ops-eyebrow px-4 py-2 font-medium">Description</th>
+                <th className="ops-eyebrow px-3 py-2 font-medium">Company</th>
+                <th className="ops-eyebrow px-3 py-2 font-medium">Category</th>
+                <th className="ops-eyebrow px-3 py-2 text-right font-medium">Amount</th>
+                <th className="ops-eyebrow px-3 py-2 font-medium">Next</th>
+                <th className="ops-eyebrow px-4 py-2 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ops-line">
               {RECURRING.map((r) => (
                 <tr key={r.id} className="h-10 hover:bg-ops-hover">
                   <td className="px-4 font-medium text-ops-text">{r.description}</td>
-                  <td className="px-3 text-[12px] text-ops-text-secondary">{companyName(r.companyId)}</td>
-                  <td className="px-3 text-[12px] text-ops-text-secondary">{CATEGORY_LABEL[r.category]}</td>
+                  <td className="px-3 text-body text-ops-text-secondary">{companyName(r.companyId)}</td>
+                  <td className="px-3 text-body text-ops-text-secondary">{CATEGORY_LABEL[r.category]}</td>
                   <td className="px-3 text-right">
-                    <Money value={r.amount} tone={false} className="font-semibold text-ops-text" />
+                    <Money value={r.amount} tone={false} className="font-medium text-ops-text" />
                   </td>
-                  <td className="px-3 text-[12px] text-ops-text-secondary">
+                  <td className="px-3 text-body text-ops-text-secondary">
                     {formatDate(r.nextAt)} · monthly
                   </td>
                   <td className="px-4 text-right">
@@ -305,8 +305,8 @@ function Revenue() {
       {DRAFT_REVENUE.length > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-[var(--ops-r-card)] border border-ops-warn-line bg-ops-warn-bg px-4 py-3">
           <span className="size-1.5 shrink-0 rounded-full bg-ops-warn-dot" aria-hidden />
-          <p className="min-w-0 flex-1 text-[12px] text-ops-warn-fg">
-            <strong className="font-semibold">{money(DRAFT_REVENUE_TOTAL)}</strong> across{" "}
+          <p className="min-w-0 flex-1 text-body text-ops-warn-fg">
+            <strong className="font-medium">{money(DRAFT_REVENUE_TOTAL)}</strong> across{" "}
             {DRAFT_REVENUE.length} draft payments. Nothing counts toward revenue, cash position or the
             partner split until it is finalized — which is why the period reads {money(REVENUE_TOTAL)}.
           </p>
@@ -317,14 +317,14 @@ function Revenue() {
         <CardHeader>
           <Title title="Draft revenue" count={DRAFT_REVENUE.length} hint={`${money(DRAFT_REVENUE_TOTAL)} pending`} />
         </CardHeader>
-        <table className="w-full text-[13px]">
+        <table className="w-full text-body">
           <thead>
             <tr className="border-b border-ops-line text-left">
-              <th className="ops-eyebrow px-4 py-2 font-semibold">Logged</th>
-              <th className="ops-eyebrow px-3 py-2 font-semibold">Company</th>
-              <th className="ops-eyebrow px-3 py-2 font-semibold">Covers</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Amount</th>
-              <th className="ops-eyebrow px-4 py-2 text-right font-semibold">Actions</th>
+              <th className="ops-eyebrow px-4 py-2 font-medium">Logged</th>
+              <th className="ops-eyebrow px-3 py-2 font-medium">Company</th>
+              <th className="ops-eyebrow px-3 py-2 font-medium">Covers</th>
+              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Amount</th>
+              <th className="ops-eyebrow px-4 py-2 text-right font-medium">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ops-line">
@@ -337,9 +337,9 @@ function Revenue() {
                     <StatusPill tone="warn">Draft</StatusPill>
                   </span>
                 </td>
-                <td className="px-3 text-[12px] text-ops-text-secondary">{r.coversLabel}</td>
+                <td className="px-3 text-body text-ops-text-secondary">{r.coversLabel}</td>
                 <td className="px-3 text-right">
-                  <Money value={r.amount} tone={false} className="text-[14px] font-semibold text-ops-text" />
+                  <Money value={r.amount} tone={false} className="text-body font-medium text-ops-text" />
                 </td>
                 <td className="px-4 text-right">
                   <span className="inline-flex items-center gap-2">
@@ -351,7 +351,7 @@ function Revenue() {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
+            <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-body font-medium">
               <td colSpan={3} className="px-4 py-3 text-ops-text">
                 Would take the period to
               </td>
@@ -399,8 +399,8 @@ function Withdrawals() {
             <Card key={p.id} className="p-4">
               <div className="flex items-center gap-2">
                 <Avatar initials={initialsOf(p.name)} tone="accent" />
-                <span className="text-[14px] font-semibold text-ops-text">{p.name}</span>
-                <span className="text-[12px] text-ops-text-tertiary">{Math.round(p.share * 100)}% share</span>
+                <span className="text-body font-medium text-ops-text">{p.name}</span>
+                <span className="text-body text-ops-text-tertiary">{Math.round(p.share * 100)}% share</span>
               </div>
 
               <dl className="mt-4 grid grid-cols-3 gap-3">
@@ -410,15 +410,15 @@ function Withdrawals() {
                   { label: "Balance", value: balance },
                 ].map((r) => (
                   <div key={r.label}>
-                    <dt className="text-[11px] text-ops-text-tertiary">{r.label}</dt>
-                    <dd className="ops-figure mt-1 text-[20px] font-semibold leading-none">
+                    <dt className="text-body text-ops-text-tertiary">{r.label}</dt>
+                    <dd className="ops-figure mt-1 text-figure font-medium leading-none">
                       <Money value={r.value} className="ops-figure" />
                     </dd>
                   </div>
                 ))}
               </dl>
 
-              <p className="mt-3 border-t border-ops-line pt-3 text-[11px] text-ops-text-tertiary">
+              <p className="mt-3 border-t border-ops-line pt-3 text-body text-ops-text-tertiary">
                 {balance < 0
                   ? `A negative balance is ${p.name}'s share of accumulated losses, not money owed to ${p.name}.`
                   : `${p.name} can withdraw up to this balance.`}
@@ -471,7 +471,7 @@ function ClosePeriod() {
             <li key={item.id} className="flex items-center gap-3 px-4 py-3">
               <span
                 className={cn(
-                  "grid size-5 shrink-0 place-items-center rounded-full border text-[10px] font-semibold",
+                  "grid size-6 shrink-0 place-items-center rounded-full border text-body font-medium",
                   item.done
                     ? "border-ops-ok-line bg-ops-ok-bg text-ops-ok-fg"
                     : "border-ops-line-strong bg-ops-surface text-ops-text-tertiary",
@@ -480,15 +480,15 @@ function ClosePeriod() {
                 {item.done ? <Check className="size-3" /> : i + 1}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[13px] font-medium text-ops-text">{item.label}</span>
-                <span className="block text-[11px] text-ops-text-tertiary">{item.detail}</span>
+                <span className="block text-body font-medium text-ops-text">{item.label}</span>
+                <span className="block text-body text-ops-text-tertiary">{item.detail}</span>
               </span>
               {item.amount !== undefined && (
-                <Money value={item.amount} tone={false} className="shrink-0 text-[13px] font-semibold text-ops-text" />
+                <Money value={item.amount} tone={false} className="shrink-0 text-body font-medium text-ops-text" />
               )}
               <Link
                 href={item.href}
-                className="inline-flex h-6 w-[70px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak text-[11px] font-semibold text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
+                className="inline-flex h-6 w-[70px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak text-micro font-medium text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
               >
                 {item.actionLabel}
                 <ArrowRight className="size-3" />
@@ -498,7 +498,7 @@ function ClosePeriod() {
         </ol>
 
         <div className="flex items-center gap-3 border-t border-ops-line bg-ops-sunken px-4 py-3">
-          <p className="min-w-0 flex-1 text-[12px] text-ops-text-secondary">
+          <p className="min-w-0 flex-1 text-body text-ops-text-secondary">
             {remaining} items still open. Closing locks the period and rolls the balance into October.
           </p>
           <Button variant="primary" disabled>
@@ -522,16 +522,16 @@ function ClosePeriod() {
           ].map((r) => (
             <div key={r.label} className="flex items-baseline gap-3 px-4 py-3">
               <dt className="min-w-0 flex-1">
-                <span className="block text-[13px] text-ops-text">{r.label}</span>
-                {r.note && <span className="block text-[11px] text-ops-text-tertiary">{r.note}</span>}
+                <span className="block text-body text-ops-text">{r.label}</span>
+                {r.note && <span className="block text-body text-ops-text-tertiary">{r.note}</span>}
               </dt>
               <dd>
-                <Money value={r.value} className={cn("text-[14px]", r.strong ? "font-semibold" : "font-medium")} />
+                <Money value={r.value} className={cn("text-body", r.strong ? "font-medium" : "font-medium")} />
               </dd>
             </div>
           ))}
         </dl>
-        <p className="border-t border-ops-line bg-ops-sunken px-4 py-3 text-[11px] text-ops-text-tertiary">
+        <p className="border-t border-ops-line bg-ops-sunken px-4 py-3 text-body text-ops-text-tertiary">
           {money(OBLIGATION_TOTAL)} of obligations would carry into October, the same way{" "}
           {money(Math.abs(CARRIED_FORWARD))} carried in.
         </p>
@@ -551,17 +551,17 @@ function History() {
         <Title title="Closed periods" count={CLOSED_PERIODS.length} />
       </CardHeader>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-[13px]">
+        <table className="w-full min-w-[820px] text-body">
           <thead>
             <tr className="border-b border-ops-line text-left">
-              <th className="ops-eyebrow px-4 py-2 font-semibold">Period</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Revenue</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Expenses</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Distributed</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Syed 35%</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Kiani 65%</th>
-              <th className="ops-eyebrow px-3 py-2 font-semibold">Closed</th>
-              <th className="ops-eyebrow px-4 py-2 text-right font-semibold">Actions</th>
+              <th className="ops-eyebrow px-4 py-2 font-medium">Period</th>
+              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Revenue</th>
+              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Expenses</th>
+              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Distributed</th>
+              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Syed 35%</th>
+              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Kiani 65%</th>
+              <th className="ops-eyebrow px-3 py-2 font-medium">Closed</th>
+              <th className="ops-eyebrow px-4 py-2 text-right font-medium">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ops-line">
@@ -583,7 +583,7 @@ function History() {
                   <Money value={p.expenses} tone={false} className="text-ops-text-secondary" />
                 </td>
                 <td className="px-3 text-right">
-                  <Money value={p.distributed} className="font-semibold" />
+                  <Money value={p.distributed} className="font-medium" />
                 </td>
                 <td className="px-3 text-right">
                   <Money value={shareOf(PARTNERS[0], p.distributed)} />
@@ -591,7 +591,7 @@ function History() {
                 <td className="px-3 text-right">
                   <Money value={shareOf(PARTNERS[1], p.distributed)} />
                 </td>
-                <td className="px-3 text-[12px] text-ops-text-secondary">
+                <td className="px-3 text-body text-ops-text-secondary">
                   {p.closedAt ? formatDateFull(p.closedAt) : "—"}
                 </td>
                 <td className="px-4 text-right">
@@ -604,7 +604,7 @@ function History() {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
+            <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-body font-medium">
               <td className="px-4 py-3 text-ops-text">Carried into {PERIOD.label}</td>
               <td className="px-3 py-3 text-right">
                 <Money value={CLOSED_PERIODS.reduce((n, p) => n + p.revenue, 0)} tone={false} className="text-ops-text" />

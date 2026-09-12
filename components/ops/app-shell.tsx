@@ -59,7 +59,7 @@ function NavLink({ item, compact }: { item: NavItem; compact?: boolean }) {
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex h-9 items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-[14px] transition-colors",
+        "relative flex h-9 items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-body transition-colors",
         active
           ? "bg-ops-active font-medium text-ops-text"
           : "text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text",
@@ -69,7 +69,7 @@ function NavLink({ item, compact }: { item: NavItem; compact?: boolean }) {
       <Icon className={cn("size-4 shrink-0", active ? "text-ops-text" : "text-ops-text-tertiary")} />
       <span className="truncate">{item.label}</span>
       {item.count !== undefined && item.count > 0 && (
-        <span className="ops-num ml-auto text-[12px] text-ops-text-tertiary">{item.count}</span>
+        <span className="ops-num ml-auto text-body text-ops-text-tertiary">{item.count}</span>
       )}
     </Link>
   );
@@ -89,7 +89,7 @@ function PeriodSwitcher() {
       >
         <ChevronLeft className="size-3.5" />
       </button>
-      <span className="ops-num flex items-center gap-2 whitespace-nowrap px-2 text-[13px] font-medium text-ops-text">
+      <span className="ops-num flex items-center gap-2 whitespace-nowrap px-2 text-body font-medium text-ops-text">
         <span className="size-1.5 rounded-full bg-ops-warn-dot" aria-hidden />
         {PERIOD.label}
         <span className="font-normal text-ops-text-tertiary">open</span>
@@ -137,7 +137,7 @@ export function AppShell({
           <div className="mt-auto px-2 pb-2">
             <button
               type="button"
-              className="flex h-9 w-full items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-[14px] text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text"
+              className="flex h-9 w-full items-center gap-3 rounded-[var(--ops-r-control)] px-3 text-body text-ops-text-secondary hover:bg-ops-hover hover:text-ops-text"
             >
               <LogOut className="size-4 shrink-0 text-ops-text-tertiary" />
               Log out
@@ -145,10 +145,10 @@ export function AppShell({
           </div>
 
           <div className="flex items-center gap-3 border-t border-ops-line px-4 py-3">
-            <Avatar initials="SH" tone="accent" className="size-7 text-[11px]" />
+            <Avatar initials="SH" tone="accent" className="size-7 text-body" />
             <div className="min-w-0">
-              <div className="truncate text-[12.5px] font-medium leading-4 text-ops-text">Syed Hyder</div>
-              <div className="ops-num truncate text-[12px] leading-4 text-ops-text-tertiary">Owner</div>
+              <div className="truncate text-body font-medium leading-4 text-ops-text">Syed Hyder</div>
+              <div className="ops-num truncate text-body leading-4 text-ops-text-tertiary">Owner</div>
             </div>
           </div>
         </aside>
@@ -168,7 +168,7 @@ export function AppShell({
               className="flex h-8 w-full max-w-[380px] items-center gap-2 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-sunken px-3 text-left text-ops-text-tertiary transition-colors hover:border-ops-line-strong hover:bg-ops-surface"
             >
               <Search className="size-3.5 shrink-0" />
-              <span className="truncate text-[13px]">Search entries, drivers, companies</span>
+              <span className="truncate text-body">Search entries, drivers, companies</span>
               <span className="ml-auto hidden sm:block">
                 <Kbd>⌘K</Kbd>
               </span>
@@ -204,7 +204,7 @@ export function AppShell({
 
           <main className="min-h-0 flex-1 overflow-y-auto bg-ops-workspace">{children}</main>
 
-          <footer className="ops-num flex h-8 shrink-0 items-center gap-3 border-t border-ops-line bg-ops-surface px-6 text-[12px] text-ops-text-tertiary">
+          <footer className="ops-num flex h-8 shrink-0 items-center gap-3 border-t border-ops-line bg-ops-surface px-6 text-body text-ops-text-tertiary">
             <span>
               Last updated {formatDateFull(NOW)}, {formatTime(NOW)}
             </span>

@@ -43,13 +43,13 @@ function DayHeader({ at, rows }: { at: number; rows: ExpenseEntry[] }) {
   return (
     <tr className="bg-ops-sunken">
       <td colSpan={5} className="border-y border-ops-line px-4 py-2">
-        <span className="text-[12px] font-semibold text-ops-text">{formatWeekday(at)}</span>
-        <span className="ml-2 text-[11px] text-ops-text-tertiary">
+        <span className="text-body font-medium text-ops-text">{formatWeekday(at)}</span>
+        <span className="ml-2 text-body text-ops-text-tertiary">
           {rows.length} {rows.length === 1 ? "entry" : "entries"}
         </span>
       </td>
       <td className="border-y border-ops-line px-3 py-2 text-right">
-        <Money value={total} tone={false} className="text-[12px] font-semibold text-ops-text" />
+        <Money value={total} tone={false} className="text-body font-medium text-ops-text" />
       </td>
       <td className="border-y border-ops-line" />
     </tr>
@@ -68,7 +68,7 @@ function QuietDay({ at }: { at: number }) {
   return (
     <tr>
       <td colSpan={7} className="border-b border-ops-line px-4 py-2">
-        <span className="text-[12px] text-ops-text-tertiary">{formatWeekday(at)}</span>
+        <span className="text-body text-ops-text-tertiary">{formatWeekday(at)}</span>
         <StatusPill tone="idle" dot={false} className="ml-2">
           No operations
         </StatusPill>
@@ -167,7 +167,7 @@ export function ExpensesView() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search entries"
               aria-label="Search entries"
-              className="h-full w-full rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface pl-8 pr-3 text-[13px] text-ops-text outline-none placeholder:text-ops-text-tertiary focus:border-ops-line-strong"
+              className="h-full w-full rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface pl-8 pr-3 text-body text-ops-text outline-none placeholder:text-ops-text-tertiary focus:border-ops-line-strong"
             />
           </label>
 
@@ -205,7 +205,7 @@ export function ExpensesView() {
                 aria-checked={status === id}
                 onClick={() => setStatus(id)}
                 className={cn(
-                  "h-7 rounded-[6px] px-3 text-[12px] font-medium transition-colors",
+                  "h-7 rounded-[6px] px-3 text-body font-medium transition-colors",
                   status === id
                     ? "bg-ops-active text-ops-text"
                     : "text-ops-text-secondary hover:text-ops-text",
@@ -232,15 +232,15 @@ export function ExpensesView() {
             </Button>
           )}
 
-          <div className="ml-auto flex items-center gap-2 text-[12px] text-ops-text-secondary">
+          <div className="ml-auto flex items-center gap-2 text-body text-ops-text-secondary">
             <span>
-              <strong className="ops-num font-semibold text-ops-text">{filtered.length}</strong>
+              <strong className="ops-num font-medium text-ops-text">{filtered.length}</strong>
               {filtered.length === EXPENSES.length ? " entries" : ` of ${EXPENSES.length}`}
             </span>
             <span className="text-ops-line-strong" aria-hidden>
               ·
             </span>
-            <Money value={filteredTotal} tone={false} className="font-semibold text-ops-text" />
+            <Money value={filteredTotal} tone={false} className="font-medium text-ops-text" />
           </div>
         </div>
 
@@ -269,7 +269,7 @@ export function ExpensesView() {
             />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[820px] border-collapse text-[13px]">
+              <table className="w-full min-w-[820px] border-collapse text-body">
                 <thead className="ops-sticky-head">
                   <tr className="text-left">
                     <th className="w-9 border-b border-ops-line px-4 py-2">
@@ -281,12 +281,12 @@ export function ExpensesView() {
                         className="size-3.5 accent-[var(--ops-accent)]"
                       />
                     </th>
-                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-semibold">Company</th>
-                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-semibold">Category</th>
-                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-semibold">Driver</th>
-                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-semibold">Description</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Amount</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-semibold">Status</th>
+                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-medium">Company</th>
+                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-medium">Category</th>
+                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-medium">Driver</th>
+                    <th className="ops-eyebrow border-b border-ops-line py-2 pr-3 font-medium">Description</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Amount</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -318,25 +318,25 @@ export function ExpensesView() {
                               </td>
                               <td className="pr-3 font-medium text-ops-text">{companyName(e.companyId)}</td>
                               <td className="pr-3">
-                                <span className="text-[12px] text-ops-text-secondary">
+                                <span className="text-body text-ops-text-secondary">
                                   {CATEGORY_LABEL[e.category]}
                                 </span>
                               </td>
                               <td className="pr-3">
                                 {driver ? (
                                   <span className="flex items-center gap-2">
-                                    <Avatar initials={initialsOf(driver.name)} className="size-5 text-[9px]" />
-                                    <span className="text-[12px] text-ops-text-secondary">{driver.name}</span>
+                                    <Avatar initials={initialsOf(driver.name)} className="size-6 text-micro" />
+                                    <span className="text-body text-ops-text-secondary">{driver.name}</span>
                                   </span>
                                 ) : (
-                                  <span className="text-[12px] text-ops-text-tertiary">—</span>
+                                  <span className="text-body text-ops-text-tertiary">—</span>
                                 )}
                               </td>
-                              <td className="max-w-[280px] truncate pr-3 text-[12px] text-ops-text-secondary">
+                              <td className="max-w-[280px] truncate pr-3 text-body text-ops-text-secondary">
                                 {e.description}
                               </td>
                               <td className="px-3 text-right">
-                                <Money value={e.amount} tone={false} className="font-semibold text-ops-text" />
+                                <Money value={e.amount} tone={false} className="font-medium text-ops-text" />
                               </td>
                               <td className="px-4 text-right">
                                 {/* Every entry in the period is outstanding, so a
@@ -361,13 +361,13 @@ export function ExpensesView() {
                     "Showing 1–23 of 23" and never adds the column up. */}
                 <tfoot>
                   <tr className="border-t-2 border-ops-line-strong bg-ops-sunken">
-                    <td colSpan={5} className="px-4 py-3 text-[12px] font-semibold text-ops-text">
+                    <td colSpan={5} className="px-4 py-3 text-body font-medium text-ops-text">
                       {filtersOn ? "Filtered total" : `${filtered.length} entries · ${PERIOD_NOTE}`}
                     </td>
                     <td className="px-3 py-3 text-right">
-                      <Money value={filteredTotal} tone={false} className="text-[14px] font-semibold text-ops-text" />
+                      <Money value={filteredTotal} tone={false} className="text-body font-medium text-ops-text" />
                     </td>
-                    <td className="px-4 py-3 text-right text-[11px] text-ops-text-tertiary">
+                    <td className="px-4 py-3 text-right text-body text-ops-text-tertiary">
                       {money(outstanding)} unpaid
                     </td>
                   </tr>
@@ -383,9 +383,9 @@ export function ExpensesView() {
       {selected.size > 0 && (
         <div className="pointer-events-none sticky bottom-3 z-10 flex justify-center px-5">
           <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-ops-line bg-ops-surface px-3 py-2 shadow-ops-pop">
-            <span className="text-[12px] text-ops-text-secondary">
-              <strong className="ops-num font-semibold text-ops-text">{selected.size}</strong> selected ·{" "}
-              <Money value={selectedTotal} tone={false} className="font-semibold text-ops-text" />
+            <span className="text-body text-ops-text-secondary">
+              <strong className="ops-num font-medium text-ops-text">{selected.size}</strong> selected ·{" "}
+              <Money value={selectedTotal} tone={false} className="font-medium text-ops-text" />
             </span>
             <Button variant="default" size="sm">
               Mark paid
@@ -419,7 +419,7 @@ function Select({
       aria-label={label}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-8 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-2 text-[12px] font-medium text-ops-text outline-none hover:bg-ops-hover focus:border-ops-line-strong"
+      className="h-8 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-2 text-body font-medium text-ops-text outline-none hover:bg-ops-hover focus:border-ops-line-strong"
     >
       {children}
     </select>

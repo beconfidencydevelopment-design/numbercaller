@@ -120,6 +120,37 @@ period strip → one wide card with two narrow beside it, all three built to the
 same height → the full-width Companies table → Monthly comparison with Recent
 activity beside it.
 
+**Type is one scale**, six steps declared as `--text-*` in `app/globals.css`
+and used as `text-body`, `text-display` and so on — each carrying its own
+line-height and tracking:
+
+| Step | Size | Used for |
+|---|---:|---|
+| `text-micro` | 12px | axis ticks, legends, status pills, avatar discs, compact row actions |
+| `text-body` | 14px | **the workhorse** — copy, labels, captions, table headers *and* cells |
+| `text-title` | 18px | card titles |
+| `text-figure` | 22px | secondary figures inside a card |
+| `text-display` | 28px | page title, KPI figures |
+| `text-hero` | 34px | the one hero amount on a card |
+
+Measured off the reference rather than guessed: its hierarchy is three
+registers — display at ~2.8× body, card title at ~1.3×, and body, labels and
+captions all at 1× separated by **colour, not size**. Ours had drifted to
+fifteen sizes with 11/12/13/14px doing 157 of 202 uses, which is four steps a
+pixel apart: noise, not hierarchy. Hence the rule that **secondary text gets
+greyer, never smaller** — `verify-type.mjs` fails if `micro` ever outnumbers
+`body`.
+
+Weight is the same discipline: regular is the default (`.ops-root` sets 400),
+medium carries figures and titles, and `font-semibold` is banned outright —
+the gate fails on it. The audit that started this pass found 102 semibold to
+85 medium; when everything is emphasised nothing is.
+
+**`cn()` registers the scale with tailwind-merge** (`lib/utils.ts`). Without
+that, twMerge cannot tell a custom `text-*` size from a `text-*` colour and
+silently drops the size: `cn("text-display", "text-ops-risk-fg")` rendered
+every KPI figure at 14px. If you add a step, add it there too.
+
 **Spacing is one scale**, declared as `--space-1` … `--space-20` (4, 8, 12,
 16, 20, 24, 32, 40, 48, 64, 80) and wired into Tailwind so `p-4` *is*
 `--space-4`. Half-steps and arbitrary pixel values are off the scale;
@@ -336,8 +367,10 @@ for external state (`lib/ops/client-state.ts`) and precompute derived lists.
 ## Verification — run both before shipping
 
 ```
-node scripts/verify-contrast.mjs   # 182 colour pairs, both themes, + CVD + literals
+node scripts/verify-contrast.mjs   # 190 colour pairs, both themes, + CVD + literals
 node scripts/verify-ledger.mjs     # 30 reconciliation checks on the books
+node scripts/verify-spacing.mjs    # every padding/margin/gap on the 4-80 scale
+node scripts/verify-type.mjs       # every size on the scale; no semibold
 ```
 
 There is no eyeballing of contrast on this project. `verify-contrast` reads the

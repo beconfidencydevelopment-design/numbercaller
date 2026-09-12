@@ -338,6 +338,33 @@ body {
      two-column rule kept winning at 1440. 87.5rem is 1400px. */
   --breakpoint-wide: 87.5rem;
 
+  /* ---- Type ------------------------------------------------------------
+     Six steps, measured off the reference rather than guessed. Its hierarchy
+     is three registers — display at ~2.8x body, card title at ~1.3x, and
+     body, labels and captions all at 1x separated by colour, not size. Ours
+     had fifteen sizes with 11/12/13/14px doing 157 of 202 uses: four steps
+     a pixel apart, which is noise rather than hierarchy.
+
+     Wired into Tailwind's `--text-*` namespace, so `text-body` carries its
+     line height and weight too. Arbitrary `text-[13px]` is off the scale and
+     scripts/verify-type.mjs fails on it. */
+  --text-micro: 12px;          /* axis ticks, legends, pills, meta */
+  --text-micro--line-height: 1.35;
+  --text-body: 14px;           /* the workhorse: copy, labels, table cells */
+  --text-body--line-height: 1.45;
+  --text-title: 18px;          /* card titles */
+  --text-title--line-height: 1.35;
+  --text-title--letter-spacing: -0.01em;
+  --text-figure: 22px;         /* secondary figures inside a card */
+  --text-figure--line-height: 1.2;
+  --text-figure--letter-spacing: -0.015em;
+  --text-display: 28px;        /* page title, KPI figures */
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-hero: 34px;           /* the one hero amount on a card */
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.025em;
+
   --spacing-1: var(--space-1);
   --spacing-2: var(--space-2);
   --spacing-3: var(--space-3);
@@ -376,6 +403,7 @@ body {
   font-family: var(--ops-sans);
   font-size: 14px;
   line-height: 1.45;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -450,9 +478,11 @@ body {
 
 /* A standalone figure uses the face's proportional digits — tabular makes a
    large number look loose — and a touch of negative tracking. */
+/* A standalone figure uses the face's proportional digits — tabular makes a
+   large number look loose. Tracking is carried by the size token, not here,
+   so `text-display` and `text-hero` each get the tracking that suits them. */
 .ops-figure {
   font-variant-numeric: proportional-nums;
-  letter-spacing: -0.02em;
 }
 
 .ops-mono {
@@ -465,9 +495,11 @@ body {
    sets every label in the UI face and reserves the mono for numerals, which
    is what keeps its figures legible at a glance: the numbers are the only
    thing in the mono, so the numbers are what you see. */
+/* Column headers and micro labels. Same size as the cells they head — the
+   reference separates them by colour alone — so a table reads as one block. */
 .ops-eyebrow {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-body);
+  font-weight: 400;
   color: var(--ops-text-tertiary);
 }
 

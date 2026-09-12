@@ -77,7 +77,7 @@ function CompanyTab({
       aria-selected={active}
       onClick={onSelect}
       className={cn(
-        "relative flex h-9 shrink-0 items-center gap-2 border-b-2 px-3 text-[13px] font-medium transition-colors",
+        "relative flex h-9 shrink-0 items-center gap-2 border-b-2 px-3 text-body font-medium transition-colors",
         active ? "border-ops-accent text-ops-text" : "border-transparent text-ops-text-secondary hover:text-ops-text",
       )}
     >
@@ -141,11 +141,11 @@ export function ClientsView() {
         {/* ------------------------------------------------------------- */}
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface p-4">
-            <div className="text-[12px] font-medium text-ops-text-secondary">Spent this period</div>
-            <div className="ops-figure mt-2 text-[26px] font-semibold leading-none text-ops-text">
+            <div className="text-body font-medium text-ops-text-secondary">Spent this period</div>
+            <div className="ops-figure mt-2 text-display font-medium leading-none text-ops-text">
               {money(e.sep)}
             </div>
-            <div className="mt-2 text-[11px] text-ops-text-tertiary">{change.label}</div>
+            <div className="mt-2 text-body text-ops-text-tertiary">{change.label}</div>
           </div>
 
           <div
@@ -154,18 +154,18 @@ export function ClientsView() {
               e.atRisk > 0 ? "border-ops-risk-line bg-ops-risk-bg" : "border-ops-line bg-ops-surface",
             )}
           >
-            <div className={cn("text-[12px] font-medium", e.atRisk > 0 ? "text-ops-risk-fg" : "text-ops-text-secondary")}>
+            <div className={cn("text-body font-medium", e.atRisk > 0 ? "text-ops-risk-fg" : "text-ops-text-secondary")}>
               At risk
             </div>
             <div
               className={cn(
-                "ops-figure mt-2 text-[26px] font-semibold leading-none",
+                "ops-figure mt-2 text-display font-medium leading-none",
                 e.atRisk > 0 ? "text-ops-risk-fg" : "text-ops-text",
               )}
             >
               {money(e.atRisk)}
             </div>
-            <div className={cn("mt-2 text-[11px]", e.atRisk > 0 ? "text-ops-risk-fg/80" : "text-ops-text-tertiary")}>
+            <div className={cn("mt-2 text-body", e.atRisk > 0 ? "text-ops-risk-fg/80" : "text-ops-text-tertiary")}>
               {active.lastPaymentAt === null
                 ? e.incurred > 0
                   ? `Never paid — every dollar since ${formatMonth(active.onboardedAt)}`
@@ -175,28 +175,28 @@ export function ClientsView() {
           </div>
 
           <div className="rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface p-4">
-            <div className="text-[12px] font-medium text-ops-text-secondary">Lifetime net</div>
-            <div className="ops-figure mt-2 text-[26px] font-semibold leading-none">
+            <div className="text-body font-medium text-ops-text-secondary">Lifetime net</div>
+            <div className="ops-figure mt-2 text-display font-medium leading-none">
               <Money value={e.net} positiveTone className="ops-figure" />
             </div>
-            <div className="mt-2 text-[11px] text-ops-text-tertiary">
+            <div className="mt-2 text-body text-ops-text-tertiary">
               {money(e.received)} received · {money(e.incurred)} incurred
             </div>
           </div>
 
           <div className="rounded-[var(--ops-r-card)] border border-ops-line bg-ops-surface p-4">
-            <div className="text-[12px] font-medium text-ops-text-secondary">Active drivers</div>
-            <div className="ops-figure mt-2 text-[26px] font-semibold leading-none text-ops-text">
+            <div className="text-body font-medium text-ops-text-secondary">Active drivers</div>
+            <div className="ops-figure mt-2 text-display font-medium leading-none text-ops-text">
               {drivers.length}
             </div>
             <div className="mt-2 flex items-center gap-1">
               {drivers.slice(0, 5).map((d) => (
-                <Avatar key={d.id} initials={initialsOf(d.name)} className="size-5 text-[9px]" />
+                <Avatar key={d.id} initials={initialsOf(d.name)} className="size-6 text-micro" />
               ))}
               {drivers.length > 5 && (
-                <span className="text-[11px] text-ops-text-tertiary">+{drivers.length - 5}</span>
+                <span className="text-body text-ops-text-tertiary">+{drivers.length - 5}</span>
               )}
-              {drivers.length === 0 && <span className="text-[11px] text-ops-text-tertiary">None assigned</span>}
+              {drivers.length === 0 && <span className="text-body text-ops-text-tertiary">None assigned</span>}
             </div>
           </div>
         </div>
@@ -210,21 +210,21 @@ export function ClientsView() {
               <span className="ops-eyebrow">Payment status</span>
               <StatusPill tone={paymentStatus.tone}>{paymentStatus.label}</StatusPill>
             </div>
-            <p className="mt-2 text-[14px] font-semibold text-ops-text">
+            <p className="mt-2 text-body font-medium text-ops-text">
               {active.lastPaymentAt === null
                 ? `No payment on record · onboarded ${formatMonth(active.onboardedAt)}`
                 : `Last paid ${daysAgo(active.lastPaymentAt)} · ${formatDate(active.lastPaymentAt)}`}
             </p>
-            <p className="mt-1 text-[12px] text-ops-text-secondary">{active.expectation}</p>
+            <p className="mt-1 text-body text-ops-text-secondary">{active.expectation}</p>
           </div>
           <dl className="flex items-center gap-6">
             <div>
-              <dt className="text-[11px] text-ops-text-tertiary">Cycle</dt>
-              <dd className="text-[13px] font-medium text-ops-text">{CYCLE_LABEL[active.cycle]}</dd>
+              <dt className="text-body text-ops-text-tertiary">Cycle</dt>
+              <dd className="text-body font-medium text-ops-text">{CYCLE_LABEL[active.cycle]}</dd>
             </div>
             <div>
-              <dt className="text-[11px] text-ops-text-tertiary">Entries</dt>
-              <dd className="ops-num text-[13px] font-medium text-ops-text">{entries.length}</dd>
+              <dt className="text-body text-ops-text-tertiary">Entries</dt>
+              <dd className="ops-num text-body font-medium text-ops-text">{entries.length}</dd>
             </div>
           </dl>
           <div className="ml-auto">
@@ -243,14 +243,14 @@ export function ClientsView() {
             <CardHeader>
               <SectionTitle title="Expense by category" hint="last three periods" />
             </CardHeader>
-            <table className="w-full text-[13px]">
+            <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-ops-line text-left">
-                  <th className="ops-eyebrow px-4 py-2 font-semibold">Category</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Jul</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Aug</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-semibold">Sep</th>
-                  <th className="ops-eyebrow px-4 py-2 text-right font-semibold">Total</th>
+                  <th className="ops-eyebrow px-4 py-2 font-medium">Category</th>
+                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Jul</th>
+                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Aug</th>
+                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Sep</th>
+                  <th className="ops-eyebrow px-4 py-2 text-right font-medium">Total</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ops-line">
@@ -272,14 +272,14 @@ export function ClientsView() {
                         </td>
                       ))}
                       <td className="px-4 py-3 text-right">
-                        <Money value={total} tone={false} className="font-semibold text-ops-text" />
+                        <Money value={total} tone={false} className="font-medium text-ops-text" />
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
+                <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-body font-medium">
                   <td className="px-4 py-3 text-ops-text">Total</td>
                   <td className="px-3 py-3 text-right">
                     <Money value={e.jul} tone={false} className="text-ops-text" />
@@ -312,13 +312,13 @@ export function ClientsView() {
               />
             ) : (
               <div className="max-h-[320px] overflow-y-auto">
-                <table className="w-full text-[13px]">
+                <table className="w-full text-body">
                   <thead className="ops-sticky-head">
                     <tr className="text-left">
-                      <th className="ops-eyebrow border-b border-ops-line px-4 py-2 font-semibold">Driver</th>
-                      <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Entries</th>
-                      <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Logged</th>
-                      <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-semibold">Outstanding</th>
+                      <th className="ops-eyebrow border-b border-ops-line px-4 py-2 font-medium">Driver</th>
+                      <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Entries</th>
+                      <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Logged</th>
+                      <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-medium">Outstanding</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-ops-line">
@@ -326,7 +326,7 @@ export function ClientsView() {
                       <tr key={d.id} className="h-10 hover:bg-ops-hover">
                         <td className="px-4">
                           <span className="flex items-center gap-2">
-                            <Avatar initials={initialsOf(d.name)} className="size-5 text-[9px]" />
+                            <Avatar initials={initialsOf(d.name)} className="size-6 text-micro" />
                             <span className="font-medium text-ops-text">{d.name}</span>
                           </span>
                         </td>
@@ -338,7 +338,7 @@ export function ClientsView() {
                           {outstandingFor(d) === 0 ? (
                             <StatusPill tone="ok">Settled</StatusPill>
                           ) : (
-                            <Money value={outstandingFor(d)} tone={false} className="font-semibold text-ops-text" />
+                            <Money value={outstandingFor(d)} tone={false} className="font-medium text-ops-text" />
                           )}
                         </td>
                       </tr>
@@ -382,25 +382,25 @@ export function ClientsView() {
               }
             />
           ) : (
-            <table className="w-full text-[13px]">
+            <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-ops-line text-left">
-                  <th className="ops-eyebrow px-4 py-2 font-semibold">Date</th>
-                  <th className="ops-eyebrow px-3 py-2 font-semibold">Method</th>
-                  <th className="ops-eyebrow px-3 py-2 font-semibold">Covers</th>
-                  <th className="ops-eyebrow px-4 py-2 text-right font-semibold">Amount</th>
+                  <th className="ops-eyebrow px-4 py-2 font-medium">Date</th>
+                  <th className="ops-eyebrow px-3 py-2 font-medium">Method</th>
+                  <th className="ops-eyebrow px-3 py-2 font-medium">Covers</th>
+                  <th className="ops-eyebrow px-4 py-2 text-right font-medium">Amount</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-ops-line">
                 {payments.map((p) => (
                   <tr key={p.id} className="h-10 hover:bg-ops-hover">
                     <td className="px-4 font-medium text-ops-text">{formatDate(p.at)}</td>
-                    <td className="px-3 text-[12px] text-ops-text-secondary">{METHOD_LABEL[p.method]}</td>
-                    <td className="px-3 text-[12px] text-ops-text-secondary">
+                    <td className="px-3 text-body text-ops-text-secondary">{METHOD_LABEL[p.method]}</td>
+                    <td className="px-3 text-body text-ops-text-secondary">
                       {formatDate(p.coversFrom)} – {formatDate(p.coversTo)}
                     </td>
                     <td className="px-4 text-right">
-                      <Money value={p.amount} tone={false} className="font-semibold text-ops-text" />
+                      <Money value={p.amount} tone={false} className="font-medium text-ops-text" />
                     </td>
                   </tr>
                 ))}

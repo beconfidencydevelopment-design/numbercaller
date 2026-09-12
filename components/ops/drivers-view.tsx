@@ -79,22 +79,22 @@ function DriverCard({ driver, max }: { driver: Driver; max: number }) {
       <div className="flex items-center gap-2">
         <Avatar initials={initialsOf(driver.name)} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[13px] font-semibold text-ops-text">{driver.name}</div>
-          <div className="truncate text-[11px] text-ops-text-tertiary">{companyName(driver.companyId)}</div>
+          <div className="truncate text-body font-medium text-ops-text">{driver.name}</div>
+          <div className="truncate text-body text-ops-text-tertiary">{companyName(driver.companyId)}</div>
         </div>
         {settled && <StatusPill tone="ok">Settled</StatusPill>}
       </div>
 
-      <div className="ops-figure mt-3 text-[24px] font-semibold leading-none text-ops-text">
+      <div className="ops-figure mt-3 text-display font-medium leading-none text-ops-text">
         {money(outstanding)}
       </div>
-      <div className="mt-1 text-[11px] text-ops-text-tertiary">
+      <div className="mt-1 text-body text-ops-text-tertiary">
         {settled ? `Paid ${driver.lastEntryAt ? formatDate(driver.lastEntryAt) : "this period"}` : "outstanding"}
       </div>
 
       {!settled && <ShareBar value={outstanding} max={max} className="mt-3" />}
 
-      <dl className="mt-3 space-y-1 border-t border-ops-line pt-3 text-[11px]">
+      <dl className="mt-3 space-y-1 border-t border-ops-line pt-3 text-body">
         <div className="flex justify-between gap-2">
           <dt className="text-ops-text-tertiary">Logged this period</dt>
           <dd>
@@ -167,8 +167,8 @@ export function DriversView() {
         {/* ------------------------------------------------------------- */}
         <Card className="flex flex-wrap items-center gap-x-8 gap-y-4 px-4 py-4">
           <div>
-            <div className="text-[12px] font-medium text-ops-text-secondary">Total outstanding</div>
-            <div className="ops-figure mt-2 text-[30px] font-semibold leading-none text-ops-text">
+            <div className="text-body font-medium text-ops-text-secondary">Total outstanding</div>
+            <div className="ops-figure mt-2 text-hero font-medium leading-none text-ops-text">
               {money(DRIVER_OUTSTANDING_TOTAL)}
             </div>
           </div>
@@ -179,16 +179,16 @@ export function DriversView() {
               { label: "Carried from August", value: DRIVER_CARRIED_TOTAL },
             ].map((r) => (
               <div key={r.label}>
-                <dt className="text-[11px] text-ops-text-tertiary">{r.label}</dt>
+                <dt className="text-body text-ops-text-tertiary">{r.label}</dt>
                 <dd className="mt-1">
-                  <Money value={r.value} tone={false} className="text-[15px] font-semibold text-ops-text" />
+                  <Money value={r.value} tone={false} className="text-figure font-medium text-ops-text" />
                 </dd>
               </div>
             ))}
           </dl>
 
           <div className="min-w-[180px] max-w-[280px] flex-1">
-            <div className="flex items-baseline justify-between text-[11px] text-ops-text-tertiary">
+            <div className="flex items-baseline justify-between text-body text-ops-text-tertiary">
               <span>Settled</span>
               <span className="ops-num">
                 {DRIVERS_SETTLED} of {DRIVERS.length}
@@ -204,12 +204,12 @@ export function DriversView() {
         {/* Controls                                                       */}
         {/* ------------------------------------------------------------- */}
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2 text-[12px] text-ops-text-secondary">
+          <label className="flex items-center gap-2 text-body text-ops-text-secondary">
             Sort by
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as Sort)}
-              className="h-8 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-2 text-[12px] font-medium text-ops-text outline-none hover:bg-ops-hover"
+              className="h-8 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-2 text-body font-medium text-ops-text outline-none hover:bg-ops-hover"
             >
               {SORTS.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -231,7 +231,7 @@ export function DriversView() {
                 aria-checked={view === id}
                 onClick={() => setView(id)}
                 className={cn(
-                  "flex h-7 items-center gap-2 rounded-[6px] px-3 text-[12px] font-medium transition-colors",
+                  "flex h-7 items-center gap-2 rounded-[6px] px-3 text-body font-medium transition-colors",
                   view === id ? "bg-ops-active text-ops-text" : "text-ops-text-secondary hover:text-ops-text",
                 )}
               >
@@ -252,12 +252,12 @@ export function DriversView() {
               return (
                 <section key={company.id}>
                   <div className="mb-2 flex items-baseline gap-2">
-                    <h2 className="text-[13px] font-semibold text-ops-text">{company.name}</h2>
-                    <span className="text-[12px] text-ops-text-tertiary">
+                    <h2 className="text-body font-medium text-ops-text">{company.name}</h2>
+                    <span className="text-body text-ops-text-tertiary">
                       {drivers.length} {drivers.length === 1 ? "driver" : "drivers"}
                     </span>
-                    <span className="ml-auto text-[12px]">
-                      <Money value={total} tone={false} className="font-semibold text-ops-text" />
+                    <span className="ml-auto text-body">
+                      <Money value={total} tone={false} className="font-medium text-ops-text" />
                       <span className="ml-1 text-ops-text-tertiary">outstanding</span>
                     </span>
                   </div>
@@ -276,19 +276,19 @@ export function DriversView() {
               <SectionTitle title="Payroll" count={DRIVERS.length} hint="outstanding is logged plus carried, less settled" />
             </CardHeader>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] text-[13px]">
+              <table className="w-full min-w-[760px] text-body">
                 <thead className="ops-sticky-head">
                   <tr className="text-left">
-                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 font-semibold">Driver</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 font-semibold">Company</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Entries</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Logged</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 font-medium">Driver</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 font-medium">Company</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Entries</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Logged</th>
                     {/* The live build's table omits this column, so the row
                         reads 2,100 − 0 = 2,900 and appears to be broken. */}
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Carried</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Settled</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-semibold">Outstanding</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-semibold">Status</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Carried</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Settled</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Outstanding</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ops-line">
@@ -296,11 +296,11 @@ export function DriversView() {
                     <tr key={d.id} className="h-10 hover:bg-ops-hover">
                       <td className="px-4">
                         <span className="flex items-center gap-2">
-                          <Avatar initials={initialsOf(d.name)} className="size-5 text-[9px]" />
+                          <Avatar initials={initialsOf(d.name)} className="size-6 text-micro" />
                           <span className="font-medium text-ops-text">{d.name}</span>
                         </span>
                       </td>
-                      <td className="px-3 text-[12px] text-ops-text-secondary">{companyName(d.companyId)}</td>
+                      <td className="px-3 text-body text-ops-text-secondary">{companyName(d.companyId)}</td>
                       <td className="ops-num px-3 text-right text-ops-text-secondary">{d.entries}</td>
                       <td className="px-3 text-right">
                         <Money value={d.logged} tone={false} className="text-ops-text-secondary" />
@@ -320,7 +320,7 @@ export function DriversView() {
                         )}
                       </td>
                       <td className="px-3 text-right">
-                        <Money value={outstandingFor(d)} tone={false} className="font-semibold text-ops-text" />
+                        <Money value={outstandingFor(d)} tone={false} className="font-medium text-ops-text" />
                       </td>
                       <td className="px-4 text-right">
                         <StatusPill tone={isSettled(d) ? "ok" : "idle"}>
@@ -331,7 +331,7 @@ export function DriversView() {
                   ))}
                 </tbody>
                 <tfoot>
-                  <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-[13px] font-semibold">
+                  <tr className="border-t-2 border-ops-line-strong bg-ops-sunken text-body font-medium">
                     <td colSpan={3} className="px-4 py-3 text-ops-text">
                       {DRIVERS.length} drivers
                     </td>
