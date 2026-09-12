@@ -365,3 +365,28 @@ export const SERVICE_PERFORMANCE = (["same_day", "next_day", "economy", "freight
     return { service, target, actual, volume: Math.round(sumDelivered * share) };
   },
 );
+
+
+/**
+ * 14-day history per headline metric, for the sparklines on the Today strip.
+ *
+ * A number with no trend behind it can't be judged: "9 breached" means one
+ * thing on a flat week and another on the fourth straight rise. Deterministic,
+ * like everything else here.
+ */
+export const KPI_SERIES: Record<"breached" | "atRisk" | "exceptions" | "unassigned" | "outForDelivery", number[]> =
+  (() => {
+    const shape = (seed: number, base: number, spread: number, drift: number) => {
+      const rand = seeded(seed);
+      return Array.from({ length: 14 }, (_, i) =>
+        Math.max(0, Math.round(base + drift * i + (rand() - 0.5) * spread)),
+      );
+    };
+    return {
+      breached: shape(311, 5, 4, 0.28),
+      atRisk: shape(922, 7, 5, -0.16),
+      exceptions: shape(455, 6, 4, 0.1),
+      unassigned: shape(781, 8, 6, -0.22),
+      outForDelivery: shape(196, 22, 9, 0.15),
+    };
+  })();

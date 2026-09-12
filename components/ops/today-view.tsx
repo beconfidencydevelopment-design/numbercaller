@@ -5,12 +5,13 @@ import Link from "next/link";
 import { ArrowRight, Truck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Avatar, SectionTitle, StatusPill, TONE_DOT } from "./primitives";
+import { Avatar, SectionTitle, Sparkline, StatusPill, TONE_DOT } from "./primitives";
 import { DetailDrawer } from "./detail-drawer";
 import type { RankedShipment, StatusTone } from "@/lib/ops/types";
 import {
   DRIVERS,
   EXCEPTION_LABEL,
+  KPI_SERIES,
   NOW,
   RANKED,
   driverById,
@@ -80,28 +81,60 @@ function Stat({
   context,
   tone = "idle",
   emphasis,
+  series,
+  focal,
 }: {
   label: string;
   value: React.ReactNode;
   context?: string;
   tone?: StatusTone;
   emphasis?: boolean;
+  series?: number[];
+  /** Exactly one cell per row may be focal. */
+  focal?: boolean;
 }) {
   return (
-    <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 px-3 py-2.5">
+    <div
+      className={cn(
+        "flex min-w-[150px] flex-1 flex-col justify-between gap-1.5 rounded-[var(--ops-r-inner)] border px-3 py-2.5",
+        focal
+          ? "border-ops-focal-line bg-ops-focal-bg"
+          : "border-ops-line bg-ops-surface",
+      )}
+    >
       <div className="flex items-center gap-1.5">
-        {emphasis && <span className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[tone])} aria-hidden />}
-        <span className="truncate text-[11px] text-ops-text-secondary">{label}</span>
+        {emphasis && (
+          <span
+            className={cn("size-1.5 shrink-0 rounded-full", focal ? "bg-ops-risk-dot" : TONE_DOT[tone])}
+            aria-hidden
+          />
+        )}
+        <span className={cn("truncate text-[11px]", focal ? "text-ops-focal-muted" : "text-ops-text-secondary")}>
+          {label}
+        </span>
       </div>
+
       <div
         className={cn(
-          "ops-num text-[22px] font-semibold leading-none",
-          emphasis && tone === "risk" ? "text-ops-risk-fg" : "text-ops-text",
+          "ops-figure text-[24px] font-semibold leading-none",
+          focal ? "text-ops-focal-fg" : emphasis && tone === "risk" ? "text-ops-risk-fg" : "text-ops-text",
         )}
       >
         {value}
       </div>
-      {context && <div className="truncate text-[11px] text-ops-text-tertiary">{context}</div>}
+
+      {series && (
+        <Sparkline
+          values={series}
+          stroke={focal ? "var(--ops-risk-dot)" : emphasis && tone === "risk" ? "var(--ops-risk-dot)" : "var(--ops-series-volume)"}
+        />
+      )}
+
+      {context && (
+        <div className={cn("truncate text-[10px]", focal ? "text-ops-focal-muted" : "text-ops-text-tertiary")}>
+          {context}
+        </div>
+      )}
     </div>
   );
 }
@@ -110,10 +143,10 @@ function Stat({
 function OnTimeMeter() {
   const missed = onTimeRate < ON_TIME_TARGET;
   return (
-    <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-3 py-2.5">
+    <div className="flex min-w-[150px] flex-1 flex-col justify-between gap-1.5 rounded-[var(--ops-r-inner)] border border-ops-line bg-ops-surface px-3 py-2.5">
       <span className="truncate text-[11px] text-ops-text-secondary">On-time today</span>
       <div className="flex items-baseline gap-1.5">
-        <span className={cn("ops-num text-[22px] font-semibold leading-none", missed ? "text-ops-warn-fg" : "text-ops-text")}>
+        <span className={cn("ops-figure text-[24px] font-semibold leading-none", missed ? "text-ops-warn-fg" : "text-ops-text")}>
           {onTimeRate}%
         </span>
         <span className="text-[11px] text-ops-text-tertiary">/ {ON_TIME_TARGET}% target</span>
@@ -254,12 +287,12 @@ export function TodayView() {
 
       {/* KPI row. A thin strip, not a wall of cards — these are context for
           the worklist below, not the point of the page. */}
-      <div className="flex shrink-0 divide-x divide-ops-line border-b border-ops-line bg-ops-surface overflow-x-auto">
-        <Stat label="Promise broken" value={breachedAll.length} tone="risk" emphasis context="needs a call now" />
-        <Stat label="Breaching < 1h" value={atRiskAll.length} tone="risk" emphasis context="still recoverable" />
-        <Stat label="Failed attempts" value={exceptionsAll.length} tone="warn" emphasis context="awaiting decision" />
-        <Stat label="Unassigned" value={unassignedAll.length} tone="warn" emphasis context="no driver allocated" />
-        <Stat label="Out for delivery" value={active.filter((s) => s.status === "out_for_delivery").length} context={`${active.length} active total`} />
+      <div className="flex shrink-0 gap-2 overflow-x-auto border-b border-ops-line bg-ops-workspace px-4 py-3">
+        <Stat label="Promise broken" value={breachedAll.length} tone="risk" emphasis focal series={KPI_SERIES.breached} context="needs a call now" />
+        <Stat label="Breaching < 1h" value={atRiskAll.length} tone="risk" emphasis series={KPI_SERIES.atRisk} context="still recoverable" />
+        <Stat label="Failed attempts" value={exceptionsAll.length} tone="warn" emphasis series={KPI_SERIES.exceptions} context="awaiting decision" />
+        <Stat label="Unassigned" value={unassignedAll.length} tone="warn" emphasis series={KPI_SERIES.unassigned} context="no driver allocated" />
+        <Stat label="Out for delivery" value={active.filter((s) => s.status === "out_for_delivery").length} series={KPI_SERIES.outForDelivery} context={`${active.length} active total`} />
         <OnTimeMeter />
       </div>
 

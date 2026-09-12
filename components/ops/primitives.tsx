@@ -123,3 +123,51 @@ export function SectionTitle({
     </div>
   );
 }
+
+
+/**
+ * Micro trend line for a metric cell.
+ *
+ * No axis, no labels, no tooltip: this is shape only, and the number beside
+ * it carries the value. That is the honest use of a sparkline — it answers
+ * "which way is this going", never "what is it".
+ */
+export function Sparkline({
+  values,
+  stroke = "var(--ops-series-volume)",
+  fill,
+  className,
+}: {
+  values: number[];
+  stroke?: string;
+  fill?: string;
+  className?: string;
+}) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+  const pt = (v: number, i: number) =>
+    `${((i / (values.length - 1)) * 100).toFixed(2)},${(18 - ((v - min) / span) * 15).toFixed(2)}`;
+  const line = values.map((v, i) => `${i === 0 ? "M" : "L"}${pt(v, i)}`).join(" ");
+
+  return (
+    <svg
+      viewBox="0 0 100 20"
+      preserveAspectRatio="none"
+      className={cn("h-5 w-full", className)}
+      aria-hidden
+      focusable="false"
+    >
+      {fill && <path d={`${line} L100,20 L0,20 Z`} fill={fill} />}
+      <path
+        d={line}
+        fill="none"
+        stroke={stroke}
+        strokeWidth="1.5"
+        vectorEffect="non-scaling-stroke"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

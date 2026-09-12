@@ -66,10 +66,11 @@ body {
 
 :root {
   /* Surfaces — cool neutral ramp, low chroma so status colour stays loud */
-  --ops-canvas: #f3f4f6;
+  --ops-canvas: #e9eaee;
   --ops-surface: #ffffff;
   --ops-sunken: #fafbfc;
   --ops-raised: #ffffff;
+  --ops-workspace: #f5f6f8;
   --ops-hover: #f5f6f8;
   --ops-active: #eceef2;
 
@@ -115,6 +116,14 @@ body {
   --ops-idle-line: #dcdfe5;
   --ops-idle-dot: #8b919d;
 
+  /* The single inverted card. All three references use one dark tile as the
+     focal point of a metric row; here it is reserved for the metric that
+     hurts most, so the emphasis carries meaning rather than decoration. */
+  --ops-focal-bg: #191c23;
+  --ops-focal-fg: #ffffff;
+  --ops-focal-muted: #a3a9b6;
+  --ops-focal-line: #2c313b;
+
   --ops-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
@@ -138,10 +147,11 @@ body {
 }
 
 .dark {
-  --ops-canvas: #0c0e12;
+  --ops-canvas: #07080b;
   --ops-surface: #14171d;
   --ops-sunken: #101319;
   --ops-raised: #191d24;
+  --ops-workspace: #101319;
   --ops-hover: #1b1f27;
   --ops-active: #222731;
 
@@ -183,6 +193,11 @@ body {
   --ops-idle-line: #2c313b;
   --ops-idle-dot: #6f7686;
 
+  --ops-focal-bg: #2b1614;
+  --ops-focal-fg: #ffece9;
+  --ops-focal-muted: #c8a09a;
+  --ops-focal-line: #4a2521;
+
   --ops-series-volume: #9b86ff;
   --ops-series-fail: #e75647;
   --ops-grid: #23272f;
@@ -197,6 +212,7 @@ body {
   --color-ops-surface: var(--ops-surface);
   --color-ops-sunken: var(--ops-sunken);
   --color-ops-raised: var(--ops-raised);
+  --color-ops-workspace: var(--ops-workspace);
   --color-ops-hover: var(--ops-hover);
   --color-ops-active: var(--ops-active);
   --color-ops-line: var(--ops-line);
@@ -233,6 +249,10 @@ body {
   --color-ops-series-volume: var(--ops-series-volume);
   --color-ops-series-fail: var(--ops-series-fail);
   --color-ops-grid: var(--ops-grid);
+  --color-ops-focal-bg: var(--ops-focal-bg);
+  --color-ops-focal-fg: var(--ops-focal-fg);
+  --color-ops-focal-muted: var(--ops-focal-muted);
+  --color-ops-focal-line: var(--ops-focal-line);
 
   --radius-card: var(--ops-r-card);
   --radius-inner: var(--ops-r-inner);
@@ -279,6 +299,36 @@ body {
 
 .dark .ops-card {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* The floating application container.
+   All three client references inset the app inside the page rather than
+   running it edge to edge. It is the single most consistent signal in the
+   set, and it costs only the inset — density inside is untouched. */
+.ops-frame {
+  height: 100dvh;
+  padding: 0;
+  background: var(--ops-canvas);
+}
+
+.ops-frame > * {
+  height: 100%;
+  overflow: hidden;
+  background: var(--ops-surface);
+}
+
+@media (min-width: 900px) {
+  .ops-frame {
+    padding: 12px;
+  }
+  .ops-frame > * {
+    border: 1px solid var(--ops-line);
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(16, 19, 25, 0.05), 0 12px 32px -12px rgba(16, 19, 25, 0.14);
+  }
+  .dark .ops-frame > * {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  }
 }
 
 .ops-num {

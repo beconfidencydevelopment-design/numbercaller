@@ -110,7 +110,8 @@ export function AppShell({
   const toggleNav = () => setCollapsed(!collapsed);
 
   return (
-    <div className="ops-root flex h-dvh overflow-hidden">
+    <div className="ops-root ops-frame">
+      <div className="flex">
       {/* ---------------------------------------------------------------- */}
       {/* Sidebar                                                           */}
       {/* ---------------------------------------------------------------- */}
@@ -247,7 +248,8 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
+        <main className="min-h-0 flex-1 overflow-hidden bg-ops-workspace">{children}</main>
+        </div>
       </div>
     </div>
   );
