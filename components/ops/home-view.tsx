@@ -478,11 +478,14 @@ function DriverSettlement() {
 /* Companies — the ledger                                                      */
 /* -------------------------------------------------------------------------- */
 
+/** Up to two letters, from the company name. */
+const monogramOf = (name: string) => name.slice(0, 2).toUpperCase();
+
 function Companies() {
   const rows = expensesByCompany().map(({ company, total }) => {
-    const drivers = driversFor(company.id).length;
+    const drivers = driversFor(company.id);
     const overdue = company.expectation.toLowerCase().includes("overdue");
-    const dormant = total === 0 && drivers === 0;
+    const dormant = total === 0 && drivers.length === 0;
     return {
       company,
       total,
@@ -504,44 +507,84 @@ function Companies() {
       <ChartHead
         title="Companies"
         subtitle={`${COMPANIES.length} clients · ${COMPANIES_WITH_ACTIVITY} active · ${money(EXPENSE_TOTAL)} total spend · ${neverPaid} never paid`}
-        action={
-          <HeadAction href="/ops/clients">All clients</HeadAction>
-        }
+        action={<HeadAction href="/ops/clients">All clients</HeadAction>}
       />
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-body">
+      <div className="mt-5 overflow-x-auto">
+        <table className="w-full min-w-[860px] text-body">
           <thead>
             <tr className="border-t border-dashed border-ops-line text-left">
-              <th className="ops-eyebrow px-5 py-2 font-medium">Company</th>
-              <th className="ops-eyebrow px-3 py-2 font-medium">Last paid</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Drivers</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">This period</th>
-              <th className="ops-eyebrow px-5 py-2 text-right font-medium">Status</th>
+              {/* Explicit widths: left to itself the browser gave Company half
+                  the table and left the middle columns floating in a gap. */}
+              <th className="ops-eyebrow px-5 py-3 font-normal">Company</th>
+              <th className="ops-eyebrow w-36 px-3 py-3 font-normal">Last paid</th>
+              <th className="ops-eyebrow w-40 px-3 py-3 font-normal">Drivers</th>
+              <th className="ops-eyebrow w-64 px-3 py-3 text-right font-normal">This period</th>
+              <th className="ops-eyebrow w-52 px-5 py-3 text-right font-normal">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
             {rows.map(({ company, total, drivers, status }) => (
-              <tr key={company.id} className="h-12 hover:bg-ops-hover">
+              <tr key={company.id} className="group h-16 transition-colors hover:bg-ops-hover">
                 <td className="px-5">
-                  <Link href={`/ops/clients?company=${company.id}`} className="text-ops-text hover:text-ops-accent">
-                    {company.name}
+                  {/* A neutral monogram tile ringed in the company's own
+                      categorical colour — the same colour it takes in the
+                      composition bar above, so one company reads as one
+                      company across the page. The ring carries the hue
+                      because a solid tile cannot: white on the teal and the
+                      grey falls under 4.5:1, and every solid fails in dark. */}
+                  <Link
+                    href={`/ops/clients?company=${company.id}`}
+                    className="flex items-center gap-3 text-ops-text hover:text-ops-accent"
+                  >
+                    <span
+                      className="grid size-9 shrink-0 place-items-center rounded-[var(--ops-r-control)] bg-ops-sunken text-micro font-medium text-ops-text-secondary"
+                      style={{ boxShadow: `inset 0 0 0 2px ${COMPANY_COLOR[company.id] ?? "var(--ops-line-strong)"}` }}
+                      aria-hidden
+                    >
+                      {monogramOf(company.name)}
+                    </span>
+                    <span className="font-medium">{company.name}</span>
                   </Link>
                 </td>
-                <td className="px-3 text-body text-ops-text-secondary">
+
+                <td className="px-3 text-ops-text-secondary">
                   {company.lastPaymentAt ? (
                     <>
-                      {formatDate(company.lastPaymentAt)}
-                      <span className="ml-2 text-ops-text-tertiary">{daysAgo(company.lastPaymentAt)}</span>
+                      <span className="block">{formatDate(company.lastPaymentAt)}</span>
+                      <span className="ops-num block text-ops-text-tertiary">{daysAgo(company.lastPaymentAt)}</span>
                     </>
                   ) : (
                     <span className="text-ops-text-tertiary">—</span>
                   )}
                 </td>
-                <td className="ops-num px-3 text-right text-ops-text-secondary">
-                  {drivers || <span className="text-ops-text-tertiary">—</span>}
+
+                {/* The count as faces. Every driver has a portrait, so the
+                    column can show who rather than how many. */}
+                <td className="px-3">
+                  {drivers.length > 0 ? (
+                    <span className="flex items-center gap-2">
+                      <span className="flex -space-x-2">
+                        {drivers.slice(0, 3).map((d) => (
+                          <Avatar
+                            key={d.id}
+                            id={d.id}
+                            name={d.name}
+                            initials={initialsOf(d.name)}
+                            className="size-7 ring-2 ring-ops-surface"
+                          />
+                        ))}
+                      </span>
+                      <span className="ops-num text-ops-text-secondary">
+                        {drivers.length > 3 ? `+${drivers.length - 3}` : ""}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-ops-text-tertiary">—</span>
+                  )}
                 </td>
-                <td className="px-3 text-right">
-                  <span className="inline-flex items-center justify-end gap-3">
+
+                <td className="px-3">
+                  <span className="flex items-center justify-end gap-3">
                     {total > 0 && <ShareBar value={total} max={maxSpend} className="hidden h-1 w-24 lg:block" />}
                     {total > 0 ? (
                       <Money value={total} tone={false} className="w-20 text-right font-medium text-ops-text" />
@@ -550,6 +593,7 @@ function Companies() {
                     )}
                   </span>
                 </td>
+
                 <td className="px-5 text-right">
                   <span className="inline-flex items-center gap-2">
                     <StatusPill tone={status.tone} dot={status.tone !== "idle"}>{status.label}</StatusPill>
@@ -560,10 +604,10 @@ function Companies() {
             ))}
           </tbody>
           <tfoot>
-            <tr className="border-t border-ops-line bg-ops-sunken text-body font-medium">
-              <td colSpan={2} className="px-5 py-3 text-ops-text">{COMPANIES.length} companies</td>
-              <td className="ops-num px-3 py-3 text-right text-ops-text">{DRIVERS.length}</td>
-              <td className="px-3 py-3 text-right"><Money value={EXPENSE_TOTAL} tone={false} className="text-ops-text" /></td>
+            <tr className="border-t border-ops-line bg-ops-sunken font-medium">
+              <td colSpan={2} className="px-5 py-4 text-ops-text">{COMPANIES.length} companies</td>
+              <td className="ops-num px-3 py-4 text-ops-text">{DRIVERS.length}</td>
+              <td className="px-3 py-4 text-right"><Money value={EXPENSE_TOTAL} tone={false} className="text-ops-text" /></td>
               <td className="px-5" />
             </tr>
           </tfoot>
