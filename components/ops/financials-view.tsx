@@ -178,7 +178,7 @@ function Overview() {
               hint={`${money(OBLIGATION_TOTAL)} total`}
             />
           </CardHeader>
-          <ul className="flex-1 divide-y divide-ops-line">
+          <ul className="flex-1 divide-y divide-dashed divide-ops-line">
             {OBLIGATIONS.map((o) => (
               <li key={o.id} className="flex items-center gap-3 px-4 py-3">
                 <span className="min-w-0 flex-1">
@@ -218,16 +218,16 @@ function Overview() {
             <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-ops-line text-left">
-                  <th className="ops-eyebrow px-4 py-2 font-medium">Company</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Expenses</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Revenue</th>
-                  <th className="ops-eyebrow px-3 py-2 text-right font-medium">Net</th>
-                  <th className="ops-eyebrow px-4 py-2 text-right font-medium">Last paid</th>
+                  <th className="ops-eyebrow px-4 py-3 font-normal">Company</th>
+                  <th className="ops-eyebrow px-3 py-3 text-right font-normal">Expenses</th>
+                  <th className="ops-eyebrow px-3 py-3 text-right font-normal">Revenue</th>
+                  <th className="ops-eyebrow px-3 py-3 text-right font-normal">Net</th>
+                  <th className="ops-eyebrow px-4 py-3 text-right font-normal">Last paid</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ops-line">
+              <tbody className="divide-y divide-dashed divide-ops-line">
                 {byCompany.map((r) => (
-                  <tr key={r.id} className="h-10 hover:bg-ops-hover">
+                  <tr key={r.id} className="h-11 hover:bg-ops-hover">
                     <td className="px-4">
                       {r.href ? (
                         <Link href={r.href} className="text-ops-text hover:text-ops-accent">
@@ -297,19 +297,19 @@ function Overview() {
           <table className="w-full min-w-[720px] text-body">
             <thead>
               <tr className="border-b border-ops-line text-left">
-                <th className="ops-eyebrow px-4 py-2 font-medium">Description</th>
-                <th className="ops-eyebrow px-3 py-2 font-medium">Company</th>
-                <th className="ops-eyebrow px-3 py-2 font-medium">Category</th>
-                <th className="ops-eyebrow px-3 py-2 text-right font-medium">Amount</th>
-                <th className="ops-eyebrow px-3 py-2 font-medium">Next</th>
-                <th className="px-4 py-2">
+                <th className="ops-eyebrow px-4 py-3 font-normal">Description</th>
+                <th className="ops-eyebrow px-3 py-3 font-normal">Company</th>
+                <th className="ops-eyebrow px-3 py-3 font-normal">Category</th>
+                <th className="ops-eyebrow px-3 py-3 text-right font-normal">Amount</th>
+                <th className="ops-eyebrow px-3 py-3 font-normal">Next</th>
+                <th className="px-4 py-3 font-normal">
                       <span className="sr-only">Actions</span>
                     </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ops-line">
+            <tbody className="divide-y divide-dashed divide-ops-line">
               {RECURRING.map((r) => (
-                <tr key={r.id} className="h-10 hover:bg-ops-hover">
+                <tr key={r.id} className="h-11 hover:bg-ops-hover">
                   <td className="px-4 font-medium text-ops-text">{r.description}</td>
                   <td className="px-3 text-ops-text-secondary">
                     <CompanyTag id={r.companyId} name={companyName(r.companyId)} size={24} />
@@ -371,16 +371,16 @@ function Revenue() {
         <table className="w-full text-body">
           <thead>
             <tr className="border-b border-ops-line text-left">
-              <th className="ops-eyebrow px-4 py-2 font-medium">Logged</th>
-              <th className="ops-eyebrow px-3 py-2 font-medium">Company</th>
-              <th className="ops-eyebrow px-3 py-2 font-medium">Covers</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Amount</th>
-              <th className="px-4 py-2">
+              <th className="ops-eyebrow px-4 py-3 font-normal">Logged</th>
+              <th className="ops-eyebrow px-3 py-3 font-normal">Company</th>
+              <th className="ops-eyebrow px-3 py-3 font-normal">Covers</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Amount</th>
+              <th className="px-4 py-3 font-normal">
                       <span className="sr-only">Actions</span>
                     </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-ops-line">
+          <tbody className="divide-y divide-dashed divide-ops-line">
             {DRAFT_REVENUE.map((r) => (
               <tr key={r.id} className="h-11 hover:bg-ops-hover">
                 <td className="px-4 font-medium text-ops-text">{formatDate(r.at)}</td>
@@ -559,7 +559,7 @@ function ClosePeriod() {
           />
         </CardHeader>
 
-        <ol className="divide-y divide-ops-line">
+        <ol className="divide-y divide-dashed divide-ops-line">
           {CHECKLIST.map((item, i) => (
             <li key={item.id} className="flex items-center gap-3 px-4 py-3">
               <span
@@ -581,7 +581,7 @@ function ClosePeriod() {
               )}
               {item.modal ? (
                 <RowAction
-                  className="h-6 w-[70px] justify-center"
+                  className="h-6 min-w-[76px] justify-center"
                   onClick={() => openModal({ kind: item.modal!, all: true })}
                 >
                   {item.actionLabel}
@@ -590,7 +590,7 @@ function ClosePeriod() {
               ) : (
                 <Link
                   href={item.href}
-                  className="inline-flex h-6 w-[70px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak text-micro font-medium text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
+                  className="inline-flex h-6 min-w-[76px] shrink-0 items-center justify-center gap-1 rounded-md border border-ops-accent-line bg-ops-accent-weak px-2 text-micro font-medium text-ops-accent hover:border-ops-accent hover:bg-ops-accent hover:text-ops-text-inverse"
                 >
                   {item.actionLabel}
                   <IconArrowRight className="size-3" />
@@ -615,7 +615,7 @@ function ClosePeriod() {
         <CardHeader>
           <Title title="If you closed now" hint="preview" />
         </CardHeader>
-        <dl className="divide-y divide-ops-line">
+        <dl className="divide-y divide-dashed divide-ops-line">
           {[
             { label: "Revenue", value: REVENUE_TOTAL, note: `${money(DRAFT_REVENUE_TOTAL)} left in draft` },
             { label: "Expenses", value: EXPENSE_TOTAL, note: "incurred this period" },
@@ -658,19 +658,19 @@ function History() {
         <table className="w-full min-w-[820px] text-body">
           <thead>
             <tr className="border-b border-ops-line text-left">
-              <th className="ops-eyebrow px-4 py-2 font-medium">Period</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Revenue</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Expenses</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Distributed</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Syed 35%</th>
-              <th className="ops-eyebrow px-3 py-2 text-right font-medium">Kiani 65%</th>
-              <th className="ops-eyebrow px-3 py-2 font-medium">Closed</th>
-              <th className="px-4 py-2">
+              <th className="ops-eyebrow px-4 py-3 font-normal">Period</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Revenue</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Expenses</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Distributed</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Syed 35%</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Kiani 65%</th>
+              <th className="ops-eyebrow px-3 py-3 font-normal">Closed</th>
+              <th className="px-4 py-3 font-normal">
                       <span className="sr-only">Actions</span>
                     </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-ops-line">
+          <tbody className="divide-y divide-dashed divide-ops-line">
             {CLOSED_PERIODS.map((p) => (
               <tr key={p.key} className="h-11 hover:bg-ops-hover">
                 <td className="px-4">

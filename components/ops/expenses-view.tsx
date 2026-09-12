@@ -349,7 +349,7 @@ export function ExpensesView() {
                 </colgroup>
                 <thead className="ops-sticky-head">
                   <tr className="text-left">
-                    <th className="border-b border-ops-line px-4 py-3">
+                    <th className="border-b border-ops-line px-4 py-3 font-normal">
                       <input
                         type="checkbox"
                         checked={allSelected}
@@ -372,7 +372,7 @@ export function ExpensesView() {
                     <th className="ops-eyebrow whitespace-nowrap border-b border-ops-line px-3 py-3 text-right font-normal">
                       Running total
                     </th>
-                    <th className="border-b border-ops-line px-4 py-3">
+                    <th className="border-b border-ops-line px-4 py-3 font-normal">
                       <span className="sr-only">Actions</span>
                     </th>
                   </tr>

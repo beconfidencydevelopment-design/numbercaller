@@ -409,6 +409,20 @@ focus trap, the body scroll lock, focus returning to the control that opened
 the dialog, and every invalid field stating its reason in words rather than
 only turning red.
 
+The sixth gate reads all nine views as one product and fails if the same
+element measures differently on two of them:
+
+```
+PUPPETEER_CORE=/path/to/puppeteer-core node scripts/verify-consistency.mjs
+```
+
+One table-header style, one card-title style, data rows on the four-step
+height vocabulary (44 compact, 48 ledger, 56 and 64 overview), dashed table
+dividers everywhere, no icon under 12px, portraits at 24, 28 or 36. It exists
+because the first run of it found a 5px icon, headers at two paddings and two
+weights, solid dividers on three screens and dashed on two, and card titles
+18px on Home and 14px on the rest. None of that shows on any one page.
+
 There is no eyeballing of contrast on this project. `verify-contrast` reads the
 tokens out of `globals.css` so it cannot drift from what ships, and it scans
 components for hard-coded colour — added after a `text-white` on the primary

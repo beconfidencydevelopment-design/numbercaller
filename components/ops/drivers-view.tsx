@@ -332,15 +332,15 @@ export function DriversView() {
               <table className="w-full min-w-[760px] text-body">
                 <thead className="ops-sticky-head">
                   <tr className="text-left">
-                    <th className="ops-eyebrow border-b border-ops-line px-4 py-2 font-medium">Driver</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 font-medium">Company</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Entries</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Logged</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-4 py-3 font-normal">Driver</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-3 font-normal">Company</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">Entries</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">Logged</th>
                     {/* The live build's table omits this column, so the row
                         reads 2,100 − 0 = 2,900 and appears to be broken. */}
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Carried</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Settled</th>
-                    <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">Outstanding</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">Carried</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">Settled</th>
+                    <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">Outstanding</th>
                     {/* The action, not a status. Seventeen of eighteen rows
                         said "Unsettled", which the Outstanding column beside it
                         already says with a number. What differs per row is the
@@ -350,9 +350,9 @@ export function DriversView() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-ops-line">
+                <tbody className="divide-y divide-dashed divide-ops-line">
                   {flat.map((d) => (
-                    <tr key={d.id} className="h-10 hover:bg-ops-hover">
+                    <tr key={d.id} className="h-11 hover:bg-ops-hover">
                       <td className="px-4">
                         <span className="flex items-center gap-2">
                           <Avatar id={d.id} name={d.name} initials={initialsOf(d.name)} />

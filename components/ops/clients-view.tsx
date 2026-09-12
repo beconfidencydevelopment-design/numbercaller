@@ -362,21 +362,21 @@ export function ClientsView() {
               <table className="w-full text-body">
                 <thead>
                   <tr className="border-b border-ops-line text-left">
-                    <th className="ops-eyebrow px-4 py-2 font-medium">Category</th>
-                    <th className="ops-eyebrow px-3 py-2 text-right font-medium">Jul</th>
-                    <th className="ops-eyebrow px-3 py-2 text-right font-medium">Aug</th>
-                    <th className="ops-eyebrow px-3 py-2 text-right font-medium">Sep</th>
-                    <th className="ops-eyebrow px-4 py-2 text-right font-medium">Total</th>
+                    <th className="ops-eyebrow px-4 py-3 font-normal">Category</th>
+                    <th className="ops-eyebrow px-3 py-3 text-right font-normal">Jul</th>
+                    <th className="ops-eyebrow px-3 py-3 text-right font-normal">Aug</th>
+                    <th className="ops-eyebrow px-3 py-3 text-right font-normal">Sep</th>
+                    <th className="ops-eyebrow px-4 py-3 text-right font-normal">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-ops-line">
+                <tbody className="divide-y divide-dashed divide-ops-line">
                   {history.rows.map((r) => {
                     const total = r.jul + r.aug + r.sep;
                     return (
-                      <tr key={r.category} className="hover:bg-ops-hover">
-                        <td className="px-4 py-3 font-medium text-ops-text">{CATEGORY_LABEL[r.category]}</td>
+                      <tr key={r.category} className="h-11 hover:bg-ops-hover">
+                        <td className="px-4 font-medium text-ops-text">{CATEGORY_LABEL[r.category]}</td>
                         {[r.jul, r.aug, r.sep].map((v, i) => (
-                          <td key={i} className="px-3 py-3 text-right">
+                          <td key={i} className="px-3 text-right">
                             <Money
                               value={v}
                               tone={false}
@@ -387,7 +387,7 @@ export function ClientsView() {
                         {/* The bar sits beside the number it encodes rather
                           than under the label three columns away, which is
                           how the Companies table on Home reads. */}
-                        <td className="px-4 py-3">
+                        <td className="px-4">
                           <span className="flex items-center justify-end gap-3">
                             <ShareBar value={total} max={maxRow} className="hidden h-1 w-20 xl:block" />
                             <Money
@@ -440,21 +440,21 @@ export function ClientsView() {
                 <table className="w-full text-body">
                   <thead className="ops-sticky-head">
                     <tr className="text-left">
-                      <th className="ops-eyebrow border-b border-ops-line px-4 py-2 font-medium">Driver</th>
-                      <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">
+                      <th className="ops-eyebrow border-b border-ops-line px-4 py-3 font-normal">Driver</th>
+                      <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">
                         Entries
                       </th>
-                      <th className="ops-eyebrow border-b border-ops-line px-3 py-2 text-right font-medium">
+                      <th className="ops-eyebrow border-b border-ops-line px-3 py-3 text-right font-normal">
                         Logged
                       </th>
-                      <th className="ops-eyebrow border-b border-ops-line px-4 py-2 text-right font-medium">
+                      <th className="ops-eyebrow border-b border-ops-line px-4 py-3 text-right font-normal">
                         Outstanding
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-ops-line">
+                  <tbody className="divide-y divide-dashed divide-ops-line">
                     {drivers.map((d) => (
-                      <tr key={d.id} className="h-10 hover:bg-ops-hover">
+                      <tr key={d.id} className="h-11 hover:bg-ops-hover">
                         <td className="px-4">
                           <span className="flex items-center gap-2">
                             <Avatar id={d.id} name={d.name} initials={initialsOf(d.name)} />
@@ -545,15 +545,15 @@ export function ClientsView() {
             <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-ops-line text-left">
-                  <th className="ops-eyebrow px-4 py-2 font-medium">Date</th>
-                  <th className="ops-eyebrow px-3 py-2 font-medium">Method</th>
-                  <th className="ops-eyebrow px-3 py-2 font-medium">Covers</th>
-                  <th className="ops-eyebrow px-4 py-2 text-right font-medium">Amount</th>
+                  <th className="ops-eyebrow px-4 py-3 font-normal">Date</th>
+                  <th className="ops-eyebrow px-3 py-3 font-normal">Method</th>
+                  <th className="ops-eyebrow px-3 py-3 font-normal">Covers</th>
+                  <th className="ops-eyebrow px-4 py-3 text-right font-normal">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ops-line">
+              <tbody className="divide-y divide-dashed divide-ops-line">
                 {payments.map((p) => (
-                  <tr key={p.id} className="h-10 hover:bg-ops-hover">
+                  <tr key={p.id} className="h-11 hover:bg-ops-hover">
                     <td className="px-4 font-medium text-ops-text">{formatDate(p.at)}</td>
                     <td className="px-3 text-body text-ops-text-secondary">{METHOD_LABEL[p.method]}</td>
                     <td className="px-3 text-body text-ops-text-secondary">

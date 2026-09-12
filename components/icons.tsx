@@ -58,8 +58,20 @@ export type IconProps = {
 
 /** Binds one icon from the library to our own component name. */
 const make = (icon: Parameters<typeof HugeiconsIcon>[0]["icon"], displayName: string) => {
+  /* `shrink-0` on every icon, always.
+     An SVG is a flex item like any other, so inside a control that runs out
+     of room it is the icon that gives way — a 12px arrow inside a 70px
+     button on the close-period checklist was rendering at five pixels, which
+     looks like a rendering fault rather than a tight button. An icon that
+     cannot fit should overflow its button so the button gets fixed. */
   const Component = ({ className, size = 20, strokeWidth = 1.5 }: IconProps) => (
-    <HugeiconsIcon icon={icon} className={className} size={size} strokeWidth={strokeWidth} color="currentColor" />
+    <HugeiconsIcon
+      icon={icon}
+      className={`shrink-0 ${className ?? ""}`}
+      size={size}
+      strokeWidth={strokeWidth}
+      color="currentColor"
+    />
   );
   Component.displayName = displayName;
   return Component;

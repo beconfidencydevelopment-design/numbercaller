@@ -278,7 +278,7 @@ export function SectionTitle({
           <Icon className="size-3.5" />
         </span>
       )}
-      <h2 className="whitespace-nowrap text-body font-medium tracking-[-0.01em] text-ops-text">{title}</h2>
+      <h2 className="whitespace-nowrap text-title font-medium text-ops-text">{title}</h2>
       {count !== undefined && (
         <span className="ops-num rounded-md bg-ops-active px-2 py-1 text-micro font-medium text-ops-text-secondary">
           {count}

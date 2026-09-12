@@ -294,7 +294,7 @@ function PartnerSplit() {
             <li key={p.id} className="flex flex-1 flex-col justify-center gap-4 py-5">
               <div className="flex items-center gap-3">
                 <span className="size-2 shrink-0 rounded-full" style={{ background: `var(--ops-cat-${i + 1})` }} aria-hidden />
-                <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} className="size-10" />
+                <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} className="size-9" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-body font-medium text-ops-text">{p.name}</span>
                   <span className="ops-num block text-body text-ops-text-tertiary">
