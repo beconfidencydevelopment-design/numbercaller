@@ -644,12 +644,15 @@ function smoothPath(pts: Array<[number, number]>): string {
   const m: number[] = [d[0]];
   for (let i = 1; i < n - 1; i++) m.push(d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2);
   m.push(d[n - 2]);
-  let path = `M${pts[0][0]},${pts[0][1]}`;
+  /* Rounded for the same reason as `polar` above: a path string that differs
+     in its last digit between server and client is a hydration mismatch. */
+  const r3 = (v: number) => Number(v.toFixed(3));
+  let path = `M${r3(pts[0][0])},${r3(pts[0][1])}`;
   for (let i = 0; i < n - 1; i++) {
     const [x0, y0] = pts[i];
     const [x1, y1] = pts[i + 1];
     const dx = (x1 - x0) / 3;
-    path += ` C${x0 + dx},${y0 + m[i] * dx} ${x1 - dx},${y1 - m[i + 1] * dx} ${x1},${y1}`;
+    path += ` C${r3(x0 + dx)},${r3(y0 + m[i] * dx)} ${r3(x1 - dx)},${r3(y1 - m[i + 1] * dx)} ${r3(x1)},${r3(y1)}`;
   }
   return path;
 }
@@ -836,10 +839,18 @@ export function Funnel({
           stage column is full height and bottom-aligned; its percentage rides
           directly above its own bars, which is what makes the step read. */}
       <div className="flex min-h-28 flex-1 items-end gap-3">
-        {stages.map((st, i) => {
+        {stages.map((st) => {
           const pct = st.total > 0 ? st.done / st.total : 0;
-          const lit = Math.round(pct * segments);
-          const height = 100 - i * (52 / Math.max(1, stages.length - 1)); // 100% → 48%
+          /* Any real progress lights at least one segment. 1 of 18 is 0.44 of
+             a segment and rounded to nothing, so a stage that had moved read
+             as a stage that had not. */
+          const lit = pct > 0 ? Math.max(1, Math.round(pct * segments)) : 0;
+          /* Every stage is the same height. An earlier version stepped them
+             down like a sales funnel, but these five are independent checklist
+             items with no volume flowing between them — the descending height
+             encoded nothing and made a 0% stage look larger than a 6% one.
+             The lit pills are the only encoding. */
+          const height = 100;
           return (
             <div key={st.id} className="flex h-full min-w-0 flex-1 flex-col justify-end">
               <span className="ops-num mb-2 text-body font-medium text-ops-text">{Math.round(pct * 100)}%</span>
@@ -870,9 +881,21 @@ export function Funnel({
 /* Segmented gauge — one ratio, drawn as chunks of a ring                     */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * A point on the arc, rounded.
+ *
+ * The rounding is not cosmetic. Trigonometry can land on a different final
+ * binary digit in Node than in the browser — 45.17585349808353 against
+ * ...354 — and React compares the server's path string to the client's
+ * character by character, so the gauge threw a hydration mismatch on every
+ * load. Three decimals is 1/1000 of a unit on a 200-unit viewBox: far below
+ * anything visible, and identical on both sides.
+ */
+const round = (n: number) => Number(n.toFixed(3));
+
 const polar = (cx: number, cy: number, r: number, deg: number): [number, number] => {
   const a = ((deg - 180) * Math.PI) / 180;
-  return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  return [round(cx + r * Math.cos(a)), round(cy + r * Math.sin(a))];
 };
 
 

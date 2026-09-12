@@ -367,6 +367,14 @@ Density rules that came out of the same pass:
 data. Read the relevant guide in `node_modules/next/dist/docs/` before writing
 framework code.
 
+**Round any coordinate that reaches the DOM.** Trigonometry lands on a
+different final binary digit in Node than in the browser — one gauge arc came
+out `45.17585349808353` on the server and `...354` on the client — and React
+compares path strings character by character, so the page threw a hydration
+mismatch on every load. `primitives.tsx` rounds to three decimals, which is a
+thousandth of a unit on a 200-unit viewBox. Any new chart that computes
+coordinates has to do the same.
+
 **Demo data is deterministic.** `NOW` in `lib/ops/data.ts` is a fixed clock
 (Fri 4 Sep 2026, 14:35 Toronto) and nothing is generated. Never use
 `Date.now()` or `Math.random()` in render — server and client would disagree
