@@ -136,6 +136,8 @@ export interface Partner {
 export interface ActivityEvent {
   id: string;
   at: number;
+  /** Person id, for the portrait lookup. */
+  actorId: string;
   actor: string;
   summary: string;
   amount: number | null;

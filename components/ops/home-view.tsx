@@ -4,6 +4,12 @@ import * as React from "react";
 import Link from "next/link";
 import {
   IconArrowRight,
+  IconChecklist,
+  IconDrivers,
+  IconExpenses,
+  IconLock,
+  IconMoney,
+  IconWallet,
   IconClose,
   IconDownload,
   IconPlus,
@@ -25,9 +31,9 @@ import {
   RowAction,
   ShareBar,
   StatusPill,
-  TONE_DOT,
 } from "./primitives";
 import { PageBody, PageHeader } from "./page-header";
+import type { StatusTone } from "@/lib/ops/types";
 import {
   ACTIVITY,
   CASH_NET,
@@ -179,6 +185,23 @@ function Figure({
 /* Actions pending                                                             */
 /* -------------------------------------------------------------------------- */
 
+/** The kind of work each item is, so the row has an anchor and not just a dot. */
+const ACTION_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  pa1: IconExpenses,
+  pa2: IconDrivers,
+  pa3: IconWallet,
+  pa4: IconMoney,
+  pa5: IconLock,
+};
+
+const ACTION_TILE: Record<StatusTone, string> = {
+  risk: "bg-ops-risk-bg text-ops-risk-fg",
+  warn: "bg-ops-warn-bg text-ops-warn-fg",
+  ok: "bg-ops-ok-bg text-ops-ok-fg",
+  move: "bg-ops-move-bg text-ops-move-fg",
+  idle: "bg-ops-idle-bg text-ops-idle-fg",
+};
+
 function PendingActions() {
   return (
     <Card className="flex h-full flex-col overflow-hidden">
@@ -187,24 +210,38 @@ function PendingActions() {
         subtitle={`${PENDING_ACTIONS.length} items, largest first, before ${PERIOD.label} can close.`}
       />
       <ul className="mt-5 flex flex-1 flex-col divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
-        {PENDING_ACTIONS.map((a) => (
-          <li key={a.id} className="flex min-h-14 flex-1 items-center gap-4 px-5">
-            <span className={cn("size-2 shrink-0 rounded-full", TONE_DOT[a.tone])} aria-hidden />
-            <span className="min-w-0 flex-1 truncate text-body text-ops-text">{a.label}</span>
-            {a.amount !== null ? (
-              <Money value={a.amount} tone={false} className="w-20 shrink-0 text-right text-body font-medium text-ops-text" />
-            ) : (
-              <span className="w-20 shrink-0" aria-hidden />
-            )}
-            <Link
-              href={a.href}
-              className="inline-flex h-8 w-[84px] shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-micro font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
-            >
-              {a.action}
-              <IconArrowRight className="size-3" />
-            </Link>
-          </li>
-        ))}
+        {PENDING_ACTIONS.map((a) => {
+          const Icon = ACTION_ICON[a.id] ?? IconChecklist;
+          return (
+            <li key={a.id} className="group flex min-h-16 flex-1 items-center gap-4 px-5 transition-colors hover:bg-ops-hover">
+              {/* Tinted by severity and shaped by the kind of work, so the row
+                  is identifiable before it is read — the dot it replaces
+                  carried the first of those and neither of the others. */}
+              <span className={cn("grid size-9 shrink-0 place-items-center rounded-[var(--ops-r-control)]", ACTION_TILE[a.tone])} aria-hidden>
+                <Icon className="size-4" />
+              </span>
+
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-body text-ops-text">{a.label}</span>
+                <span className="block truncate text-body text-ops-text-tertiary">{a.detail}</span>
+              </span>
+
+              {a.amount !== null ? (
+                <Money value={a.amount} tone={false} className="w-24 shrink-0 text-right text-body font-medium text-ops-text" />
+              ) : (
+                <span className="w-24 shrink-0" aria-hidden />
+              )}
+
+              <Link
+                href={a.href}
+                className="inline-flex h-8 w-24 shrink-0 items-center justify-center gap-1 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface text-body font-medium text-ops-text transition-colors hover:border-ops-accent hover:text-ops-accent"
+              >
+                {a.action}
+                <IconArrowRight className="size-3" />
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </Card>
   );
@@ -731,23 +768,49 @@ function LoggedThisPeriod() {
 /* -------------------------------------------------------------------------- */
 
 function RecentActivity() {
+  /* The client's feed groups by day — "Today", then "Earlier this week" — and
+     the grouping is what stops five near-identical lines reading as one
+     block. Derived from the fixed clock, not stored. */
+  const startOfToday = new Date(NOW);
+  startOfToday.setUTCHours(4, 0, 0, 0); // midnight Toronto
+  const groups = [
+    { key: "today", label: "Today", rows: ACTIVITY.filter((a) => a.at >= startOfToday.getTime()) },
+    { key: "earlier", label: "Earlier this week", rows: ACTIVITY.filter((a) => a.at < startOfToday.getTime()) },
+  ].filter((g) => g.rows.length > 0);
+
   return (
-    <Card className="overflow-hidden">
-      <ChartHead title="Recent activity" subtitle={`${ACTIVITY.length} events since ${formatDate(SINCE_LAST_VISIT.since)}.`} />
-      <ol className="mt-5 flex flex-1 flex-col divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
-        {ACTIVITY.map((ev) => (
-          <li key={ev.id} className="flex min-h-14 flex-1 items-center gap-3 px-5">
-            <span className={cn("size-2 shrink-0 rounded-full", TONE_DOT[ev.tone])} aria-hidden />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-body text-ops-text">
-                <span className="font-medium">{ev.actor}</span> {ev.summary}
-              </span>
-              <span className="block text-body text-ops-text-tertiary">{relativeTime(ev.at)}</span>
-            </span>
-            {ev.amount !== null && <Money value={ev.amount} tone={false} className="shrink-0 text-body font-medium text-ops-text" />}
-          </li>
+    <Card className="flex h-full flex-col overflow-hidden">
+      <ChartHead
+        title="Recent activity"
+        subtitle={`${ACTIVITY.length} events since ${formatDate(SINCE_LAST_VISIT.since)}.`}
+        action={<HeadAction href="/ops/expenses">View all</HeadAction>}
+      />
+      <div className="mt-5 flex flex-1 flex-col border-t border-dashed border-ops-line">
+        {groups.map((g) => (
+          <React.Fragment key={g.key}>
+            <div className="bg-ops-sunken px-5 py-2 text-body text-ops-text-tertiary">{g.label}</div>
+            <ol className="divide-y divide-dashed divide-ops-line">
+              {g.rows.map((ev) => (
+                <li key={ev.id} className="flex min-h-16 items-center gap-3 px-5 py-3">
+                  {/* The actor gets a face. A coloured dot said only that
+                      something happened; the portrait says who did it, which
+                      is the column's actual subject. */}
+                  <Avatar id={ev.actorId} name={ev.actor} initials={initialsOf(ev.actor)} className="size-9" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-body text-ops-text">
+                      <span className="font-medium">{ev.actor}</span> {ev.summary}
+                    </span>
+                    <span className="block text-body text-ops-text-tertiary">{relativeTime(ev.at)}</span>
+                  </span>
+                  {ev.amount !== null && (
+                    <Money value={ev.amount} tone={false} className="shrink-0 text-body font-medium text-ops-text" />
+                  )}
+                </li>
+              ))}
+            </ol>
+          </React.Fragment>
         ))}
-      </ol>
+      </div>
     </Card>
   );
 }

@@ -11,7 +11,7 @@
 
 /** Ids match `DRIVERS` and `PARTNERS` in `./data`. */
 const PORTRAIT_IDS = new Set([
-  "syed", "kiani",
+  "syed", "kiani", "abc",
   "prabh", "amir", "raj", "sajan",
   "d-a", "d-b", "d-c", "d-d", "d-e", "d-f",
   "d-g", "d-h", "d-i", "d-j", "d-k", "d-l",

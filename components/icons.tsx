@@ -31,6 +31,7 @@ import {
   ListViewIcon,
   LockIcon,
   Logout03Icon,
+  Money01Icon,
   Moon02Icon,
   Notification03Icon,
   PieChartIcon,
@@ -92,3 +93,4 @@ export const IconChecklist = make(CheckListIcon, "IconChecklist");
 export const IconActivity = make(Activity03Icon, "IconActivity");
 export const IconCalendar = make(Calendar03Icon, "IconCalendar");
 export const IconWallet = make(Wallet02Icon, "IconWallet");
+export const IconMoney = make(Money01Icon, "IconMoney");

@@ -468,11 +468,11 @@ const MIN = 60_000;
 const HOUR = 60 * MIN;
 
 export const ACTIVITY: ActivityEvent[] = [
-  { id: "a1", at: NOW - 2 * MIN,  actor: "ABC", summary: "logged 1 entry for Precision",  amount: 280,  entries: 1, tone: "move" },
-  { id: "a2", at: NOW - 2 * HOUR, actor: "ABC", summary: "logged 8 entries for Precision", amount: 1720, entries: 8, tone: "move" },
-  { id: "a3", at: NOW - 2 * HOUR - 25 * MIN, actor: "ABC", summary: "logged 5 entries for Intelcom", amount: 985, entries: 5, tone: "move" },
-  { id: "a4", at: NOW - 3 * HOUR, actor: "ABC", summary: "logged 2 entries for Rona",     amount: 360,  entries: 2, tone: "move" },
-  { id: "a5", at: NOW - 21 * HOUR, actor: "Syed", summary: "settled Prabh's payroll",     amount: 2850, entries: 0, tone: "ok" },
+  { id: "a1", at: NOW - 2 * MIN,  actorId: "abc", actor: "ABC", summary: "logged 1 entry for Precision",  amount: 280,  entries: 1, tone: "move" },
+  { id: "a2", at: NOW - 2 * HOUR, actorId: "abc", actor: "ABC", summary: "logged 8 entries for Precision", amount: 1720, entries: 8, tone: "move" },
+  { id: "a3", at: NOW - 2 * HOUR - 25 * MIN, actorId: "abc", actor: "ABC", summary: "logged 5 entries for Intelcom", amount: 985, entries: 5, tone: "move" },
+  { id: "a4", at: NOW - 3 * HOUR, actorId: "abc", actor: "ABC", summary: "logged 2 entries for Rona",     amount: 360,  entries: 2, tone: "move" },
+  { id: "a5", at: NOW - 21 * HOUR, actorId: "syed", actor: "Syed", summary: "settled Prabh's payroll",     amount: 2850, entries: 0, tone: "ok" },
 ];
 
 /**
@@ -577,6 +577,8 @@ export const CHECKLIST: ChecklistItem[] = [
 export interface PendingAction {
   id: string;
   label: string;
+  /** One line of context, derived from the item's own progress. */
+  detail: string;
   /** Money at stake. Null for an action that moves no money by itself. */
   amount: number | null;
   /** How far along the item is, in the unit the item counts in. */
@@ -593,11 +595,11 @@ export interface PendingAction {
  */
 export const PENDING_ACTIONS: PendingAction[] = (
   [
-    { id: "pa1", label: `Finalize ${DRAFT_REVENUE.length} draft payments`, amount: DRAFT_REVENUE_TOTAL, progress: { done: FINALIZED_REVENUE.length, total: REVENUE.length }, action: "Finalize", href: "/ops/financials?tab=revenue", tone: "warn" },
-    { id: "pa2", label: "Settle driver pay", amount: DRIVER_OUTSTANDING_TOTAL, progress: { done: DRIVERS_SETTLED, total: DRIVERS.length }, action: "Settle", href: "/ops/drivers", tone: "risk" },
-    { id: "pa3", label: "Record Precision payment — no revenue logged", amount: PRECISION_AT_RISK, progress: { done: 0, total: 1 }, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
-    { id: "pa4", label: `Pay ${UNPAID_BILLS.length} bill`, amount: UNPAID_BILL_TOTAL, progress: { done: 0, total: UNPAID_BILLS.length }, action: "Pay", href: "/ops/expenses", tone: "warn" },
-    { id: "pa5", label: `Close ${PERIOD.label} period`, amount: null, progress: { done: 0, total: 1 }, action: "Close", href: "/ops/financials?tab=close", tone: "idle" },
+    { id: "pa1", label: `Finalize ${DRAFT_REVENUE.length} draft payments`, detail: `${FINALIZED_REVENUE.length} of ${REVENUE.length} finalized · ${DRAFT_REVENUE.map((r) => companyName(r.companyId)).join(", ")}`, amount: DRAFT_REVENUE_TOTAL, progress: { done: FINALIZED_REVENUE.length, total: REVENUE.length }, action: "Finalize", href: "/ops/financials?tab=revenue", tone: "warn" },
+    { id: "pa2", label: "Settle driver pay", detail: `${DRIVERS_SETTLED} of ${DRIVERS.length} drivers settled`, amount: DRIVER_OUTSTANDING_TOTAL, progress: { done: DRIVERS_SETTLED, total: DRIVERS.length }, action: "Settle", href: "/ops/drivers", tone: "risk" },
+    { id: "pa3", label: "Record Precision payment — no revenue logged", detail: "Never paid since onboarding", amount: PRECISION_AT_RISK, progress: { done: 0, total: 1 }, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
+    { id: "pa4", label: `Pay ${UNPAID_BILLS.length} bill`, detail: "Global insurance · due Sep 15", amount: UNPAID_BILL_TOTAL, progress: { done: 0, total: UNPAID_BILLS.length }, action: "Pay", href: "/ops/expenses", tone: "warn" },
+    { id: "pa5", label: `Close ${PERIOD.label} period`, detail: `0 of ${CHECKLIST.length} steps complete`, amount: null, progress: { done: 0, total: 1 }, action: "Close", href: "/ops/financials?tab=close", tone: "idle" },
   ] satisfies PendingAction[]
 ).sort((a, b) => (b.amount ?? -1) - (a.amount ?? -1));
 
