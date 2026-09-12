@@ -22,14 +22,14 @@ export function PageHeader({
 }) {
   return (
     <div className={cn("border-b border-ops-line bg-ops-surface", className)}>
-      <div className="mx-auto flex max-w-[1480px] flex-wrap items-center gap-x-4 gap-y-2 px-5 pb-3 pt-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-6 pb-3 pt-4">
         <div className="min-w-0">
           <h1 className="text-[19px] font-semibold tracking-[-0.02em] text-ops-text">{title}</h1>
           {detail && <p className="mt-1 text-[12px] text-ops-text-secondary">{detail}</p>}
         </div>
         {actions && <div className="ml-auto flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
       </div>
-      {tabs && <div className="mx-auto max-w-[1480px] px-5">{tabs}</div>}
+      {tabs && <div className="px-6">{tabs}</div>}
     </div>
   );
 }
@@ -77,5 +77,10 @@ export function Tabs({
 
 /** Consistent page body gutter, so every screen lines up with every other. */
 export function PageBody({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn("mx-auto max-w-[1480px] px-5 py-4", className)}>{children}</div>;
+  /* Full width on a fixed 24px gutter, the same gutter as the top bar and footer,
+     so every band shares one left edge. A centred max-width column left ~100px
+     of dead margin either side on a 1920 monitor and put the page title 100px
+     right of the search field above it. Wide screens get wider tables, which
+     is what a ledger wants. */
+  return <div className={cn("px-6 py-4", className)}>{children}</div>;
 }

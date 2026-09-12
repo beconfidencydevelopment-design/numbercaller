@@ -160,7 +160,7 @@ export function AppShell({
         {/* Main column                                                    */}
         {/* ------------------------------------------------------------- */}
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-ops-line bg-ops-surface px-4">
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b border-ops-line bg-ops-surface px-6">
             <Link href="/ops" className="lg:hidden" aria-label="SNK Courier — Home">
               <BrandMark />
             </Link>
@@ -207,7 +207,7 @@ export function AppShell({
 
           <main className="min-h-0 flex-1 overflow-y-auto bg-ops-workspace">{children}</main>
 
-          <footer className="ops-num flex h-8 shrink-0 items-center gap-3 border-t border-ops-line bg-ops-surface px-4 text-[11px] text-ops-text-tertiary">
+          <footer className="ops-num flex h-8 shrink-0 items-center gap-3 border-t border-ops-line bg-ops-surface px-6 text-[11px] text-ops-text-tertiary">
             <span>
               Last updated {formatDateFull(NOW)}, {formatTime(NOW)}
             </span>
