@@ -719,11 +719,14 @@ export function LineChart({
             <span key={t}>{format(t)}</span>
           ))}
         </div>
+        {/* The plot takes an explicit height rather than filling its parent:
+            aspect ratio is not preserved, so with an automatic height the
+            viewBox dimensions set the plot's size and the card grew to match. */}
         <div className="relative min-w-0 flex-1">
           <svg
             viewBox={`0 0 ${W} ${H}`}
             preserveAspectRatio="none"
-            className="h-full min-h-[180px] w-full"
+            className="h-36 w-full"
             role="img"
             aria-label={series.map((s) => s.label).join(" and ")}
             onMouseMove={onMove}
@@ -768,7 +771,7 @@ export function LineChart({
           </svg>
           {active !== null && (
             <div
-              className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-body shadow-ops-pop"
+              className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-micro shadow-ops-pop"
               style={{ left: `${(x(active) / W) * 100}%`, transform: active > n / 2 ? "translateX(calc(-100% - 12px))" : "translateX(12px)" }}
             >
               <div className="text-ops-text-tertiary">{labels[active]}</div>
@@ -818,7 +821,7 @@ export function Funnel({
           grows with the card rather than sitting in a fixed 120px well. Each
           stage column is full height and bottom-aligned; its percentage rides
           directly above its own bars, which is what makes the step read. */}
-      <div className="flex min-h-40 flex-1 items-end gap-3">
+      <div className="flex min-h-28 flex-1 items-end gap-3">
         {stages.map((st, i) => {
           const pct = st.total > 0 ? st.done / st.total : 0;
           const lit = Math.round(pct * segments);
@@ -835,7 +838,7 @@ export function Funnel({
           );
         })}
       </div>
-      <div className="mt-4 flex gap-3">
+      <div className="mt-3 flex gap-3">
         {stages.map((st) => (
           <div key={st.id} className="min-w-0 flex-1">
             <div className="text-body leading-5 text-ops-text-secondary">{st.label}</div>

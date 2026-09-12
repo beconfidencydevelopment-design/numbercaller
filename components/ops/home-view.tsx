@@ -100,7 +100,7 @@ function ChartHead({
         {action && <div className="shrink-0">{action}</div>}
       </div>
       {figures && (
-        <div className="mt-4 flex flex-wrap items-start gap-8">
+        <div className="mt-3 flex flex-wrap items-start gap-8">
           {figures.map((f) => (
             <div key={f.key} className="min-w-0">
               <div className="flex items-center gap-2 text-body text-ops-text-secondary">
@@ -108,7 +108,7 @@ function ChartHead({
                 {f.label}
               </div>
               <div className="mt-1 flex items-center gap-2">
-                <span className="ops-figure text-display font-medium leading-none text-ops-text">{f.value}</span>
+                <span className="ops-figure text-figure font-medium leading-none text-ops-text">{f.value}</span>
                 {f.delta}
               </div>
             </div>
@@ -340,7 +340,7 @@ function RevenueExpenses() {
           },
         ]}
       />
-      <div className="flex flex-1 flex-col px-5 pb-5 pt-5">
+      <div className="flex flex-1 flex-col px-5 pb-4 pt-4">
         <LineChart
           labels={PERIODS.map((p) => p.label.split(" ")[0])}
           currentIndex={PERIODS.length - 1}
@@ -378,7 +378,7 @@ function PeriodClose() {
         subtitle={`Expenses logged, revenue finalized, drivers settled, bills paid — then ${PERIOD.label} can close.`}
         figures={[{ key: "steps", label: "Steps complete", value: `${complete} of ${stages.length}` }]}
       />
-      <div className="flex flex-1 flex-col px-5 pb-5 pt-6">
+      <div className="flex flex-1 flex-col px-5 pb-4 pt-4">
         <Funnel stages={stages} />
       </div>
     </Card>
