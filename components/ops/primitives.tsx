@@ -762,13 +762,27 @@ export function LineChart({
             {active !== null && (
               <line x1={x(active)} x2={x(active)} y1={PAD.t} y2={y(0)} stroke="var(--ops-line-strong)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
             )}
-            {series.map((s) => {
-              const i = active ?? n - 1;
-              return (
-                <circle key={s.id} cx={x(i)} cy={y(s.values[i])} r="4" fill={s.color} stroke="var(--ops-surface)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-              );
-            })}
           </svg>
+          {/* The end dots are HTML, not SVG. Aspect ratio is not preserved on
+              this plot, so the horizontal and vertical scales differ — 1.36
+              against 0.90 at this size — and an SVG circle came out as an
+              ellipse half again as wide as it was tall. Positioned in percent
+              over the same box, they stay round at any width. */}
+          {active !== null &&
+            series.map((s) => (
+              <span
+                key={s.id}
+                className="pointer-events-none absolute z-10 size-2 rounded-full ring-2 ring-ops-surface"
+                style={{
+                  background: s.color,
+                  left: `${(x(active) / W) * 100}%`,
+                  top: `${(y(s.values[active]) / H) * 100}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+                aria-hidden
+              />
+            ))}
+
           {active !== null && (
             <div
               className="pointer-events-none absolute top-2 z-10 rounded-[var(--ops-r-control)] border border-ops-line bg-ops-surface px-3 py-2 text-micro shadow-ops-pop"
