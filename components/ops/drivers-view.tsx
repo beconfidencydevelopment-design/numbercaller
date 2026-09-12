@@ -41,7 +41,7 @@ type View = "cards" | "table";
 const SORTS: Array<{ id: Sort; label: string }> = [
   { id: "amount_desc", label: "Outstanding (high to low)" },
   { id: "amount_asc", label: "Outstanding (low to high)" },
-  { id: "name", label: "Name (A–Z)" },
+  { id: "name", label: "Name (A-Z)" },
   { id: "company", label: "Company" },
 ];
 
@@ -314,14 +314,14 @@ export function DriversView() {
                         {d.carried > 0 ? (
                           <Money value={d.carried} tone={false} className="text-ops-warn-fg" />
                         ) : (
-                          <span className="text-ops-text-tertiary">—</span>
+                          <span className="text-ops-text-tertiary">None</span>
                         )}
                       </td>
                       <td className="px-3 text-right">
                         {d.settled > 0 ? (
                           <Money value={d.settled} tone={false} className="text-ops-ok-fg" />
                         ) : (
-                          <span className="text-ops-text-tertiary">—</span>
+                          <span className="text-ops-text-tertiary">Not yet</span>
                         )}
                       </td>
                       <td className="px-3 text-right">

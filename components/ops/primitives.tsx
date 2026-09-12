@@ -3,7 +3,8 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { portraitFor } from "@/lib/ops/people";
 import type { StatusTone } from "@/lib/ops/types";
-import { money } from "@/lib/ops/format";
+import { money, monogramOf } from "@/lib/ops/format";
+import { COMPANY_COLOR } from "@/lib/ops/data";
 
 /**
  * Saturated colour in this console means exactly one thing: the state of an
@@ -195,8 +196,9 @@ export function DeltaChip({
 }) {
   void good; // kept for callers; tint follows direction, as the reference and the client's build do
   const tone: StatusTone = dir === "flat" ? "idle" : dir === "up" ? "ok" : "risk";
-  // Flat reads "— 0%", as the client's cards print it; a bare "—0%" looks like a negative.
-  const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "— ";
+  // A sideways arrow for flat, so the three states are one glyph family. A
+  // dash here reads as a minus sign against the number that follows it.
+  const glyph = dir === "up" ? "↑" : dir === "down" ? "↓" : "→";
   return (
     <span className={cn("inline-flex items-baseline gap-2 text-body", className)}>
       {/* Tint only, no ring — the pill should sit on the card, not on top of it. */}
@@ -494,6 +496,46 @@ export function RowAction({
     >
       {children}
     </button>
+  );
+}
+
+/**
+ * A company, wherever one is named in a table.
+ *
+ * A neutral tile ringed in the company's own categorical colour — the same
+ * colour it takes in every chart on the console, so one company reads as one
+ * company across the product. The ring carries the hue because a solid tile
+ * cannot: white on the teal and the grey falls under 4.5:1, and every solid
+ * fails in dark.
+ *
+ * `size` is the tile edge. Rows on Home are 64px tall and take the 36px
+ * tile; a 40px ledger row takes 24px, which still reads two characters.
+ */
+export function CompanyTag({
+  id,
+  name,
+  size = 36,
+  className,
+}: {
+  id: string;
+  name: string;
+  size?: 24 | 36;
+  className?: string;
+}) {
+  return (
+    <span className={cn("flex min-w-0 items-center", size === 36 ? "gap-3" : "gap-2", className)}>
+      <span
+        className={cn(
+          "grid shrink-0 place-items-center rounded-[var(--ops-r-control)] bg-ops-sunken text-micro font-medium text-ops-text-secondary",
+          size === 36 ? "size-9" : "size-6",
+        )}
+        style={{ boxShadow: `inset 0 0 0 2px ${COMPANY_COLOR[id] ?? "var(--ops-line-strong)"}` }}
+        aria-hidden
+      >
+        {monogramOf(name)}
+      </span>
+      <span className="truncate font-medium">{name}</span>
+    </span>
   );
 }
 

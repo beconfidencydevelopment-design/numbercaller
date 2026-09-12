@@ -25,6 +25,7 @@ import {
   Cancel01Icon,
   CheckListIcon,
   CornerDownLeftIcon,
+  DeliveryTruck01Icon,
   Download04Icon,
   GridViewIcon,
   Invoice03Icon,
@@ -32,15 +33,19 @@ import {
   LockIcon,
   Logout03Icon,
   Money01Icon,
+  PetrolPumpIcon,
   Moon02Icon,
+  MoreHorizontalIcon,
   Notification03Icon,
   PieChartIcon,
   PlusSignIcon,
   Search01Icon,
+  Shield01Icon,
   Sun03Icon,
   Tick02Icon,
   UserGroupIcon,
   Wallet02Icon,
+  Wrench01Icon,
 } from "@hugeicons/core-free-icons";
 
 export type IconProps = {
@@ -94,3 +99,15 @@ export const IconActivity = make(Activity03Icon, "IconActivity");
 export const IconCalendar = make(Calendar03Icon, "IconCalendar");
 export const IconWallet = make(Wallet02Icon, "IconWallet");
 export const IconMoney = make(Money01Icon, "IconMoney");
+
+/* Expense categories.
+   Shape, not hue, is what separates these. The categorical palette is spoken
+   for by the companies, and a second colour axis on the same table would mean
+   two different things in one row. An outline also survives greyscale and
+   every form of colour blindness, which a tinted chip does not. */
+export const IconDriverPay = make(Wallet02Icon, "IconDriverPay");
+export const IconVehicle = make(DeliveryTruck01Icon, "IconVehicle");
+export const IconFuel = make(PetrolPumpIcon, "IconFuel");
+export const IconMaintenance = make(Wrench01Icon, "IconMaintenance");
+export const IconInsurance = make(Shield01Icon, "IconInsurance");
+export const IconOther = make(MoreHorizontalIcon, "IconOther");

@@ -170,7 +170,7 @@ export function ClientsView() {
             <div className={cn("mt-2 text-body", e.atRisk > 0 ? "text-ops-risk-fg/80" : "text-ops-text-tertiary")}>
               {active.lastPaymentAt === null
                 ? e.incurred > 0
-                  ? `Never paid — every dollar since ${formatMonth(active.onboardedAt)}`
+                  ? `Never paid, every dollar since ${formatMonth(active.onboardedAt)}`
                   : "No outstanding exposure"
                 : `Unpaid since ${formatDate(active.lastPaymentAt)}`}
             </div>
@@ -399,7 +399,7 @@ export function ClientsView() {
                     <td className="px-4 font-medium text-ops-text">{formatDate(p.at)}</td>
                     <td className="px-3 text-body text-ops-text-secondary">{METHOD_LABEL[p.method]}</td>
                     <td className="px-3 text-body text-ops-text-secondary">
-                      {formatDate(p.coversFrom)} – {formatDate(p.coversTo)}
+                      {formatDate(p.coversFrom)} to {formatDate(p.coversTo)}
                     </td>
                     <td className="px-4 text-right">
                       <Money value={p.amount} tone={false} className="font-medium text-ops-text" />

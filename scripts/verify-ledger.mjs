@@ -137,6 +137,24 @@ const clockUsers = sources.filter((f) =>
 );
 eq("no wall clock or randomness in render", clockUsers.join(", ") || "none", "none");
 
+/* --- Every company that appears in a chart or a tile has its own colour -----
+   A company with entries but no entry in COMPANY_COLOR falls back to grey in
+   the composition bar, the monogram tile and the ledger at once, which reads
+   as a rendering bug rather than as missing data. The business's own costs
+   are deliberately neutral and are the one exception. ------------------------ */
+const colouredCompanies = Object.keys(d.COMPANY_COLOR);
+const uncoloured = [...new Set(d.EXPENSES.map((e) => e.companyId))]
+  .filter((id) => id !== d.GLOBAL_COMPANY.id && !colouredCompanies.includes(id));
+eq("every company with entries has a colour", uncoloured.join(", ") || "none", "none");
+eq("the categorical palette is not overdrawn", colouredCompanies.length <= 4, true);
+
+/* --- The ledger's running total lands on the period total ------------------
+   The Expenses table accumulates from the bottom of the visible list upward,
+   so its first row prints the period total. If that identity ever broke, the
+   column and the page header would disagree in front of the client. -------- */
+const runningTop = d.EXPENSES.reduce((n, e) => n + e.amount, 0);
+eq("running total tops out at the period total", runningTop, d.EXPENSE_TOTAL);
+
 /* --- Nothing in the period is dated in the future -------------------------- */
 const future = [
   ...d.EXPENSES.map((e) => e.at),

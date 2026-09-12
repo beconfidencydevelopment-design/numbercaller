@@ -97,3 +97,12 @@ export const initialsOf = (name: string) =>
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+/**
+ * Two-letter tile for a company.
+ *
+ * Company names here are single words (Precision, Intelcom), so initials of
+ * words would give one letter and every tile would look alike. The first two
+ * characters keep six companies distinguishable at 36px.
+ */
+export const monogramOf = (name: string) => name.slice(0, 2).toUpperCase();

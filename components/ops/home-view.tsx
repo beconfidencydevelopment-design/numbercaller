@@ -21,6 +21,7 @@ import {
   Avatar,
   Button,
   Card,
+  CompanyTag,
   CompositionBar,
   DashedRule,
   DeltaChip,
@@ -42,6 +43,7 @@ import {
   CLOSED_PERIODS,
   COMPANIES,
   COMPANIES_WITH_ACTIVITY,
+  COMPANY_COLOR,
   CUMULATIVE_DISTRIBUTED,
   DAILY_AVERAGE,
   DAY_OF_PERIOD,
@@ -412,7 +414,7 @@ function PeriodClose() {
     <Card className="flex h-full flex-col overflow-hidden">
       <ChartHead
         title="Period close"
-        subtitle={`Expenses logged, revenue finalized, drivers settled, bills paid — then ${PERIOD.label} can close.`}
+        subtitle={`Expenses logged, revenue finalized, drivers settled, bills paid. Then ${PERIOD.label} can close.`}
         figures={[{ key: "steps", label: "Steps complete", value: `${complete} of ${stages.length}` }]}
       />
       <div className="flex flex-1 flex-col px-5 pb-4 pt-4">
@@ -512,7 +514,7 @@ function MonthByMonth() {
       </div>
       <p className="border-t border-dashed border-ops-line px-5 py-4 text-body leading-normal text-ops-text-tertiary">
         Distributed is what the partners split. For a period that closed with bills unpaid it is not revenue less
-        expenses — {CLOSED_PERIODS[1].label} carried {money(augGap)} of expense into September.
+        expenses. {CLOSED_PERIODS[1].label} carried {money(augGap)} of expense into September.
       </p>
     </Card>
   );
@@ -559,7 +561,6 @@ function DriverSettlement() {
 /* -------------------------------------------------------------------------- */
 
 /** Up to two letters, from the company name. */
-const monogramOf = (name: string) => name.slice(0, 2).toUpperCase();
 
 function Companies() {
   const rows = expensesByCompany().map(({ company, total }) => {
@@ -606,24 +607,11 @@ function Companies() {
             {rows.map(({ company, total, drivers, status }) => (
               <tr key={company.id} className="group h-16 transition-colors hover:bg-ops-hover">
                 <td className="px-5">
-                  {/* A neutral monogram tile ringed in the company's own
-                      categorical colour — the same colour it takes in the
-                      composition bar above, so one company reads as one
-                      company across the page. The ring carries the hue
-                      because a solid tile cannot: white on the teal and the
-                      grey falls under 4.5:1, and every solid fails in dark. */}
                   <Link
                     href={`/ops/clients?company=${company.id}`}
-                    className="flex items-center gap-3 text-ops-text hover:text-ops-accent"
+                    className="text-ops-text hover:text-ops-accent"
                   >
-                    <span
-                      className="grid size-9 shrink-0 place-items-center rounded-[var(--ops-r-control)] bg-ops-sunken text-micro font-medium text-ops-text-secondary"
-                      style={{ boxShadow: `inset 0 0 0 2px ${COMPANY_COLOR[company.id] ?? "var(--ops-line-strong)"}` }}
-                      aria-hidden
-                    >
-                      {monogramOf(company.name)}
-                    </span>
-                    <span className="font-medium">{company.name}</span>
+                    <CompanyTag id={company.id} name={company.name} />
                   </Link>
                 </td>
 
@@ -634,7 +622,7 @@ function Companies() {
                       <span className="ops-num block text-ops-text-tertiary">{daysAgo(company.lastPaymentAt)}</span>
                     </>
                   ) : (
-                    <span className="text-ops-text-tertiary">—</span>
+                    <span className="text-ops-text-tertiary">Never paid</span>
                   )}
                 </td>
 
@@ -659,7 +647,7 @@ function Companies() {
                       </span>
                     </span>
                   ) : (
-                    <span className="text-ops-text-tertiary">—</span>
+                    <span className="text-ops-text-tertiary">No drivers</span>
                   )}
                 </td>
 
@@ -700,13 +688,6 @@ function Companies() {
 /* -------------------------------------------------------------------------- */
 /* Logged this period — composition by company                                 */
 /* -------------------------------------------------------------------------- */
-
-const COMPANY_COLOR: Record<string, string> = {
-  precision: "var(--ops-cat-1)",
-  intelcom: "var(--ops-cat-2)",
-  rona: "var(--ops-cat-3)",
-  napa: "var(--ops-cat-4)",
-};
 
 function LoggedThisPeriod() {
   const byCompany = expensesByCompany();

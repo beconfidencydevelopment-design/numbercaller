@@ -123,6 +123,21 @@ export const COMPANIES: Company[] = [
 /** Costs that belong to the business rather than to a client company. */
 export const GLOBAL_COMPANY = { id: "global", name: "Global" };
 
+/**
+ * One company, one colour, everywhere on the console.
+ *
+ * Only the four companies with activity this period get a categorical hue —
+ * the palette is validated at four, and a fifth generated hue would fail the
+ * CVD separation check. Staples and Canpar have no entries to colour, and
+ * the business's own costs are deliberately neutral: they are not a client.
+ */
+export const COMPANY_COLOR: Record<string, string> = {
+  precision: "var(--ops-cat-1)",
+  intelcom: "var(--ops-cat-2)",
+  rona: "var(--ops-cat-3)",
+  napa: "var(--ops-cat-4)",
+};
+
 export const companyById = (id: string): Company | undefined =>
   COMPANIES.find((c) => c.id === id);
 
@@ -175,30 +190,30 @@ export const isSettled = (dr: Driver): boolean => outstandingFor(dr) === 0;
 type Raw = [string, string, ExpenseCategory, string | null, string, number, boolean];
 
 const RAW_EXPENSES: Raw[] = [
-  ["2026-09-04", "precision", "driver_pay", "prabh",  "Deliveries – 42 stops", 280, false],
-  ["2026-09-04", "precision", "driver_pay", "amir",   "Deliveries – 38 stops", 260, false],
-  ["2026-09-04", "intelcom",  "driver_pay", "d-a",    "Route east – 35 stops", 245, false],
-  ["2026-09-04", "intelcom",  "driver_pay", "d-b",    "Route west – 33 stops", 245, false],
-  ["2026-09-04", "rona",      "driver_pay", "mike",   "Deliveries – 12 stops", 180, false],
-  ["2026-09-04", "napa",      "driver_pay", "hassan", "Deliveries – 8 stops",  150, false],
-  ["2026-09-04", "intelcom",  "driver_pay", "d-c",    "Route north – 30 stops", 225, false],
-  ["2026-09-04", "precision", "driver_pay", "raj",    "Deliveries – 28 stops", 200, false],
+  ["2026-09-04", "precision", "driver_pay", "prabh",  "Deliveries · 42 stops", 280, false],
+  ["2026-09-04", "precision", "driver_pay", "amir",   "Deliveries · 38 stops", 260, false],
+  ["2026-09-04", "intelcom",  "driver_pay", "d-a",    "Route east · 35 stops", 245, false],
+  ["2026-09-04", "intelcom",  "driver_pay", "d-b",    "Route west · 33 stops", 245, false],
+  ["2026-09-04", "rona",      "driver_pay", "mike",   "Deliveries · 12 stops", 180, false],
+  ["2026-09-04", "napa",      "driver_pay", "hassan", "Deliveries · 8 stops",  150, false],
+  ["2026-09-04", "intelcom",  "driver_pay", "d-c",    "Route north · 30 stops", 225, false],
+  ["2026-09-04", "precision", "driver_pay", "raj",    "Deliveries · 28 stops", 200, false],
 
-  ["2026-09-03", "precision", "driver_pay", "prabh",  "Deliveries – 45 stops", 280, false],
-  ["2026-09-03", "precision", "driver_pay", "amir",   "Deliveries – 40 stops", 260, false],
-  ["2026-09-03", "intelcom",  "driver_pay", "d-d",    "Route south – 29 stops", 240, false],
+  ["2026-09-03", "precision", "driver_pay", "prabh",  "Deliveries · 45 stops", 280, false],
+  ["2026-09-03", "precision", "driver_pay", "amir",   "Deliveries · 40 stops", 260, false],
+  ["2026-09-03", "intelcom",  "driver_pay", "d-d",    "Route south · 29 stops", 240, false],
   ["2026-09-03", "global",    "insurance",  null,     "Monthly commercial vehicle insurance", 918, true],
 
-  ["2026-09-02", "precision", "driver_pay", "prabh",  "Deliveries – 41 stops", 280, false],
-  ["2026-09-02", "precision", "driver_pay", "amir",   "Deliveries – 37 stops", 260, false],
-  ["2026-09-02", "precision", "driver_pay", "raj",    "Deliveries – 26 stops", 200, false],
-  ["2026-09-02", "intelcom",  "driver_pay", "d-a",    "Route east – 34 stops", 245, false],
-  ["2026-09-02", "intelcom",  "driver_pay", "d-b",    "Route west – 32 stops", 240, false],
-  ["2026-09-02", "rona",      "driver_pay", "mike",   "Deliveries – 11 stops", 180, false],
-  ["2026-09-02", "napa",      "driver_pay", "hassan", "Deliveries – 7 stops",  150, false],
+  ["2026-09-02", "precision", "driver_pay", "prabh",  "Deliveries · 41 stops", 280, false],
+  ["2026-09-02", "precision", "driver_pay", "amir",   "Deliveries · 37 stops", 260, false],
+  ["2026-09-02", "precision", "driver_pay", "raj",    "Deliveries · 26 stops", 200, false],
+  ["2026-09-02", "intelcom",  "driver_pay", "d-a",    "Route east · 34 stops", 245, false],
+  ["2026-09-02", "intelcom",  "driver_pay", "d-b",    "Route west · 32 stops", 240, false],
+  ["2026-09-02", "rona",      "driver_pay", "mike",   "Deliveries · 11 stops", 180, false],
+  ["2026-09-02", "napa",      "driver_pay", "hassan", "Deliveries · 7 stops",  150, false],
 
-  ["2026-09-01", "precision", "vehicle_rent", null, "Fleet lease – September", 2577, true],
-  ["2026-09-01", "intelcom",  "vehicle_rent", null, "Fleet lease – September", 4422, true],
+  ["2026-09-01", "precision", "vehicle_rent", null, "Fleet lease · September", 2577, true],
+  ["2026-09-01", "intelcom",  "vehicle_rent", null, "Fleet lease · September", 4422, true],
   ["2026-09-01", "rona",      "fuel",         null, "Fuel card top-up",        240,  true],
   ["2026-09-01", "napa",      "fuel",         null, "Fuel card top-up",        150,  true],
 ];
@@ -374,8 +389,8 @@ export const paymentsFor = (companyId: string) =>
  * layout buries.
  */
 export const REVENUE: RevenueEntry[] = [
-  { id: "r1", at: d("2026-09-01"), companyId: "intelcom", coversLabel: "Aug 15–Aug 31", amount: 45156, state: "draft" },
-  { id: "r2", at: d("2026-09-01"), companyId: "rona", coversLabel: "Aug 1–Aug 15", amount: 12800, state: "draft" },
+  { id: "r1", at: d("2026-09-01"), companyId: "intelcom", coversLabel: "Aug 15 to Aug 31", amount: 45156, state: "draft" },
+  { id: "r2", at: d("2026-09-01"), companyId: "rona", coversLabel: "Aug 1 to Aug 15", amount: 12800, state: "draft" },
 ];
 
 export const DRAFT_REVENUE = REVENUE.filter((r) => r.state === "draft");
@@ -393,8 +408,8 @@ export const CASH_NET = CASH_RECEIVED - CASH_PAID_OUT; // -459
 
 export const RECURRING: RecurringEntry[] = [
   { id: "rc1", description: "Monthly commercial vehicle insurance", companyId: "global", category: "insurance", amount: 918, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
-  { id: "rc2", description: "Fleet lease – Precision", companyId: "precision", category: "vehicle_rent", amount: 2577, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
-  { id: "rc3", description: "Fleet lease – Intelcom", companyId: "intelcom", category: "vehicle_rent", amount: 4422, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
+  { id: "rc2", description: "Fleet lease · Precision", companyId: "precision", category: "vehicle_rent", amount: 2577, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
+  { id: "rc3", description: "Fleet lease · Intelcom", companyId: "intelcom", category: "vehicle_rent", amount: 4422, frequency: "monthly", nextAt: d("2026-10-01"), active: true },
 ];
 
 const driverPayrollOutstanding = DRIVERS.reduce((n, dr) => n + dr.logged - dr.settled, 0); // 11,050
@@ -413,8 +428,8 @@ export const OBLIGATIONS: Obligation[] = [
     carried: false,
   },
   { id: "o2", label: "Global insurance", detail: "Due Sep 15", amount: 918, overdue: false, carried: false },
-  { id: "o3", label: "Vehicle rent – Precision", detail: "Aug 2026 · carried forward", amount: 2577, overdue: true, carried: true },
-  { id: "o4", label: "Vehicle rent – Intelcom", detail: "Aug 2026 · carried forward", amount: 4422, overdue: true, carried: true },
+  { id: "o3", label: "Vehicle rent · Precision", detail: "Aug 2026 · carried forward", amount: 2577, overdue: true, carried: true },
+  { id: "o4", label: "Vehicle rent · Intelcom", detail: "Aug 2026 · carried forward", amount: 4422, overdue: true, carried: true },
 ];
 
 export const OBLIGATION_TOTAL = OBLIGATIONS.reduce((n, o) => n + o.amount, 0); // 18,967
@@ -597,7 +612,7 @@ export const PENDING_ACTIONS: PendingAction[] = (
   [
     { id: "pa1", label: `Finalize ${DRAFT_REVENUE.length} draft payments`, detail: `${FINALIZED_REVENUE.length} of ${REVENUE.length} finalized · ${DRAFT_REVENUE.map((r) => companyName(r.companyId)).join(", ")}`, amount: DRAFT_REVENUE_TOTAL, progress: { done: FINALIZED_REVENUE.length, total: REVENUE.length }, action: "Finalize", href: "/ops/financials?tab=revenue", tone: "warn" },
     { id: "pa2", label: "Settle driver pay", detail: `${DRIVERS_SETTLED} of ${DRIVERS.length} drivers settled`, amount: DRIVER_OUTSTANDING_TOTAL, progress: { done: DRIVERS_SETTLED, total: DRIVERS.length }, action: "Settle", href: "/ops/drivers", tone: "risk" },
-    { id: "pa3", label: "Record Precision payment — no revenue logged", detail: "Never paid since onboarding", amount: PRECISION_AT_RISK, progress: { done: 0, total: 1 }, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
+    { id: "pa3", label: "Record Precision payment · no revenue logged", detail: "Never paid since onboarding", amount: PRECISION_AT_RISK, progress: { done: 0, total: 1 }, action: "Add", href: "/ops/clients?company=precision", tone: "risk" },
     { id: "pa4", label: `Pay ${UNPAID_BILLS.length} bill`, detail: "Global insurance · due Sep 15", amount: UNPAID_BILL_TOTAL, progress: { done: 0, total: UNPAID_BILLS.length }, action: "Pay", href: "/ops/expenses", tone: "warn" },
     { id: "pa5", label: `Close ${PERIOD.label} period`, detail: `0 of ${CHECKLIST.length} steps complete`, amount: null, progress: { done: 0, total: 1 }, action: "Close", href: "/ops/financials?tab=close", tone: "idle" },
   ] satisfies PendingAction[]
