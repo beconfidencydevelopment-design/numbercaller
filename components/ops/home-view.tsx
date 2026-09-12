@@ -428,28 +428,56 @@ function PeriodClose() {
 
 function MonthByMonth() {
   const augGap = CLOSED_PERIODS[1].revenue - CLOSED_PERIODS[1].expenses - CLOSED_PERIODS[1].distributed;
+
+  /* Jan to June carried no activity in the client's annual overview, so these
+     three periods are the whole of the year so far — which is why the footer
+     can honestly be labelled year to date. Its distributed figure is the same
+     number the Partner split card shows as each partner's position to date;
+     they are the same sum and must never disagree. */
+  const total = {
+    revenue: PERIODS.reduce((n, p) => n + p.revenue, 0),
+    expenses: PERIODS.reduce((n, p) => n + p.expenses, 0),
+    distributed: PERIODS.reduce((n, p) => n + p.distributed, 0),
+  };
+
   return (
     <Card className="overflow-hidden">
-      <ChartHead title="Monthly comparison" subtitle="Revenue, expenses and what the partners split, for the last three periods." />
+      <ChartHead
+        title="Monthly comparison"
+        subtitle="Revenue, expenses and what the partners split, for the last three periods."
+      />
       <div className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[640px] text-body">
+        <table className="w-full min-w-[760px] text-body">
           <thead>
             <tr className="border-t border-dashed border-ops-line text-left">
-              <th className="ops-eyebrow px-5 py-3 font-medium">Period</th>
-              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Revenue</th>
-              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Expenses</th>
-              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Distributed</th>
-              <th className="ops-eyebrow px-3 py-3 text-right font-medium">Syed 35%</th>
-              <th className="ops-eyebrow px-5 py-3 text-right font-medium">Kiani 65%</th>
+              <th className="ops-eyebrow px-5 py-3 font-normal">Period</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Revenue</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Expenses</th>
+              <th className="ops-eyebrow px-3 py-3 text-right font-normal">Distributed</th>
+              {/* The partners get their faces in the header, the same portraits
+                  the Partner split card uses, so the two cards read as being
+                  about the same two people. */}
+              {PARTNERS.map((p) => (
+                <th key={p.id} className="ops-eyebrow px-3 py-3 text-right font-normal last:px-5">
+                  <span className="inline-flex items-center gap-2">
+                    <Avatar id={p.id} name={p.name} initials={initialsOf(p.name)} className="size-6" />
+                    {p.name} {Math.round(p.share * 100)}%
+                  </span>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-dashed divide-ops-line border-t border-dashed border-ops-line">
             {PERIODS.map((p) => (
-              <tr key={p.key} className="h-12">
+              <tr key={p.key} className="h-14 transition-colors hover:bg-ops-hover">
                 <td className="px-5">
                   <span className="flex items-center gap-2">
                     <span className="text-ops-text">{p.label}</span>
-                    {p.locked ? <StatusPill tone="idle" dot={false}>Closed</StatusPill> : <StatusPill tone="warn">Open</StatusPill>}
+                    {p.locked ? (
+                      <StatusPill tone="idle" dot={false}>Closed</StatusPill>
+                    ) : (
+                      <StatusPill tone="warn">Open</StatusPill>
+                    )}
                   </span>
                 </td>
                 <td className="px-3 text-right"><Money value={p.revenue} tone={false} className="text-ops-text-secondary" /></td>
@@ -457,7 +485,12 @@ function MonthByMonth() {
                 <td className="px-3 text-right">
                   <span className="inline-flex items-baseline gap-2">
                     <Money value={p.distributed} className="font-medium" />
-                    <span className="text-micro text-ops-text-tertiary" title={p.basis === "cash" ? "Cash basis: what actually left the bank." : "Accrual basis: revenue less expenses incurred."}>{p.basis}</span>
+                    <span
+                      className="text-micro text-ops-text-tertiary"
+                      title={p.basis === "cash" ? "Cash basis: what actually left the bank." : "Accrual basis: revenue less expenses incurred."}
+                    >
+                      {p.basis}
+                    </span>
                   </span>
                 </td>
                 <td className="px-3 text-right"><Money value={shareOf(PARTNERS[0], p.distributed)} /></td>
@@ -465,11 +498,21 @@ function MonthByMonth() {
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr className="border-t border-ops-line bg-ops-sunken font-medium">
+              <td className="px-5 py-4 text-ops-text">Year to date</td>
+              <td className="px-3 py-4 text-right"><Money value={total.revenue} tone={false} className="text-ops-text" /></td>
+              <td className="px-3 py-4 text-right"><Money value={total.expenses} tone={false} className="text-ops-text" /></td>
+              <td className="px-3 py-4 text-right"><Money value={total.distributed} /></td>
+              <td className="px-3 py-4 text-right"><Money value={shareOf(PARTNERS[0], total.distributed)} /></td>
+              <td className="px-5 py-4 text-right"><Money value={shareOf(PARTNERS[1], total.distributed)} /></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
-      <p className="border-t border-dashed border-ops-line px-5 py-4 text-body leading-[1.5] text-ops-text-tertiary">
-        Distributed is what the partners split. For a period that closed with bills unpaid it is not revenue less expenses —{" "}
-        {CLOSED_PERIODS[1].label} carried {money(augGap)} of expense into September.
+      <p className="border-t border-dashed border-ops-line px-5 py-4 text-body leading-normal text-ops-text-tertiary">
+        Distributed is what the partners split. For a period that closed with bills unpaid it is not revenue less
+        expenses — {CLOSED_PERIODS[1].label} carried {money(augGap)} of expense into September.
       </p>
     </Card>
   );

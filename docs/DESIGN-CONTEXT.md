@@ -383,7 +383,7 @@ for external state (`lib/ops/client-state.ts`) and precompute derived lists.
 
 ```
 node scripts/verify-contrast.mjs   # 190 colour pairs, both themes, + CVD + literals
-node scripts/verify-ledger.mjs     # 30 reconciliation checks on the books
+node scripts/verify-ledger.mjs     # 33 reconciliation checks on the books
 node scripts/verify-spacing.mjs    # every padding/margin/gap on the 4-80 scale
 node scripts/verify-type.mjs       # every size on the scale; no semibold
 ```

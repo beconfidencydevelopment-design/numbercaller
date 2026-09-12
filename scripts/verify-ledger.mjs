@@ -92,6 +92,27 @@ eq(
 );
 eq("partner shares sum to 100%", d.PARTNERS.reduce((n, p) => n + p.share, 0), 1);
 
+/* --- The same sum must not differ between two cards ------------------------ */
+/**
+ * Home shows the year-to-date distribution twice: as the footer of Monthly
+ * comparison, and as each partner's "to date" position on Partner split. They
+ * are the same sum, so they are asserted to be the same number — a figure that
+ * disagrees with itself across two cards on one screen is the exact class of
+ * defect this console was rebuilt to remove.
+ */
+eq(
+  "monthly footer total === cumulative distributed",
+  d.PERIODS.reduce((n, p) => n + p.distributed, 0),
+  d.CUMULATIVE_DISTRIBUTED,
+);
+for (const p of d.PARTNERS) {
+  eq(
+    `${p.name}: year-to-date share === position to date`,
+    d.shareOf(p, d.PERIODS.reduce((n, x) => n + x.distributed, 0)),
+    d.shareOf(p, d.CUMULATIVE_DISTRIBUTED),
+  );
+}
+
 /* --- Pacing ---------------------------------------------------------------- */
 eq("daily average", d.DAILY_AVERAGE, 3107);
 eq("pacing", d.PACING, 93210);
